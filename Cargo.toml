@@ -1,0 +1,70 @@
+[package]
+name = "vibeanvil"
+version = "0.1.0"
+edition = "2021"
+authors = ["VibeAnvil Contributors"]
+description = "Contract-first vibe coding with evidence, audit, and repo-brain harvesting"
+license = "MIT"
+repository = "https://github.com/ThanhNguyxn/vibeanvil"
+homepage = "https://github.com/ThanhNguyxn/vibeanvil"
+readme = "README.md"
+keywords = ["cli", "workflow", "coding", "contract", "audit"]
+categories = ["command-line-utilities", "development-tools"]
+
+[dependencies]
+# CLI framework
+clap = { version = "4.4", features = ["derive", "env", "string"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Async runtime and HTTP
+tokio = { version = "1.35", features = ["full"] }
+reqwest = { version = "0.11", features = ["json", "stream"] }
+
+# Database (SQLite with FTS5)
+rusqlite = { version = "0.30", features = ["bundled", "vtab"] }
+
+# Cryptography
+sha2 = "0.10"
+hex = "0.4"
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Utils
+uuid = { version = "1.6", features = ["v4", "serde"] }
+dirs = "5.0"
+walkdir = "2.4"
+glob = "0.3"
+regex = "1.10"
+tempfile = "3.9"
+flate2 = "1.0"
+tar = "0.4"
+async-trait = "0.1"
+which = "6.0"
+urlencoding = "2.1"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.0"
+tempfile = "3.9"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+opt-level = "z"
+
+[[bin]]
+name = "vibeanvil"
+path = "src/main.rs"

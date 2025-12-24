@@ -1,0 +1,34 @@
+# Build artifacts
+/target
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+*.env
+
+# Logs
+*.log
+
+# Test artifacts
+*.profraw
+lcov.info
+coverage/
+
+# Workspace runtime files (keep structure, ignore runtime)
+.vibeanvil/sessions/*/evidence/*
+.vibeanvil/logs/*
+.vibeanvil/cache/*
+
+# Ignore lock files in examples
+examples/**/*.lock

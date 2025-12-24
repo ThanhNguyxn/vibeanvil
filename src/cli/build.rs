@@ -1,0 +1,173 @@
+//! Build command handler
+
+use anyhow::Result;
+
+use crate::audit::{AuditLogger, generate_session_id};
+use crate::build::{AutoBuild, BuildConfig, BuildMode, ManualBuild};
+use crate::build::iterate::IterateBuild;
+use crate::cli::{BuildArgs, ManualBuildAction};
+use crate::state::State;
+use crate::workspace;
+
+pub async fn run(args: BuildArgs) -> Result<()> {
+    let state_data = workspace::load_state().await?;
+
+    if !state_data.current_state.is_at_least(State::PlanCreated) {
+        anyhow::bail!("Plan not created. Run 'vibeanvil plan' first.");
+    }
+
+    let session_id = generate_session_id();
+    let logger = AuditLogger::new(&session_id);
+
+    // Build config from args
+    let config = BuildConfig {
+        mode: match args.mode {
+            crate::cli::BuildMode::Manual => BuildMode::Manual,
+            crate::cli::BuildMode::Auto => BuildMode::Auto,
+            crate::cli::BuildMode::Iterate => BuildMode::Iterate,
+        },
+        provider: args.provider.clone(),
+        max_iterations: args.max,
+        strict: args.strict,
+        timeout_secs: args.timeout,
+        skip_tests: args.no_test,
+        skip_lint: args.no_lint,
+        capture_evidence: args.evidence,
+    };
+
+    match config.mode {
+        BuildMode::Manual => {
+            run_manual_build(&args, &session_id, &logger).await?;
+        }
+        BuildMode::Auto => {
+            run_auto_build(config, &session_id, &logger).await?;
+        }
+        BuildMode::Iterate => {
+            run_iterate_build(config, &session_id, &logger).await?;
+        }
+    }
+
+    Ok(())
+}
+
+async fn run_manual_build(args: &BuildArgs, session_id: &str, logger: &AuditLogger) -> Result<()> {
+    let action = args.action.clone().unwrap_or(ManualBuildAction::Start);
+    
+    match action {
+        ManualBuildAction::Start => {
+            // Update state to build in progress
+            let mut state = workspace::load_state().await?;
+            if state.current_state == State::PlanCreated {
+                state.transition_to(State::BuildInProgress, "build start", session_id)?;
+                workspace::save_state(&state).await?;
+                logger.log_state_transition("build start", State::PlanCreated, State::BuildInProgress).await?;
+            }
+
+            let mut build = ManualBuild::new(session_id).await?;
+            build.start().await?;
+        }
+        ManualBuildAction::Evidence => {
+            let build = ManualBuild::new(session_id).await?;
+            build.capture_evidence().await?;
+        }
+        ManualBuildAction::Complete => {
+            let build = ManualBuild::new(session_id).await?;
+            let result = build.complete().await?;
+            
+            // Update state to build done
+            let mut state = workspace::load_state().await?;
+            state.transition_to(State::BuildDone, "build complete", session_id)?;
+            workspace::save_state(&state).await?;
+            logger.log_state_transition("build complete", State::BuildInProgress, State::BuildDone).await?;
+
+            println!("✓ Build completed");
+            if result.success {
+                println!("Next: vibeanvil review start");
+            }
+        }
+    }
+
+    Ok(())
+}
+
+async fn run_auto_build(config: BuildConfig, session_id: &str, logger: &AuditLogger) -> Result<()> {
+    // Update state to build in progress
+    let mut state = workspace::load_state().await?;
+    if state.current_state == State::PlanCreated {
+        state.transition_to(State::BuildInProgress, "build auto", session_id)?;
+        workspace::save_state(&state).await?;
+        logger.log_state_transition("build auto start", State::PlanCreated, State::BuildInProgress).await?;
+    }
+
+    println!("🔧 Running auto build with {} provider...", config.provider);
+
+    let build = AutoBuild::new(config, session_id);
+    
+    // Read plan for context
+    let plan_path = workspace::workspace_path().join("plan.md");
+    let plan = tokio::fs::read_to_string(&plan_path).await.unwrap_or_default();
+    
+    let prompt = format!("Implement the following plan:\n\n{}", plan);
+    let result = build.execute(&prompt).await?;
+
+    // Update state to build done
+    let mut state = workspace::load_state().await?;
+    state.transition_to(State::BuildDone, "build auto complete", session_id)?;
+    workspace::save_state(&state).await?;
+    logger.log_state_transition("build auto complete", State::BuildInProgress, State::BuildDone).await?;
+
+    if result.success {
+        println!("✓ Auto build completed successfully");
+    } else {
+        println!("✗ Auto build completed with errors:");
+        for error in &result.errors {
+            println!("  - {}", error);
+        }
+    }
+
+    println!();
+    println!("Next: vibeanvil review start");
+
+    Ok(())
+}
+
+async fn run_iterate_build(config: BuildConfig, session_id: &str, logger: &AuditLogger) -> Result<()> {
+    // Update state to build in progress
+    let mut state = workspace::load_state().await?;
+    if state.current_state == State::PlanCreated {
+        state.transition_to(State::BuildInProgress, "build iterate", session_id)?;
+        workspace::save_state(&state).await?;
+        logger.log_state_transition("build iterate start", State::PlanCreated, State::BuildInProgress).await?;
+    }
+
+    println!("🔄 Running iterate build (max {} iterations)...", config.max_iterations);
+
+    let build = IterateBuild::new(config.clone(), session_id).await?;
+    
+    // Read plan for context
+    let plan_path = workspace::workspace_path().join("plan.md");
+    let plan = tokio::fs::read_to_string(&plan_path).await.unwrap_or_default();
+    
+    let prompt = format!("Implement the following plan:\n\n{}", plan);
+    let result = build.execute(&prompt).await?;
+
+    // Update state to build done
+    let mut state = workspace::load_state().await?;
+    state.transition_to(State::BuildDone, "build iterate complete", session_id)?;
+    workspace::save_state(&state).await?;
+    logger.log_state_transition("build iterate complete", State::BuildInProgress, State::BuildDone).await?;
+
+    if result.success {
+        println!("✓ Iterate build completed in {} iteration(s)", result.iterations);
+    } else {
+        println!("✗ Iterate build failed after {} iteration(s):", result.iterations);
+        for error in &result.errors {
+            println!("  - {}", error);
+        }
+    }
+
+    println!();
+    println!("Next: vibeanvil review start");
+
+    Ok(())
+}
