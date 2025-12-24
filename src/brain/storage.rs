@@ -352,7 +352,7 @@ impl BrainStorage {
         let reader = BufReader::new(input);
         let mut output = std::fs::File::create(output_path)?;
 
-        for line in reader.lines().flatten() {
+        for line in reader.lines().map_while(Result::ok) {
             if let Ok(mut record) = serde_json::from_str::<serde_json::Value>(&line) {
                 // Remove source_id if not requested
                 if !options.include_source_ids {
@@ -390,7 +390,7 @@ impl BrainStorage {
         let mut current_source = String::new();
         let mut record_count = 0;
 
-        for line in reader.lines().flatten() {
+        for line in reader.lines().map_while(Result::ok) {
             if let Ok(record) = serde_json::from_str::<BrainRecord>(&line) {
                 record_count += 1;
 
