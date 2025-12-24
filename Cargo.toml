@@ -64,8 +64,7 @@ semver = "1.0"
 inquire = "0.9"
 
 # File watching
-notify = "6.1"
-notify-debouncer-mini = "0.4"
+notify-debouncer-mini = "0.7.0"
 
 [dev-dependencies]
 assert_cmd = "2.0"
