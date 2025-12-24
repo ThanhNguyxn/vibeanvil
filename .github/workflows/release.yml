@@ -19,16 +19,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Linux
+          # Linux (x86_64 only - ARM requires complex cross-compile setup)
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             artifact: vibeanvil-linux-x64
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-musl
-            artifact: vibeanvil-linux-x64-musl
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-            artifact: vibeanvil-linux-arm64
           # macOS
           - os: macos-latest
             target: x86_64-apple-darwin
@@ -49,18 +43,6 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
-      - name: Install cross-compilation tools
-        if: matrix.target == 'aarch64-unknown-linux-gnu'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu
-
-      - name: Install musl tools
-        if: matrix.target == 'x86_64-unknown-linux-musl'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y musl-tools
-
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
         with:
@@ -68,8 +50,6 @@ jobs:
 
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
-        env:
-          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
 
       - name: Prepare artifact (Unix)
         if: runner.os != 'Windows'
