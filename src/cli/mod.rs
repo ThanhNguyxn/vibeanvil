@@ -12,12 +12,14 @@ pub mod init;
 pub mod intake;
 pub mod log;
 pub mod plan;
+pub mod progress;
 pub mod review;
 pub mod ship;
 pub mod snapshot;
 pub mod status;
 pub mod ui;
 pub mod update;
+pub mod watch;
 pub mod wizard;
 
 /// VibeAnvil - Contract-first vibe coding with evidence, audit, and repo-brain harvesting
@@ -187,6 +189,14 @@ pub struct BuildArgs {
     /// Capture evidence
     #[arg(long)]
     pub evidence: bool,
+
+    /// Watch mode - auto-rebuild on file changes (iterate mode only)
+    #[arg(long)]
+    pub watch: bool,
+
+    /// Resume from last saved progress
+    #[arg(long)]
+    pub resume: bool,
 
     /// Build action (for manual mode)
     #[arg(value_enum)]
