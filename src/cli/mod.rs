@@ -13,6 +13,7 @@ pub mod intake;
 pub mod log;
 pub mod plan;
 pub mod progress;
+pub mod providers;
 pub mod review;
 pub mod ship;
 pub mod snapshot;
@@ -130,6 +131,9 @@ pub enum Commands {
 
     /// Interactive wizard menu
     Wizard,
+
+    /// List available AI providers
+    Providers,
 }
 
 #[derive(Clone, ValueEnum)]

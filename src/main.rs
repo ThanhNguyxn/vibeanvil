@@ -58,5 +58,6 @@ async fn main() -> Result<()> {
         Commands::Upgrade => cli::update::upgrade().await,
         Commands::Doctor => cli::doctor::run().await,
         Commands::Wizard => cli::wizard::run().await,
+        Commands::Providers => cli::providers::run().await,
     }
 }

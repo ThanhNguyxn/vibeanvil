@@ -1,6 +1,9 @@
 //! Provider plugins for AI coding assistants
 
 pub mod claude_code;
+pub mod command;
+pub mod human;
+pub mod patch;
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
@@ -50,9 +53,18 @@ pub trait Provider: Send + Sync {
 pub fn get_provider(name: &str) -> Result<Box<dyn Provider>> {
     match name {
         "claude-code" | "claude" => Ok(Box::new(claude_code::ClaudeCodeProvider::new())),
+        "human" => Ok(Box::new(human::HumanProvider::new())),
+        "command" | "cmd" => Ok(Box::new(command::CommandProvider::new())),
+        "patch" | "diff" => Ok(Box::new(patch::PatchProvider::new())),
         "mock" => Ok(Box::new(MockProvider)),
         _ => Err(anyhow!(
-            "Unknown provider: {}. Available: claude-code, mock",
+            "Unknown provider: '{}'\n\nAvailable providers:\n  \
+             • claude-code  - Claude Code CLI (requires @anthropic-ai/claude-code)\n  \
+             • human        - Generate prompt for IDE assistants (Copilot/Cursor)\n  \
+             • command      - Execute external CLI agent (configure via env vars)\n  \
+             • patch        - Apply unified diffs (requires git)\n  \
+             • mock         - Testing only\n\n\
+             Run 'vibeanvil providers' for detailed information.",
             name
         )),
     }
@@ -60,7 +72,7 @@ pub fn get_provider(name: &str) -> Result<Box<dyn Provider>> {
 
 /// List available providers
 pub fn list_providers() -> Vec<&'static str> {
-    vec!["claude-code", "mock"]
+    vec!["claude-code", "human", "command", "patch", "mock"]
 }
 
 /// Mock provider for testing

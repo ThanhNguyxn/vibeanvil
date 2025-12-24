@@ -45,7 +45,7 @@
 | 📋 **Evidence & Audit** | JSONL audit trail with secret redaction |
 | 🔄 **Build Modes** | Manual, auto, iterate (test/lint/fix loop) |
 | 🧠 **BrainPack** | Dynamic repo harvesting into searchable knowledge base |
-| 🔌 **Provider Plugins** | Claude Code CLI adapter with extension points |
+| 🔌 **AI-Agnostic** | Works with Copilot, Cursor, Claude Code, any CLI agent |
 | 🔐 **Privacy-First** | Anonymized source IDs, no external URLs stored |
 
 ---
@@ -267,7 +267,42 @@ vibeanvil build iterate \
 
 ---
 
-## 🧠 BrainPack
+## � AI Providers
+
+VibeAnvil works with **any AI coding assistant**. See [docs/PROVIDERS.md](docs/PROVIDERS.md) for details.
+
+```bash
+# List available providers
+vibeanvil providers
+```
+
+### Using with GitHub Copilot / Cursor
+```bash
+# Use the human provider - generates a prompt file
+vibeanvil build iterate --provider human
+
+# 1. Open the generated prompt file (path shown in output)
+# 2. Paste into Copilot/Cursor/VS Code Chat
+# 3. Apply the AI's suggestions
+# 4. Complete the build:
+vibeanvil build manual evidence
+vibeanvil build manual complete
+```
+
+### Using with CLI Agents (Aider, etc.)
+```bash
+# Configure your CLI agent
+export VIBEANVIL_PROVIDER_COMMAND=aider
+export VIBEANVIL_PROVIDER_ARGS="--yes --message"
+export VIBEANVIL_PROVIDER_MODE=arg
+
+# Run with command provider
+vibeanvil build iterate --provider command
+```
+
+---
+
+## �🧠 BrainPack
 
 ### 🔍 Harvest Repositories
 
