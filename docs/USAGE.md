@@ -27,12 +27,17 @@ Comprehensive guide to using VibeAnvil commands with intent, prerequisites, and 
 
 ## 🔄 Workflow Overview
 
-```
-init → intake → blueprint → contract lock → plan → build → review → snapshot → ship
- │       │         │            │            │       │        │         │        │
- ▼       ▼         ▼            ▼            ▼       ▼        ▼         ▼        ▼
-Init  Intake  Blueprint  ContractLocked  Planned  Built  Reviewed  Snapshot  Shipped
-```
+| Step | Command | State |
+|------|---------|-------|
+| 1 | `init` | Init |
+| 2 | `intake` | IntakeCaptured |
+| 3 | `blueprint` | BlueprintGenerated |
+| 4 | `contract lock` | ContractLocked |
+| 5 | `plan` | Planned |
+| 6 | `build` | Built |
+| 7 | `review pass` | Reviewed |
+| 8 | `snapshot` | SnapshotCreated |
+| 9 | `ship` | Shipped |
 
 The state machine enforces this order. You cannot skip states or go backwards.
 
