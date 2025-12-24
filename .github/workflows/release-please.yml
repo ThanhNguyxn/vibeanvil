@@ -1,7 +1,13 @@
-# Release Please handles automated releases based on conventional commits
-# - feat: commits bump minor version
-# - fix: commits bump patch version
-# - BREAKING CHANGE: in footer bumps major version
+# Release Please - Automatic version bumping based on conventional commits
+# - feat: commits → bump minor version (0.x.0)
+# - fix: commits → bump patch version (0.0.x)
+# - BREAKING CHANGE: → bump major version (x.0.0)
+#
+# How it works:
+# 1. You push commits with conventional format (feat:, fix:, etc.)
+# 2. Release-please creates a "Release PR" with changelog
+# 3. When you merge the Release PR, it creates a GitHub release with tag
+# 4. The tag triggers release.yml to build binaries
 
 name: Release Please
 
@@ -25,14 +31,3 @@ jobs:
         id: release
         with:
           release-type: rust
-
-  # After release-please creates a tag, trigger the build workflow
-  trigger-build:
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Release created
-        run: |
-          echo "Release ${{ needs.release-please.outputs.tag_name }} created"
-          echo "The release.yml workflow will automatically trigger for this tag"
