@@ -267,6 +267,9 @@ pub struct BrainArgs {
 
 #[derive(Subcommand)]
 pub enum BrainCommands {
+    /// Ensure brain pack is initialized with core knowledge
+    Ensure,
+
     /// Show brain pack statistics
     Stats,
 

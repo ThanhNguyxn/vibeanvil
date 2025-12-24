@@ -441,6 +441,89 @@ impl BrainStorage {
         tokio::fs::write(output_path, &content).await?;
         Ok(output_path.to_string_lossy().to_string())
     }
+
+    /// Import the core brainpack from embedded data
+    pub async fn import_core(&self) -> Result<usize> {
+        // Embedded core brainpack JSONL
+        const CORE_JSONL: &str = include_str!("../../brainpacks/core/core.jsonl");
+
+        let mut count = 0;
+        let conn = Connection::open(&self.sqlite_path)?;
+
+        // First, insert the "core" source record to satisfy foreign key
+        conn.execute(
+            "INSERT OR REPLACE INTO sources (source_id, \"commit\", license, language, fetched_at, files_count, chunks_count)
+             VALUES ('core', 'embedded', 'MIT', 'mixed', datetime('now'), 0, 0)",
+            [],
+        )?;
+
+        // Also append to JSONL file
+        let mut jsonl_file = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(&self.jsonl_path)
+            .context("Failed to open JSONL file")?;
+
+        for line in CORE_JSONL.lines() {
+            if line.trim().is_empty() {
+                continue;
+            }
+
+            // Parse the core record format
+            let record: serde_json::Value =
+                serde_json::from_str(line).context("Failed to parse core JSONL line")?;
+
+            let source_id = record["source_id"].as_str().unwrap_or("core");
+            let record_type = record["type"].as_str().unwrap_or("template");
+            let title = record["title"].as_str().unwrap_or("");
+            let summary = record["summary"].as_str().unwrap_or("");
+            let signals = record["signals"].clone();
+            let tags = record["tags"].clone();
+
+            let signals_str = serde_json::to_string(&signals)?;
+            let tags_str = if let Some(arr) = tags.as_array() {
+                arr.iter()
+                    .filter_map(|v| v.as_str())
+                    .collect::<Vec<_>>()
+                    .join(",")
+            } else {
+                String::new()
+            };
+
+            // Insert chunks
+            if let Some(chunks) = record["chunks"].as_array() {
+                for chunk in chunks {
+                    let chunk_id = chunk["chunk_id"].as_str().unwrap_or("");
+                    let text = chunk["text"].as_str().unwrap_or("");
+                    let start_line = chunk["start_line"].as_u64().unwrap_or(1) as u32;
+                    let end_line = chunk["end_line"].as_u64().unwrap_or(1) as u32;
+
+                    conn.execute(
+                        "INSERT OR REPLACE INTO brain_chunks 
+                        (chunk_id, source_id, path, content_type, start_line, end_line, text, signals, tags)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        params![
+                            chunk_id,
+                            source_id,
+                            title, // Use title as path for core entries
+                            record_type,
+                            start_line,
+                            end_line,
+                            format!("{}\n\n{}", summary, text), // Combine summary and text for search
+                            signals_str,
+                            tags_str,
+                        ],
+                    )?;
+                }
+            }
+
+            // Append to JSONL
+            writeln!(jsonl_file, "{}", line)?;
+            count += 1;
+        }
+
+        Ok(count)
+    }
 }
 
 #[cfg(test)]

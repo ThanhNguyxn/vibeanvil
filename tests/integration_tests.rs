@@ -185,3 +185,31 @@ fn test_brain_stats_empty() {
         .success()
         .stdout(predicate::str::contains("Records:"));
 }
+
+#[test]
+fn test_brain_ensure_imports_core() {
+    let temp = TempDir::new().unwrap();
+
+    // First init workspace
+    vibeanvil()
+        .arg("init")
+        .current_dir(temp.path())
+        .assert()
+        .success();
+
+    // Run brain ensure
+    vibeanvil()
+        .args(["brain", "ensure"])
+        .current_dir(temp.path())
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Core BrainPack"));
+
+    // Verify search returns results
+    vibeanvil()
+        .args(["brain", "search", "contract"])
+        .current_dir(temp.path())
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("contract").or(predicate::str::contains("Contract")));
+}

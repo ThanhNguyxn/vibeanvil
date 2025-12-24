@@ -56,28 +56,40 @@ pub async fn run(force: bool) -> Result<()> {
     );
     println!();
 
+    // Core BrainPack info
+    println!(
+        "{}",
+        "🧠 Core BrainPack: Run 'vibeanvil brain ensure' to install".cyan()
+    );
+    println!(
+        "{}",
+        "   50+ templates for contracts, plans, and best practices".dimmed()
+    );
+    println!();
+
     println!("{}", "📋 Next Steps:".white().bold());
     println!();
+    println!("  {} {}", "1.".cyan(), "vibeanvil brain ensure".white());
     println!(
         "  {} {}",
-        "1.".cyan(),
+        "2.".cyan(),
         "vibeanvil intake -m \"Your project requirements\"".white()
     );
-    println!("  {} {}", "2.".cyan(), "vibeanvil blueprint --auto".white());
-    println!("  {} {}", "3.".cyan(), "vibeanvil contract create".white());
-    println!("  {} {}", "4.".cyan(), "vibeanvil contract lock".white());
+    println!("  {} {}", "3.".cyan(), "vibeanvil blueprint --auto".white());
+    println!("  {} {}", "4.".cyan(), "vibeanvil contract create".white());
+    println!("  {} {}", "5.".cyan(), "vibeanvil contract lock".white());
     println!();
 
     println!("{}", "💡 Tips:".yellow().bold());
     println!(
         "  {} {}",
         "•".dimmed(),
-        "Use 'vibeanvil status' to check current state".dimmed()
+        "Use 'vibeanvil brain search \"acceptance criteria\"' to find guidance".dimmed()
     );
     println!(
         "  {} {}",
         "•".dimmed(),
-        "Use 'vibeanvil log' to view audit trail".dimmed()
+        "Use 'vibeanvil status' to check current state".dimmed()
     );
     println!(
         "  {} {}",

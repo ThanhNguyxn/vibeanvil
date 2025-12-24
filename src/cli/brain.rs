@@ -9,6 +9,7 @@ use crate::cli::{BrainArgs, BrainCommands};
 
 pub async fn run(args: BrainArgs) -> Result<()> {
     match args.command {
+        BrainCommands::Ensure => ensure_core().await,
         BrainCommands::Stats => show_stats().await,
         BrainCommands::Search { query, limit } => search(&query, limit).await,
         BrainCommands::Export {
@@ -309,6 +310,106 @@ async fn export(
         );
     }
 
+    println!();
+
+    Ok(())
+}
+
+async fn ensure_core() -> Result<()> {
+    use indicatif::{ProgressBar, ProgressStyle};
+
+    println!();
+    println!(
+        "{}",
+        "╔═══════════════════════════════════════════════════════════════╗".cyan()
+    );
+    println!(
+        "{}",
+        "║               🧠 Core BrainPack Setup                         ║".cyan()
+    );
+    println!(
+        "{}",
+        "╚═══════════════════════════════════════════════════════════════╝".cyan()
+    );
+    println!();
+
+    let storage = BrainStorage::new().await?;
+
+    // Check if core is already imported
+    let stats = storage.stats().await?;
+    let has_core = stats.total_records > 0;
+
+    if has_core {
+        println!(
+            "  {} {}",
+            "✓".green(),
+            "Core BrainPack already installed".green().bold()
+        );
+        println!(
+            "  {} {} records, {} chunks available",
+            "📊".dimmed(),
+            stats.total_records.to_string().cyan(),
+            stats.total_chunks.to_string().cyan()
+        );
+        println!();
+        println!("{}", "─".repeat(50).dimmed());
+        println!(
+            "{}",
+            "💡 Try: vibeanvil brain search 'acceptance criteria'".dimmed()
+        );
+        println!();
+        return Ok(());
+    }
+
+    // Import core brainpack
+    let spinner = ProgressBar::new_spinner();
+    spinner.set_style(
+        ProgressStyle::default_spinner()
+            .template("{spinner:.cyan} {msg}")
+            .unwrap(),
+    );
+    spinner.set_message("Importing Core BrainPack...");
+    spinner.enable_steady_tick(std::time::Duration::from_millis(100));
+
+    let imported = storage.import_core().await?;
+    spinner.finish_and_clear();
+
+    println!(
+        "{}",
+        "┌─────────────────────────────────────────────┐".green()
+    );
+    println!(
+        "{}",
+        "│  ✅ Core BrainPack installed successfully!  │".green()
+    );
+    println!(
+        "{}",
+        "└─────────────────────────────────────────────┘".green()
+    );
+    println!();
+    println!(
+        "  {} Imported {} entries",
+        "📦".white(),
+        imported.to_string().cyan().bold()
+    );
+    println!();
+    println!("{}", "─".repeat(50).dimmed());
+    println!("{}", "💡 Quick starts:".white().bold());
+    println!(
+        "  {} {}",
+        "•".cyan(),
+        "vibeanvil brain search 'web contract'".white()
+    );
+    println!(
+        "  {} {}",
+        "•".cyan(),
+        "vibeanvil brain search 'acceptance criteria'".white()
+    );
+    println!(
+        "  {} {}",
+        "•".cyan(),
+        "vibeanvil brain search 'iterate loop'".white()
+    );
     println!();
 
     Ok(())

@@ -50,6 +50,34 @@
 
 ---
 
+## ⚡ 60-Second Quickstart
+
+```bash
+# 1. Install
+curl -fsSL https://raw.githubusercontent.com/ThanhNguyxn/vibeanvil/main/install.sh | bash
+
+# 2. Initialize workspace
+vibeanvil init
+
+# 3. Install Core BrainPack (50+ templates included!)
+vibeanvil brain ensure
+
+# 4. Search for guidance
+vibeanvil brain search "acceptance criteria"
+vibeanvil brain search "web contract"
+
+# 5. Start your workflow
+vibeanvil intake -m "Build a REST API for user management"
+vibeanvil blueprint --auto
+vibeanvil contract create
+vibeanvil contract lock   # 🔒 "Contract LOCKED = License to Build"
+```
+
+> 💡 **Core BrainPack ships with VibeAnvil!** No need to run `harvest` first.
+> Use `brain search` immediately to find templates for contracts, plans, and best practices.
+
+---
+
 ## 🚀 Features
 
 ### 🔐 Contract Locking
