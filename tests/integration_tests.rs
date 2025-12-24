@@ -183,5 +183,5 @@ fn test_brain_stats_empty() {
         .args(["brain", "stats"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Total records"));
+        .stdout(predicate::str::contains("Records:"));
 }
