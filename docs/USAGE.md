@@ -6,22 +6,22 @@ Comprehensive guide to using VibeAnvil commands with intent, prerequisites, and 
 
 ## 📋 Table of Contents
 
-- [Workflow Overview](#workflow-overview)
-- [Command Reference](#command-reference)
-  - [init](#init---initialize-workspace)
-  - [intake](#intake---capture-requirements)
-  - [blueprint](#blueprint---generate-blueprint)
-  - [contract](#contract---manage-contract)
-  - [plan](#plan---create-implementation-plan)
-  - [build](#build---execute-build)
-  - [review](#review---review-build)
-  - [snapshot](#snapshot---create-snapshot)
-  - [ship](#ship---ship-project)
-  - [status](#status---show-status)
-  - [log](#log---view-audit-log)
-  - [brain](#brain---manage-brainpack)
-  - [harvest](#harvest---harvest-github-repos)
-  - [update/upgrade](#updateupgrade---self-update)
+- [Workflow Overview](#-workflow-overview)
+- [Command Reference](#-command-reference)
+  - [init](#init--initialize-workspace)
+  - [intake](#intake--capture-requirements)
+  - [blueprint](#blueprint--generate-blueprint)
+  - [contract](#contract--manage-contract)
+  - [plan](#plan--create-implementation-plan)
+  - [build](#build--execute-build)
+  - [review](#review--review-build)
+  - [snapshot](#snapshot--create-snapshot)
+  - [ship](#ship--ship-project)
+  - [status](#status--show-status)
+  - [log](#log--view-audit-log)
+  - [brain](#brain--manage-brainpack)
+  - [harvest](#harvest--harvest-github-repos)
+  - [update/upgrade](#updateupgrade--self-update)
 
 ---
 
