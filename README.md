@@ -29,18 +29,18 @@
 
 ## 🌟 Overview
 
-**VibeAnvil** là một CLI production-grade thực thi quy trình phát triển **contract-first** với đầy đủ evidence capture và audit trails. Được build bằng Rust, ship dưới dạng single binary cross-platform không cần runtime dependencies.
+**VibeAnvil** is a production-grade CLI that enforces a **contract-first** development workflow with full evidence capture and audit trails. Built with Rust, it ships as a single cross-platform binary with no runtime dependencies.
 
-### ✨ Tại sao chọn VibeAnvil?
+### ✨ Why VibeAnvil?
 
 | Feature | Description |
 |---------|-------------|
-| 🔒 **Contract-First** | Enforced state machine từ intake đến ship |
-| 📋 **Evidence & Audit** | JSONL audit trail với secret redaction |
+| 🔒 **Contract-First** | Enforced state machine from intake to ship |
+| 📋 **Evidence & Audit** | JSONL audit trail with secret redaction |
 | 🔄 **Build Modes** | Manual, auto, iterate (test/lint/fix loop) |
-| 🧠 **BrainPack** | Dynamic repo harvesting vào searchable knowledge base |
-| 🔌 **Provider Plugins** | Claude Code CLI adapter với extension points |
-| 🔐 **Privacy-First** | Anonymized source IDs, không lưu external URLs |
+| 🧠 **BrainPack** | Dynamic repo harvesting into searchable knowledge base |
+| 🔌 **Provider Plugins** | Claude Code CLI adapter with extension points |
+| 🔐 **Privacy-First** | Anonymized source IDs, no external URLs stored |
 
 ---
 
@@ -50,9 +50,9 @@
 ```
 "Contract LOCKED = License to Build"
 ```
-- SHA-256 hash của contract
-- Immutable sau khi lock
-- Validation trước khi cho phép build
+- SHA-256 hash of contract content
+- Immutable once locked
+- Validation required before build permission
 
 ### 📊 State Machine
 ```
@@ -68,8 +68,8 @@ INIT → INTAKE → BLUEPRINT → CONTRACT_DRAFT → CONTRACT_LOCKED
 ```
 
 ### 🛡️ Evidence Capture
-- Git diff tự động capture
-- Build/test/lint logs
+- Automatic git diff capture
+- Build/test/lint log collection
 - Secret redaction (API keys, tokens, passwords)
 - Session-based organization
 
@@ -161,7 +161,7 @@ vibeanvil ship --tag v1.0.0
 | `intake` | Capture requirements | `vibeanvil intake -m "Build X"` |
 | `blueprint` | Generate blueprint | `vibeanvil blueprint --auto` |
 | `contract` | Manage contract | `vibeanvil contract create` |
-| `plan` | Create impl plan | `vibeanvil plan` |
+| `plan` | Create implementation plan | `vibeanvil plan` |
 | `build` | Execute build | `vibeanvil build iterate` |
 | `review` | Review changes | `vibeanvil review pass` |
 | `snapshot` | Create snapshot | `vibeanvil snapshot -m "v1"` |
@@ -171,7 +171,7 @@ vibeanvil ship --tag v1.0.0
 
 | Command | Description | Example |
 |---------|-------------|---------|
-| `harvest` | Harvest repos | `vibeanvil harvest --query "cli"` |
+| `harvest` | Harvest repositories | `vibeanvil harvest --query "cli"` |
 | `brain stats` | View statistics | `vibeanvil brain stats` |
 | `brain search` | Search brain | `vibeanvil brain search "pattern"` |
 | `brain export` | Export data | `vibeanvil brain export --format md` |
@@ -180,7 +180,7 @@ vibeanvil ship --tag v1.0.0
 
 | Command | Description | Example |
 |---------|-------------|---------|
-| `status` | Show status | `vibeanvil status -v` |
+| `status` | Show workflow status | `vibeanvil status -v` |
 | `log` | View audit log | `vibeanvil log -n 50` |
 
 ---
@@ -190,7 +190,7 @@ vibeanvil ship --tag v1.0.0
 ### 📝 Manual Mode
 ```bash
 vibeanvil build manual start
-# ... make changes ...
+# ... make your changes ...
 vibeanvil build manual evidence
 vibeanvil build manual complete
 ```
@@ -203,9 +203,9 @@ vibeanvil build auto --provider claude-code
 ### 🔄 Iterate Mode
 ```bash
 vibeanvil build iterate \
-  --max 10 \           # Max iterations
+  --max 10 \           # Maximum iterations
   --strict \           # Fail on first error
-  --timeout 300 \      # Timeout per iteration
+  --timeout 300 \      # Timeout per iteration (seconds)
   --evidence           # Capture evidence
 ```
 
@@ -213,7 +213,7 @@ vibeanvil build iterate \
 
 ## 🧠 BrainPack
 
-### 🔍 Harvest Repos
+### 🔍 Harvest Repositories
 
 ```bash
 vibeanvil harvest \
@@ -263,7 +263,7 @@ vibeanvil brain export --format jsonl
 # Markdown format
 vibeanvil brain export --format md
 
-# Include source IDs
+# Include anonymized source IDs
 vibeanvil brain export --include-source-ids=true
 ```
 
@@ -321,7 +321,7 @@ Automatically redacts:
 - 🔐 Passwords
 - 📜 PEM private keys
 
-### 🕵️ Privacy-First
+### 🕵️ Privacy-First Design
 
 - No external URLs stored by default
 - Anonymized source IDs (SHA-256 hash)
@@ -330,7 +330,7 @@ Automatically redacts:
 ### 📝 Audit Trail
 
 All operations logged to `.vibeanvil/logs/audit.jsonl`:
-- Command executed
+- Commands executed
 - State transitions
 - Timestamps
 - Session IDs
