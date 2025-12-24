@@ -5,22 +5,31 @@ $ErrorActionPreference = 'Stop'
 
 $InstallDir = "$HOME\.local\bin"
 
-# Colors
-$Blue = "`e[34m"
-$Green = "`e[32m"
-$Yellow = "`e[33m"
-$Red = "`e[31m"
-$Reset = "`e[0m"
+function Write-InfoMessage($Message) {
+    Write-Host "→ " -NoNewline -ForegroundColor Blue
+    Write-Host $Message
+}
 
-function Write-InfoMessage($Message) { Write-Host "${Blue}→${Reset} $Message" }
-function Write-SuccessMessage($Message) { Write-Host "${Green}✓${Reset} $Message" }
-function Write-WarningMessage($Message) { Write-Host "${Yellow}⚠${Reset} $Message" }
-function Write-ErrorMessage($Message) { Write-Host "${Red}✗${Reset} $Message"; exit 1 }
+function Write-SuccessMessage($Message) {
+    Write-Host "✓ " -NoNewline -ForegroundColor Green
+    Write-Host $Message
+}
+
+function Write-WarningMessage($Message) {
+    Write-Host "⚠ " -NoNewline -ForegroundColor Yellow
+    Write-Host $Message
+}
+
+function Write-ErrorMessage($Message) {
+    Write-Host "✗ " -NoNewline -ForegroundColor Red
+    Write-Host $Message
+    exit 1
+}
 
 Write-Host ""
-Write-Host "${Red}╔═══════════════════════════════════════════╗${Reset}"
-Write-Host "${Red}║        🗑️  VibeAnvil Uninstaller           ║${Reset}"
-Write-Host "${Red}╚═══════════════════════════════════════════╝${Reset}"
+Write-Host "╔═══════════════════════════════════════════╗" -ForegroundColor Red
+Write-Host "║        🗑️  VibeAnvil Uninstaller           ║" -ForegroundColor Red
+Write-Host "╚═══════════════════════════════════════════╝" -ForegroundColor Red
 Write-Host ""
 
 $InstallPath = Join-Path $InstallDir "vibeanvil.exe"
@@ -70,9 +79,9 @@ if (Test-Path $GlobalDir) {
 }
 
 Write-Host ""
-Write-Host "${Green}╔═══════════════════════════════════════════╗${Reset}"
-Write-Host "${Green}║     ✅ VibeAnvil uninstalled successfully  ║${Reset}"
-Write-Host "${Green}╚═══════════════════════════════════════════╝${Reset}"
+Write-Host "╔═══════════════════════════════════════════╗" -ForegroundColor Green
+Write-Host "║     ✅ VibeAnvil uninstalled successfully  ║" -ForegroundColor Green
+Write-Host "╚═══════════════════════════════════════════╝" -ForegroundColor Green
 Write-Host ""
 Write-Host "Thank you for using VibeAnvil! 👋"
 Write-Host ""
