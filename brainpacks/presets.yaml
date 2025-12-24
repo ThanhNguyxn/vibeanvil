@@ -1,0 +1,273 @@
+# VibeAnvil Harvest Presets
+# Query configurations for GitHub search-based harvesting
+# NO repository URLs - only query strings and filters
+
+# Default filters applied to all presets
+defaults:
+  min_stars: 50
+  updated_within_days: 365
+  max_repos: 20
+  download: tarball
+  ignore_globs:
+    - "**/test*/**"
+    - "**/docs/**"
+    - "**/examples/**"
+    - "**/*.test.*"
+    - "**/*.spec.*"
+
+presets:
+  # 1. Workflow and State Machine Patterns
+  workflow_state_machines:
+    name: "Workflow State Machines"
+    purpose: "Find CLI tools with state machine workflows, step-by-step processes, and state transitions"
+    signals:
+      - state_machine
+      - command_surface
+    queries:
+      - "state machine workflow cli"
+      - "fsm finite state"
+      - "step wizard flow"
+      - "transition state manager"
+    filters:
+      min_stars: 100
+      languages:
+        - Rust
+        - Go
+        - TypeScript
+    allow_globs:
+      - "**/*.rs"
+      - "**/*.go"
+      - "**/*.ts"
+      - "**/state*.rs"
+      - "**/workflow*.go"
+
+  # 2. Contract-First and Spec-Driven Development
+  contract_first_specs:
+    name: "Contract-First Specs"
+    purpose: "Find projects using contract-first, schema-driven, or spec-driven development patterns"
+    signals:
+      - contract_lock
+    queries:
+      - "contract first development"
+      - "schema driven api"
+      - "spec driven design"
+      - "openapi generator"
+      - "design by contract"
+    filters:
+      min_stars: 50
+      updated_within_days: 180
+    allow_globs:
+      - "**/*.yaml"
+      - "**/*.json"
+      - "**/contract*"
+      - "**/schema*"
+      - "**/spec*"
+
+  # 3. Evidence and Audit Logging
+  evidence_audit_logging:
+    name: "Evidence & Audit Logging"
+    purpose: "Find patterns for audit logs, evidence capture, structured logging, and compliance tracking"
+    signals:
+      - evidence_audit
+    queries:
+      - "audit log structured"
+      - "evidence capture trail"
+      - "compliance logging"
+      - "event sourcing log"
+      - "jsonl audit trail"
+    filters:
+      min_stars: 30
+    allow_globs:
+      - "**/*audit*"
+      - "**/*log*"
+      - "**/*event*"
+      - "**/*.jsonl"
+
+  # 4. Iterate Test-Fix Loops
+  iterate_test_fix_loops:
+    name: "Iterate Test-Fix Loops"
+    purpose: "Find automated test-fix loops, autofix patterns, and iterative development tools"
+    signals:
+      - iterate_loop
+    queries:
+      - "autofix lint auto"
+      - "test fix loop retry"
+      - "lint fix automated"
+      - "watch test rerun"
+      - "iterative improvement"
+    filters:
+      min_stars: 50
+    allow_globs:
+      - "**/*.rs"
+      - "**/*.ts"
+      - "**/*.go"
+      - "**/fix*"
+      - "**/lint*"
+
+  # 5. Release Installers and Checksums
+  release_installers_checksums:
+    name: "Release Installers & Checksums"
+    purpose: "Find release automation, install scripts, checksum verification, and distribution patterns"
+    signals:
+      - release_install
+      - security_pattern
+    queries:
+      - "installer script release"
+      - "checksum sha256 verify"
+      - "curl install bash"
+      - "release automation binary"
+      - "cross compile release"
+    filters:
+      min_stars: 100
+    allow_globs:
+      - "**/install*"
+      - "**/release*"
+      - "**/*.sh"
+      - "**/*.ps1"
+      - "**/checksums*"
+
+  # 6. CLI Framework Patterns (Rust/Go/Node)
+  cli_framework_patterns:
+    name: "CLI Framework Patterns"
+    purpose: "Find CLI framework implementations, argument parsing, and command structure patterns"
+    signals:
+      - command_surface
+      - state_machine
+    queries:
+      - "cli framework argument parsing"
+      - "command line tool subcommand"
+      - "clap structopt"
+      - "cobra cli go"
+      - "oclif commander"
+    filters:
+      min_stars: 200
+      languages:
+        - Rust
+        - Go
+        - TypeScript
+        - JavaScript
+    allow_globs:
+      - "**/cli*"
+      - "**/cmd*"
+      - "**/command*"
+      - "**/*.rs"
+      - "**/*.go"
+
+  # 7. Security Redaction and Ignore Rules
+  security_redaction_ignore_rules:
+    name: "Security Redaction & Ignore"
+    purpose: "Find secret detection, redaction patterns, ignore rules, and security scanning implementations"
+    signals:
+      - security_pattern
+    queries:
+      - "secret redaction detection"
+      - "gitignore security pattern"
+      - "credential scan filter"
+      - "sensitive data mask"
+      - "api key detection"
+    filters:
+      min_stars: 50
+    allow_globs:
+      - "**/*secret*"
+      - "**/*redact*"
+      - "**/*security*"
+      - "**/*ignore*"
+
+  # 8. Templates and Scaffolding
+  templates_and_scaffolding:
+    name: "Templates & Scaffolding"
+    purpose: "Find project scaffolding, template generation, and boilerplate patterns"
+    signals:
+      - command_surface
+    queries:
+      - "scaffolding generator template"
+      - "project initializer bootstrap"
+      - "boilerplate cookiecutter"
+      - "create starter kit"
+      - "yeoman generator"
+    filters:
+      min_stars: 100
+    allow_globs:
+      - "**/template*"
+      - "**/scaffold*"
+      - "**/generator*"
+      - "**/create*"
+
+  # 9. Documentation Quality and Onboarding
+  docs_quality_onboarding:
+    name: "Docs Quality & Onboarding"
+    purpose: "Find excellent documentation patterns, onboarding flows, and developer experience"
+    signals:
+      - evidence_audit
+    queries:
+      - "documentation excellent devex"
+      - "getting started quickstart"
+      - "onboarding developer experience"
+      - "readme structure best"
+      - "tutorial guide walkthrough"
+    filters:
+      min_stars: 500
+    allow_globs:
+      - "**/*.md"
+      - "**/docs/**"
+      - "**/README*"
+
+  # 10. Provider Adapters (AI CLI Integration)
+  provider_adapters:
+    name: "Provider Adapters"
+    purpose: "Find AI CLI integrations, provider abstraction layers, and plugin patterns"
+    signals:
+      - provider_adapter
+    queries:
+      - "ai cli integration adapter"
+      - "llm provider abstraction"
+      - "plugin adapter pattern"
+      - "claude openai sdk"
+      - "provider factory pattern"
+    filters:
+      min_stars: 50
+      updated_within_days: 180
+    allow_globs:
+      - "**/*provider*"
+      - "**/*adapter*"
+      - "**/*plugin*"
+      - "**/*ai*"
+
+  # 11. Error Handling Patterns
+  error_handling_patterns:
+    name: "Error Handling Patterns"
+    purpose: "Find robust error handling, recovery patterns, and resilient code structures"
+    signals:
+      - iterate_loop
+    queries:
+      - "error handling rust result"
+      - "retry exponential backoff"
+      - "graceful degradation"
+      - "circuit breaker pattern"
+      - "error recovery resilient"
+    filters:
+      min_stars: 100
+    allow_globs:
+      - "**/*error*"
+      - "**/*result*"
+      - "**/*.rs"
+      - "**/*.go"
+
+  # 12. Configuration Management
+  configuration_management:
+    name: "Configuration Management"
+    purpose: "Find configuration file handling, environment variable management, and config patterns"
+    signals:
+      - command_surface
+    queries:
+      - "config management toml yaml"
+      - "environment variable dotenv"
+      - "configuration hierarchy"
+      - "settings provider pattern"
+    filters:
+      min_stars: 50
+    allow_globs:
+      - "**/*config*"
+      - "**/*.toml"
+      - "**/*.yaml"
+      - "**/*.yml"

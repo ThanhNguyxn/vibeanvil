@@ -13,6 +13,7 @@ Welcome to the VibeAnvil documentation! This folder contains detailed guides for
 | [🔧 Commands Reference](commands.md) | All CLI commands explained |
 | [📁 Data Layout](DATA_LAYOUT.md) | Where data is stored (workspace + cache) |
 | [🔍 Data Sources](DATA_SOURCES.md) | Discovery strategies for harvest |
+| [🎯 Harvest Presets](HARVEST_PRESETS.md) | Pre-configured search presets |
 | [❓ FAQ](faq.md) | Frequently asked questions |
 
 ## 🎯 What is VibeAnvil?

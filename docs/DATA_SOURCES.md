@@ -12,6 +12,83 @@ VibeAnvil's `harvest` command searches GitHub to build your knowledge base. This
 
 ---
 
+## 📊 Data Source Framework
+
+VibeAnvil supports multiple data source types, each with specific extraction strategies:
+
+### A. GitHub Search (Primary)
+
+**What we extract:**
+- CLI command structures and argument parsing patterns
+- State machine implementations and workflow designs
+- Audit logging and evidence capture patterns
+- Test-fix loops and iterative development patterns
+- Release automation and install scripts
+- Security patterns and redaction rules
+
+**What we avoid:**
+- ❌ Copyrighted text (verbatim copying)
+- ❌ External URLs (not stored)
+- ❌ Secrets, credentials, API keys
+- ❌ Large binary files
+
+**How to operationalize:**
+```bash
+# Use harvest presets (recommended)
+vibeanvil harvest --preset cli_framework_patterns
+
+# Or manual queries
+vibeanvil harvest -q "state machine workflow" -l rust --min-stars 100
+```
+
+### B. Package Registries (Discovery Only)
+
+Use package registries to **discover keywords and concepts**, then search GitHub:
+
+| Registry | Discovery Keywords |
+|----------|-------------------|
+| **crates.io** | `cli`, `workflow`, `state-machine`, `audit` |
+| **npm** | `cli-framework`, `commander`, `state-machine` |
+| **PyPI** | `cli`, `workflow`, `audit-log`, `release-it` |
+
+**Process:**
+1. Browse trending packages in your language
+2. Identify common patterns and terms
+3. Use those terms in GitHub harvest queries
+4. Never link to or embed registry packages
+
+### C. Official Documentation (Reference Only)
+
+Learn patterns from authoritative sources, then rewrite in your own words:
+
+| Topic | Official Source |
+|-------|-----------------|
+| GitHub Search | GitHub Docs |
+| GitHub Releases | GitHub Docs |
+| SQLite FTS5 | SQLite Documentation |
+| Semantic Versioning | semver.org |
+| Conventional Commits | conventionalcommits.org |
+
+**Rules:**
+- ✅ Read and understand patterns
+- ✅ Paraphrase in Core BrainPack
+- ❌ Copy text verbatim
+- ❌ Link to external URLs in data
+
+### D. Community Contributions (Future)
+
+Users can contribute owner-authored templates:
+
+**Format:** JSONL entries with `source_id: "community:<author>"`
+
+**Requirements:**
+- Original, owner-authored content
+- No external URLs
+- No copyrighted material
+- Follow BrainRecord schema
+
+---
+
 ## 🏷️ GitHub Discovery Methods
 
 ### Topics to Explore
