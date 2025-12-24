@@ -17,11 +17,17 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/sponsors/ThanhNguyxn"><img src="https://img.shields.io/badge/Sponsor-❤️-ea4aaa?style=for-the-badge&logo=github" alt="GitHub Sponsors"></a>
+  <a href="https://buymeacoffee.com/thanhnguyxn"><img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-☕-ffdd00?style=for-the-badge&logo=buy-me-a-coffee" alt="Buy Me A Coffee"></a>
+</p>
+
+<p align="center">
   <a href="#-features">Features</a> •
   <a href="#-installation">Installation</a> •
   <a href="#-workflow">Workflow</a> •
   <a href="#-commands">Commands</a> •
   <a href="#-brainpack">BrainPack</a> •
+  <a href="docs/">📚 Docs</a> •
   <a href="#-contributing">Contributing</a>
 </p>
 
@@ -114,6 +120,28 @@ cargo build --release
 - **Rust**: 1.75+ (for building from source)
 - **Git**: For evidence capture
 - **GITHUB_TOKEN** (optional): For higher API rate limits
+
+### 🔄 Update / Upgrade
+
+```bash
+# Check for updates
+vibeanvil update
+
+# Download and install latest version
+vibeanvil upgrade
+```
+
+### 🗑️ Uninstall
+
+**Windows:**
+```powershell
+irm https://raw.githubusercontent.com/ThanhNguyxn/vibeanvil/main/uninstall.ps1 | iex
+```
+
+**Linux/macOS:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/ThanhNguyxn/vibeanvil/main/uninstall.sh | bash
+```
 
 ---
 
@@ -377,6 +405,27 @@ This project is licensed under the **MIT License** - see [LICENSE](LICENSE) file
 
 ---
 
+## 💖 Support VibeAnvil
+
+If you find VibeAnvil useful, consider supporting the project!
+
+<p align="center">
+  <a href="https://github.com/sponsors/ThanhNguyxn">
+    <img src="https://img.shields.io/badge/Sponsor_on_GitHub-❤️-ea4aaa?style=for-the-badge&logo=github" alt="GitHub Sponsors">
+  </a>
+  <a href="https://buymeacoffee.com/thanhnguyxn">
+    <img src="https://img.shields.io/badge/Buy_Me_A_Coffee-☕-ffdd00?style=for-the-badge&logo=buy-me-a-coffee" alt="Buy Me A Coffee">
+  </a>
+</p>
+
+Your support helps us:
+- 🚀 Add new features
+- 🐛 Fix bugs faster
+- 📚 Improve documentation
+- 🌍 Support more platforms
+
+---
+
 <p align="center">
   Made with ❤️ by <a href="https://github.com/ThanhNguyxn">ThanhNguyxn</a>
 </p>
@@ -386,3 +435,4 @@ This project is licensed under the **MIT License** - see [LICENSE](LICENSE) file
   <a href="https://github.com/ThanhNguyxn/vibeanvil/issues">🐛 Report Bug</a> •
   <a href="https://github.com/ThanhNguyxn/vibeanvil/issues">💡 Request Feature</a>
 </p>
+
