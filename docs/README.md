@@ -7,9 +7,12 @@ Welcome to the VibeAnvil documentation! This folder contains detailed guides for
 | Guide | Description |
 |-------|-------------|
 | [🚀 Getting Started](getting-started.md) | Installation and first steps |
+| [📖 Usage Guide](USAGE.md) | Comprehensive command usage guide |
 | [📋 Workflow Guide](workflow.md) | Complete workflow from intake to ship |
-| [🧠 BrainPack Guide](brainpack.md) | Harvesting and using knowledge |
+| [🧠 BrainPack Guide](brainpack.md) | Core BrainPack + harvesting knowledge |
 | [🔧 Commands Reference](commands.md) | All CLI commands explained |
+| [📁 Data Layout](DATA_LAYOUT.md) | Where data is stored (workspace + cache) |
+| [🔍 Data Sources](DATA_SOURCES.md) | Discovery strategies for harvest |
 | [❓ FAQ](faq.md) | Frequently asked questions |
 
 ## 🎯 What is VibeAnvil?

@@ -18,7 +18,37 @@ BrainPack is VibeAnvil's **privacy-first knowledge harvesting** system. It:
 
 ## 🚀 Quick Start
 
-### 1. Harvest Some Repos
+### Option 1: Install Core BrainPack (Recommended)
+
+VibeAnvil ships with a **Core BrainPack** containing 50+ owner-authored templates for contracts, plans, evidence patterns, and more.
+
+```bash
+# Install Core BrainPack (one-time, idempotent)
+vibeanvil brain ensure
+```
+
+Output:
+```
+🧠 Core BrainPack Setup
+═══════════════════════════════════════
+
+  ✅ Core BrainPack installed successfully!
+  📦 Imported 50 entries
+
+💡 Quick starts:
+  • vibeanvil brain search 'web contract'
+  • vibeanvil brain search 'acceptance criteria'
+```
+
+Now search immediately:
+```bash
+vibeanvil brain search "acceptance criteria"
+vibeanvil brain search "iterate loop"
+```
+
+### Option 2: Harvest GitHub Repos
+
+Extend your BrainPack with external content:
 
 ```bash
 # Harvest top Rust CLI projects

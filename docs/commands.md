@@ -263,6 +263,26 @@ vibeanvil harvest -q "react hooks" -q "state management" --max-repos 30
 vibeanvil brain <COMMAND>
 ```
 
+#### `brain ensure`
+Install Core BrainPack (50+ templates). Safe to run repeatedly.
+
+```bash
+vibeanvil brain ensure
+```
+
+Output:
+```
+🧠 Core BrainPack Setup
+═══════════════════════════════════════
+
+  ✅ Core BrainPack installed successfully!
+  📦 Imported 50 entries
+
+💡 Quick starts:
+  • vibeanvil brain search 'web contract'
+  • vibeanvil brain search 'acceptance criteria'
+```
+
 #### `brain stats`
 ```bash
 vibeanvil brain stats

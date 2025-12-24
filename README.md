@@ -402,6 +402,47 @@ All operations logged to `.vibeanvil/logs/audit.jsonl`:
 
 ---
 
+## 🔧 Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| "Workspace not initialized" | Run `vibeanvil init` first |
+| "Wrong state" error | Run `vibeanvil status` to see current state and next step |
+| "Contract already locked" | Contract is immutable once locked - start new workspace if needed |
+| No search results | Run `vibeanvil brain ensure` to install Core BrainPack |
+| Empty BrainPack | Run `vibeanvil brain ensure` or use `harvest` to populate |
+| Rate limited by GitHub | Set `GITHUB_TOKEN` environment variable |
+
+### Debug Commands
+
+```bash
+# Check current state and workflow progress
+vibeanvil status -v
+
+# View recent audit log entries
+vibeanvil log -n 50
+
+# Check BrainPack statistics
+vibeanvil brain stats
+
+# Check for updates
+vibeanvil update
+```
+
+### Where Data Lives
+
+| Location | Path | Scope |
+|----------|------|-------|
+| Workspace | `.vibeanvil/` (in project) | Per-project |
+| BrainPack | `~/.cache/vibeanvil/brainpack/` (Linux/macOS) | User-level |
+| BrainPack | `%LOCALAPPDATA%\vibeanvil\brainpack\` (Windows) | User-level |
+
+See [docs/DATA_LAYOUT.md](docs/DATA_LAYOUT.md) for complete details.
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
