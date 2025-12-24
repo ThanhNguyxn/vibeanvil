@@ -22,6 +22,10 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    # Ignore major updates to prevent breaking changes/CI failures
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions - Keep CI tools updated
   - package-ecosystem: "github-actions"
@@ -33,3 +37,8 @@ updates:
     labels:
       - "dependencies"
       - "ci"
+    # Group all action updates
+    groups:
+      actions:
+        patterns:
+          - "*"

@@ -93,10 +93,7 @@ impl FileWatcher {
 
                     if !relevant_events.is_empty() {
                         println!();
-                        println!(
-                            "🔄 {} file(s) changed",
-                            relevant_events.len()
-                        );
+                        println!("🔄 {} file(s) changed", relevant_events.len());
 
                         for event in &relevant_events {
                             let path_str = event
