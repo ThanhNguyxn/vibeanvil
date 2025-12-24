@@ -140,10 +140,7 @@ async fn handle_action(action: WizardAction) -> Result<()> {
             crate::cli::doctor::run().await?;
         }
         WizardAction::Harvest => {
-            println!(
-                "{}",
-                "💡 Use presets for best results:".white().bold()
-            );
+            println!("{}", "💡 Use presets for best results:".white().bold());
             println!();
             println!(
                 "  {} {}",
@@ -165,40 +162,16 @@ async fn handle_action(action: WizardAction) -> Result<()> {
             println!("{}", "📚 VibeAnvil Commands:".white().bold());
             println!();
             println!("  {} {}", "init".cyan(), "Initialize workspace".dimmed());
-            println!(
-                "  {} {}",
-                "intake".cyan(),
-                "Capture requirements".dimmed()
-            );
-            println!(
-                "  {} {}",
-                "blueprint".cyan(),
-                "Generate blueprint".dimmed()
-            );
-            println!(
-                "  {} {}",
-                "contract".cyan(),
-                "Manage contract".dimmed()
-            );
+            println!("  {} {}", "intake".cyan(), "Capture requirements".dimmed());
+            println!("  {} {}", "blueprint".cyan(), "Generate blueprint".dimmed());
+            println!("  {} {}", "contract".cyan(), "Manage contract".dimmed());
             println!("  {} {}", "build".cyan(), "Execute build".dimmed());
             println!("  {} {}", "review".cyan(), "Review changes".dimmed());
             println!("  {} {}", "ship".cyan(), "Ship release".dimmed());
             println!();
-            println!(
-                "  {} {}",
-                "brain".cyan(),
-                "Manage BrainPack".dimmed()
-            );
-            println!(
-                "  {} {}",
-                "harvest".cyan(),
-                "Harvest from GitHub".dimmed()
-            );
-            println!(
-                "  {} {}",
-                "doctor".cyan(),
-                "Check system health".dimmed()
-            );
+            println!("  {} {}", "brain".cyan(), "Manage BrainPack".dimmed());
+            println!("  {} {}", "harvest".cyan(), "Harvest from GitHub".dimmed());
+            println!("  {} {}", "doctor".cyan(), "Check system health".dimmed());
             println!();
             println!(
                 "{}",

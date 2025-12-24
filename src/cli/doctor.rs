@@ -74,11 +74,26 @@ impl HealthCheck {
 
 pub async fn run() -> Result<()> {
     println!();
-    println!("{}", "╔═══════════════════════════════════════════════════════════════╗".cyan());
-    println!("{}", "║               🔍 VibeAnvil Doctor                             ║".cyan());
-    println!("{}", "╠═══════════════════════════════════════════════════════════════╣".cyan());
-    println!("{}", "║   Checking installation and workspace health...               ║".white());
-    println!("{}", "╚═══════════════════════════════════════════════════════════════╝".cyan());
+    println!(
+        "{}",
+        "╔═══════════════════════════════════════════════════════════════╗".cyan()
+    );
+    println!(
+        "{}",
+        "║               🔍 VibeAnvil Doctor                             ║".cyan()
+    );
+    println!(
+        "{}",
+        "╠═══════════════════════════════════════════════════════════════╣".cyan()
+    );
+    println!(
+        "{}",
+        "║   Checking installation and workspace health...               ║".white()
+    );
+    println!(
+        "{}",
+        "╚═══════════════════════════════════════════════════════════════╝".cyan()
+    );
     println!();
 
     let mut checks: Vec<HealthCheck> = Vec::new();
@@ -127,7 +142,7 @@ pub async fn run() -> Result<()> {
                 ));
 
                 // 6. Check contract lock
-                if state.current_state == State::ContractLocked 
+                if state.current_state == State::ContractLocked
                     || state.current_state.is_at_least(State::ContractLocked)
                 {
                     if let Some(hash) = &state.spec_hash {
@@ -159,37 +174,35 @@ pub async fn run() -> Result<()> {
 
     // 7. Check BrainPack
     match BrainStorage::new().await {
-        Ok(storage) => {
-            match storage.stats().await {
-                Ok(stats) => {
-                    let record_count = stats.total_records;
-                    if record_count > 0 {
-                        checks.push(HealthCheck::ok(
-                            "BrainPack",
-                            &format!("{} records, {} chunks", stats.total_records, stats.total_chunks),
-                        ));
-                    } else {
-                        checks.push(HealthCheck::warning(
-                            "BrainPack",
-                            "Empty (run: vibeanvil brain ensure)",
-                        ));
-                        has_warnings = true;
-                    }
-                }
-                Err(_) => {
+        Ok(storage) => match storage.stats().await {
+            Ok(stats) => {
+                let record_count = stats.total_records;
+                if record_count > 0 {
+                    checks.push(HealthCheck::ok(
+                        "BrainPack",
+                        &format!(
+                            "{} records, {} chunks",
+                            stats.total_records, stats.total_chunks
+                        ),
+                    ));
+                } else {
                     checks.push(HealthCheck::warning(
                         "BrainPack",
-                        "Not initialized (run: vibeanvil brain ensure)",
+                        "Empty (run: vibeanvil brain ensure)",
                     ));
                     has_warnings = true;
                 }
             }
-        }
+            Err(_) => {
+                checks.push(HealthCheck::warning(
+                    "BrainPack",
+                    "Not initialized (run: vibeanvil brain ensure)",
+                ));
+                has_warnings = true;
+            }
+        },
         Err(_) => {
-            checks.push(HealthCheck::warning(
-                "BrainPack",
-                "Database not accessible",
-            ));
+            checks.push(HealthCheck::warning("BrainPack", "Database not accessible"));
             has_warnings = true;
         }
     }
@@ -220,10 +233,7 @@ pub async fn run() -> Result<()> {
             "  ❌ Some checks failed. Please fix the errors above.".red()
         );
     } else if has_warnings {
-        println!(
-            "{}",
-            "  ⚠️  All checks passed! (with warnings)".yellow()
-        );
+        println!("{}", "  ⚠️  All checks passed! (with warnings)".yellow());
     } else {
         println!("{}", "  ✅ All checks passed!".green());
     }
