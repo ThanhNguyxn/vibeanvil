@@ -271,3 +271,200 @@ presets:
       - "**/*.toml"
       - "**/*.yaml"
       - "**/*.yml"
+
+  # 13. Rust Web Services (Axum/Actix)
+  rust_web_services:
+    name: "Rust Web Services"
+    purpose: "Find high-performance web service patterns using Axum, Actix-web, and Poem"
+    signals:
+      - command_surface
+    queries:
+      - "axum web service rust"
+      - "actix-web rest api"
+      - "poem-openapi rust"
+      - "rust web server production"
+      - "tower middleware pattern"
+    filters:
+      min_stars: 200
+      languages:
+        - Rust
+    allow_globs:
+      - "**/*.rs"
+      - "**/main.rs"
+      - "**/route*"
+      - "**/handler*"
+
+  # 14. Go Microservices
+  go_microservices:
+    name: "Go Microservices"
+    purpose: "Find Go microservice patterns, gRPC implementations, and clean architecture"
+    signals:
+      - command_surface
+    queries:
+      - "go-kit microservice"
+      - "kratos go framework"
+      - "grpc go microservice"
+      - "clean architecture go"
+      - "go fiber rest api"
+    filters:
+      min_stars: 200
+      languages:
+        - Go
+    allow_globs:
+      - "**/*.go"
+      - "**/cmd/**"
+      - "**/internal/**"
+      - "**/api/**"
+
+  # 15. TypeScript Backend Services
+  ts_backend_services:
+    name: "TypeScript Backend Services"
+    purpose: "Find scalable TypeScript backend patterns using NestJS, Express, and Fastify"
+    signals:
+      - command_surface
+    queries:
+      - "nestjs microservice architecture"
+      - "fastify typescript backend"
+      - "express clean architecture"
+      - "trpc typescript api"
+      - "node.js production patterns"
+    filters:
+      min_stars: 200
+      languages:
+        - TypeScript
+    allow_globs:
+      - "**/*.ts"
+      - "**/src/**"
+      - "**/controller*"
+      - "**/service*"
+
+  # 16. TUI Applications (Rust/Go)
+  tui_applications:
+    name: "TUI Applications"
+    purpose: "Find Terminal User Interface patterns using Ratatui, Bubbletea, and Ink"
+    signals:
+      - command_surface
+    queries:
+      - "ratatui rust tui"
+      - "bubbletea go tui"
+      - "ink react cli"
+      - "terminal ui framework"
+      - "crossterm raw mode"
+    filters:
+      min_stars: 100
+      languages:
+        - Rust
+        - Go
+        - TypeScript
+    allow_globs:
+      - "**/*.rs"
+      - "**/*.go"
+      - "**/ui/**"
+      - "**/view/**"
+
+  # 17. Database & ORM Patterns
+  database_orm_patterns:
+    name: "Database & ORM Patterns"
+    purpose: "Find database access patterns, migrations, and ORM usage"
+    signals:
+      - contract_lock
+    queries:
+      - "sqlx rust postgres"
+      - "prisma schema typescript"
+      - "drizzle orm typescript"
+      - "gorm go database"
+      - "diesel rust orm"
+    filters:
+      min_stars: 100
+    allow_globs:
+      - "**/*.sql"
+      - "**/schema*"
+      - "**/migration*"
+      - "**/db/**"
+      - "**/model/**"
+
+  # 18. Modern React Patterns
+  modern_react_patterns:
+    name: "Modern React Patterns"
+    purpose: "Find modern React patterns, state management, and component architecture"
+    signals:
+      - command_surface
+    queries:
+      - "next.js app router"
+      - "remix run react"
+      - "zustand state management"
+      - "tanstack query react"
+      - "react server components"
+    filters:
+      min_stars: 500
+      languages:
+        - TypeScript
+        - JavaScript
+    allow_globs:
+      - "**/*.tsx"
+      - "**/*.ts"
+      - "**/components/**"
+      - "**/hooks/**"
+      - "**/app/**"
+
+  # 19. AI Engineering Patterns
+  ai_engineering_patterns:
+    name: "AI Engineering Patterns"
+    purpose: "Find LLM integration, prompt engineering, and AI agent patterns"
+    signals:
+      - provider_adapter
+    queries:
+      - "langchain rust go"
+      - "semantic kernel patterns"
+      - "llm agent architecture"
+      - "prompt engineering templates"
+      - "openai api wrapper"
+    filters:
+      min_stars: 100
+    allow_globs:
+      - "**/*ai*"
+      - "**/*llm*"
+      - "**/*agent*"
+      - "**/*prompt*"
+      - "**/*.py"
+
+  # 20. Distributed Systems
+  distributed_systems:
+    name: "Distributed Systems"
+    purpose: "Find distributed consensus, replication, and sharding patterns"
+    signals:
+      - state_machine
+    queries:
+      - "raft consensus rust"
+      - "distributed lock pattern"
+      - "consistent hashing implementation"
+      - "event sourcing cqrs"
+      - "gossip protocol go"
+    filters:
+      min_stars: 200
+    allow_globs:
+      - "**/*.rs"
+      - "**/*.go"
+      - "**/consensus/**"
+      - "**/raft/**"
+
+  # 21. Performance Optimization
+  performance_optimization:
+    name: "Performance Optimization"
+    purpose: "Find high-performance code, SIMD usage, and zero-copy patterns"
+    signals:
+      - iterate_loop
+    queries:
+      - "simd optimization rust"
+      - "zero copy parsing"
+      - "lock free data structure"
+      - "memory arena allocator"
+      - "high performance go"
+    filters:
+      min_stars: 100
+    allow_globs:
+      - "**/*.rs"
+      - "**/*.go"
+      - "**/*.cpp"
+      - "**/unsafe*"
+      - "**/perf*"
