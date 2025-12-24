@@ -1,6 +1,8 @@
-//! Harvest command handler
+//! Harvest command handler with beautiful output
 
 use anyhow::Result;
+use colored::Colorize;
+use indicatif::{ProgressBar, ProgressStyle};
 use std::path::PathBuf;
 
 use crate::audit::{generate_session_id, AuditLogger};
@@ -12,30 +14,96 @@ use crate::workspace;
 pub async fn run(args: HarvestArgs) -> Result<()> {
     // Validate inputs
     if args.query.is_empty() && args.topic.is_empty() {
-        anyhow::bail!("At least one --query or --topic is required");
+        println!();
+        println!(
+            "{}",
+            "┌─────────────────────────────────────────────┐".red()
+        );
+        println!(
+            "{}",
+            "│  ❌ At least one --query or --topic required │".red()
+        );
+        println!(
+            "{}",
+            "└─────────────────────────────────────────────┘".red()
+        );
+        println!();
+        println!("{}", "💡 Examples:".white().bold());
+        println!(
+            "  {} {}",
+            "•".dimmed(),
+            "vibeanvil harvest -t rust -t cli".cyan()
+        );
+        println!(
+            "  {} {}",
+            "•".dimmed(),
+            "vibeanvil harvest -q \"machine learning\" -l python".cyan()
+        );
+        println!();
+        return Ok(());
     }
 
     let session_id = generate_session_id();
     let logger = AuditLogger::new(&session_id);
 
-    println!("🧠 Harvesting repos with dynamic search");
+    // Print beautiful header
     println!();
-    println!("  Queries: {:?}", args.query);
-    println!("  Topics:  {:?}", args.topic);
+    println!(
+        "{}",
+        "╔═══════════════════════════════════════════════════════════════╗".cyan()
+    );
+    println!(
+        "{}",
+        "║               🌾 VibeAnvil Harvester                          ║".cyan()
+    );
+    println!(
+        "{}",
+        "╚═══════════════════════════════════════════════════════════════╝".cyan()
+    );
+    println!();
+
+    // Show search parameters
+    println!("{}", "📋 Search Parameters:".white().bold());
+    if !args.query.is_empty() {
+        println!("  {} {}", "Queries:".dimmed(), args.query.join(", ").cyan());
+    }
+    if !args.topic.is_empty() {
+        println!("  {} {}", "Topics: ".dimmed(), args.topic.join(", ").cyan());
+    }
     if let Some(lang) = &args.language {
-        println!("  Language: {}", lang);
+        println!("  {} {}", "Language:".dimmed(), lang.cyan());
     }
     println!(
-        "  Min stars: {}, Max repos: {}",
-        args.min_stars, args.max_repos
+        "  {} {} stars, {} repos max",
+        "Filters:".dimmed(),
+        format!("≥{}", args.min_stars).yellow(),
+        args.max_repos.to_string().yellow()
     );
-    println!("  Updated within: {} days", args.updated_within_days);
+    println!(
+        "  {} within {} days",
+        "Updated:".dimmed(),
+        args.updated_within_days.to_string().yellow()
+    );
     println!();
 
     // Check for GITHUB_TOKEN
     if std::env::var("GITHUB_TOKEN").is_err() {
-        println!("⚠️  GITHUB_TOKEN not set. API rate limits will be restricted.");
-        println!("   Set GITHUB_TOKEN environment variable for higher limits.");
+        println!(
+            "{}",
+            "┌─────────────────────────────────────────────────────────┐".yellow()
+        );
+        println!(
+            "{}",
+            "│  ⚠️  GITHUB_TOKEN not set - API rate limits restricted   │".yellow()
+        );
+        println!(
+            "{}",
+            "│  Set GITHUB_TOKEN environment variable for more         │".white()
+        );
+        println!(
+            "{}",
+            "└─────────────────────────────────────────────────────────┘".yellow()
+        );
         println!();
     }
 
@@ -65,24 +133,71 @@ pub async fn run(args: HarvestArgs) -> Result<()> {
     let mut harvester = Harvester::new(config).await?;
     let storage = BrainStorage::new().await?;
 
-    // Search for repos
-    println!("→ Searching GitHub...");
+    // Search spinner
+    let spinner = ProgressBar::new_spinner();
+    spinner.set_style(
+        ProgressStyle::default_spinner()
+            .template("{spinner:.cyan} {msg}")
+            .unwrap(),
+    );
+    spinner.set_message("Searching GitHub...");
+    spinner.enable_steady_tick(std::time::Duration::from_millis(100));
+
     let repos = harvester.search_repos().await?;
+    spinner.finish_and_clear();
 
     if repos.is_empty() {
-        println!("No repositories found matching the criteria.");
+        println!(
+            "{}",
+            "┌─────────────────────────────────────────────┐".yellow()
+        );
+        println!(
+            "{}",
+            "│  ⚠️  No repositories found                   │".yellow()
+        );
+        println!(
+            "{}",
+            "└─────────────────────────────────────────────┘".yellow()
+        );
+        println!();
+        println!("{}", "💡 Try:".white().bold());
+        println!("  {} Broader search terms", "•".dimmed());
+        println!("  {} Lower --min-stars value", "•".dimmed());
+        println!("  {} Different topics or language", "•".dimmed());
+        println!();
         return Ok(());
     }
 
-    println!("  Found {} repositories", repos.len());
+    println!(
+        "  {} Found {} repositories",
+        "✓".green(),
+        repos.len().to_string().green().bold()
+    );
     println!();
+
+    // Progress bar for harvesting
+    let progress = ProgressBar::new(repos.len() as u64);
+    progress.set_style(
+        ProgressStyle::default_bar()
+            .template("{spinner:.green} [{bar:40.cyan/blue}] {pos}/{len} {msg}")
+            .unwrap()
+            .progress_chars("█▓░"),
+    );
 
     // Harvest each repo
     let mut total_records = 0;
     let mut total_chunks = 0;
     let mut sources_processed = 0;
+    let mut errors = 0;
 
     for repo in &repos {
+        let short_name = if repo.full_name.len() > 30 {
+            format!("{}...", &repo.full_name[..27])
+        } else {
+            repo.full_name.clone()
+        };
+        progress.set_message(short_name);
+
         match harvester.harvest_repo(repo).await {
             Ok((source_meta, records)) => {
                 if !records.is_empty() {
@@ -92,25 +207,68 @@ pub async fn run(args: HarvestArgs) -> Result<()> {
                     total_records += records.len();
                     total_chunks += chunk_count;
                     sources_processed += 1;
-                    println!("    ✓ {} files, {} chunks", records.len(), chunk_count);
-                } else if source_meta.license != "cached" {
-                    println!("    ○ No relevant files");
                 }
             }
-            Err(e) => {
-                println!("    ✗ Error: {}", e);
+            Err(_) => {
+                errors += 1;
             }
         }
+        progress.inc(1);
     }
+    progress.finish_and_clear();
 
+    // Summary
     println!();
-    println!("✓ Harvest complete");
-    println!("  Sources processed: {}", sources_processed);
-    println!("  Total records: {}", total_records);
-    println!("  Total chunks: {}", total_chunks);
+    println!(
+        "{}",
+        "╔═══════════════════════════════════════════╗".green()
+    );
+    println!(
+        "{}",
+        "║     🎉 Harvest Complete!                  ║".green()
+    );
+    println!(
+        "{}",
+        "╠═══════════════════════════════════════════╣".green()
+    );
+    println!(
+        "║  {} {:>8}                       ║",
+        "📚 Sources:".white(),
+        sources_processed.to_string().cyan()
+    );
+    println!(
+        "║  {} {:>8}                       ║",
+        "📄 Records:".white(),
+        total_records.to_string().cyan()
+    );
+    println!(
+        "║  {} {:>8}                       ║",
+        "🧩 Chunks: ".white(),
+        total_chunks.to_string().cyan()
+    );
+    if errors > 0 {
+        println!(
+            "║  {} {:>8}                       ║",
+            "❌ Errors: ".white(),
+            errors.to_string().red()
+        );
+    }
+    println!(
+        "{}",
+        "╚═══════════════════════════════════════════╝".green()
+    );
     println!();
-    println!("Use 'vibeanvil brain stats' to view statistics");
-    println!("Use 'vibeanvil brain search \"<query>\"' to search");
+
+    // Next steps
+    println!("{}", "─".repeat(50).dimmed());
+    println!("{}", "💡 Next steps:".white().bold());
+    println!("  {} {}", "•".cyan(), "vibeanvil brain stats".white());
+    println!(
+        "  {} {}",
+        "•".cyan(),
+        "vibeanvil brain search \"<query>\"".white()
+    );
+    println!();
 
     logger
         .log_command(

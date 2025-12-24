@@ -1,16 +1,35 @@
-//! Init command handler
+//! Init command handler with beautiful output
 
 use anyhow::Result;
+use colored::Colorize;
 
 use crate::audit::{generate_session_id, AuditLogger};
+use crate::cli::ui;
 use crate::workspace;
 
 pub async fn run(force: bool) -> Result<()> {
-    println!("🔨 VibeAnvil - Contract-first vibe coding");
-    println!();
+    // Print beautiful banner
+    ui::print_banner();
 
     if workspace::workspace_exists().await && !force {
-        println!("⚠️  Workspace already exists. Use --force to reinitialize.");
+        println!();
+        println!(
+            "{}",
+            "┌─────────────────────────────────────────────────┐".yellow()
+        );
+        println!(
+            "{}",
+            "│  ⚠️  Workspace already exists!                   │".yellow()
+        );
+        println!(
+            "{}",
+            "│  Use --force to reinitialize                    │".white()
+        );
+        println!(
+            "{}",
+            "└─────────────────────────────────────────────────┘".yellow()
+        );
+        println!();
         return Ok(());
     }
 
@@ -22,12 +41,49 @@ pub async fn run(force: bool) -> Result<()> {
         .log_command("init", vec![format!("force={}", force)])
         .await?;
 
-    println!("✓ Initialized .vibeanvil workspace");
     println!();
-    println!("Next steps:");
-    println!("  1. vibeanvil intake --message \"Your project requirements\"");
-    println!("  2. vibeanvil blueprint --auto");
-    println!("  3. vibeanvil contract create");
+    println!(
+        "{}",
+        "┌─────────────────────────────────────────────────┐".green()
+    );
+    println!(
+        "{}",
+        "│  ✅ Workspace initialized successfully!         │".green()
+    );
+    println!(
+        "{}",
+        "└─────────────────────────────────────────────────┘".green()
+    );
+    println!();
+
+    println!("{}", "📋 Next Steps:".white().bold());
+    println!();
+    println!(
+        "  {} {}",
+        "1.".cyan(),
+        "vibeanvil intake -m \"Your project requirements\"".white()
+    );
+    println!("  {} {}", "2.".cyan(), "vibeanvil blueprint --auto".white());
+    println!("  {} {}", "3.".cyan(), "vibeanvil contract create".white());
+    println!("  {} {}", "4.".cyan(), "vibeanvil contract lock".white());
+    println!();
+
+    println!("{}", "💡 Tips:".yellow().bold());
+    println!(
+        "  {} {}",
+        "•".dimmed(),
+        "Use 'vibeanvil status' to check current state".dimmed()
+    );
+    println!(
+        "  {} {}",
+        "•".dimmed(),
+        "Use 'vibeanvil log' to view audit trail".dimmed()
+    );
+    println!(
+        "  {} {}",
+        "•".dimmed(),
+        "Use 'vibeanvil update' to check for updates".dimmed()
+    );
     println!();
 
     Ok(())

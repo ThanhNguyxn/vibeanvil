@@ -37,7 +37,7 @@ fn test_init_creates_workspace() {
         .current_dir(temp.path())
         .assert()
         .success()
-        .stdout(predicate::str::contains("Initialized"));
+        .stdout(predicate::str::contains("successfully"));
 
     // Check workspace was created
     assert!(temp.path().join(".vibeanvil").exists());
@@ -71,7 +71,7 @@ fn test_init_force_reinitializes() {
         .current_dir(temp.path())
         .assert()
         .success()
-        .stdout(predicate::str::contains("Initialized"));
+        .stdout(predicate::str::contains("successfully"));
 }
 
 #[test]

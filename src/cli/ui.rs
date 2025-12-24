@@ -73,11 +73,11 @@ pub fn boxed(msg: &str, style: BoxStyle) {
         BoxStyle::Info => "─".repeat(width).cyan(),
         BoxStyle::Warning => "─".repeat(width).yellow(),
     };
-    
+
     let top = format!("┌{}┐", border);
     let mid = format!("│  {}  │", msg);
     let bot = format!("└{}┘", border);
-    
+
     match style {
         BoxStyle::Success => {
             println!("{}", top.green());
