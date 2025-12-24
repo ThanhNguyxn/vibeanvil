@@ -2,8 +2,8 @@
 
 use anyhow::Result;
 use colored::Colorize;
-use notify_debouncer_mini::notify::RecursiveMode;
 use notify_debouncer_mini::new_debouncer;
+use notify_debouncer_mini::notify::RecursiveMode;
 use std::path::Path;
 use std::sync::mpsc::channel;
 use std::time::Duration;
