@@ -107,7 +107,10 @@ vibeanvil contract lock
 # Manual mode (step by step)
 vibeanvil build manual start
 
-# Auto mode (single shot with AI)
+# Human mode (Copilot/Cursor) - Recommended for first run
+vibeanvil build iterate --provider human
+
+# Auto mode (Claude Code)
 vibeanvil build auto --provider claude-code
 
 # Iterate mode (test → fix loop)

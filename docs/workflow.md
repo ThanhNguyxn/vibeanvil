@@ -149,7 +149,10 @@ vibeanvil contract lock
 **Purpose:** Create implementation plan
 
 ```bash
+```bash
 vibeanvil plan --provider claude-code
+# or
+vibeanvil plan --provider human
 ```
 
 **What happens:**
@@ -193,7 +196,7 @@ Single-shot AI-assisted build.
 
 ### Iterate Build ⭐
 ```bash
-vibeanvil build iterate --max 5 --evidence
+vibeanvil build iterate --max 5 --evidence --provider human
 ```
 
 Loop that:
@@ -224,6 +227,19 @@ Loop that:
       
 ✓ Build complete after 3 iterations
 ```
+
+---
+
+## 🤖 Choosing a Provider
+
+VibeAnvil supports multiple AI providers. See [PROVIDERS.md](PROVIDERS.md) for full details.
+
+| Provider | Best For |
+|----------|----------|
+| `human` | GitHub Copilot, Cursor, VS Code Chat |
+| `claude-code` | Fully automated CLI workflows |
+| `command` | External CLI agents (Aider, etc.) |
+| `patch` | API-based LLMs returning diffs |
 
 ---
 

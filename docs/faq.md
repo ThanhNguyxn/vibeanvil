@@ -128,9 +128,12 @@ rm -rf ~/.vibeanvil/brainpack
 ### What providers are supported?
 
 Currently:
-- `claude-code` - Claude Code CLI adapter
+- `human` - IDE assistants (Copilot, Cursor, VS Code Chat)
+- `claude-code` - Claude Code CLI automation
+- `command` - External CLI agents (Aider, etc.)
+- `patch` - Unified diff workflows
 
-More coming soon!
+See [PROVIDERS.md](PROVIDERS.md) for a full comparison.
 
 ### How does iterate mode work?
 

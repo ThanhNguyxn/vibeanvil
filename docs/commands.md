@@ -9,6 +9,7 @@ Complete reference for all VibeAnvil CLI commands.
 - [Core Workflow Commands](#-core-workflow-commands)
 - [Brain Commands](#-brain-commands)
 - [Utility Commands](#-utility-commands)
+- [Provider Commands](#-provider-commands)
 - [Global Options](#-global-options)
 
 ---
@@ -146,6 +147,8 @@ vibeanvil build <MODE> [OPTIONS]
 | `--no-test` | Skip tests |
 | `--no-lint` | Skip linting |
 | `--evidence` | Capture evidence |
+| `--watch` | Watch for file changes |
+| `--resume` | Resume last session |
 
 **Examples:**
 ```bash
@@ -374,6 +377,27 @@ vibeanvil update
 
 ```bash
 vibeanvil upgrade
+```
+
+---
+
+## 🔌 Provider Commands
+
+### `providers` - List AI Providers
+
+```bash
+vibeanvil providers
+```
+
+Lists all supported AI providers and checks their availability.
+
+**Output:**
+```
+Available Providers:
+  ✅ Available human
+  ❌ Not available claude-code
+  ✅ Available command
+  ✅ Available patch
 ```
 
 ---

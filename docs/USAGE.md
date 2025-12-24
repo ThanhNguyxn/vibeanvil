@@ -23,6 +23,9 @@ Comprehensive guide to using VibeAnvil commands with intent, prerequisites, and 
   - [harvest](#harvest)
   - [doctor](#doctor)
   - [wizard](#wizard)
+  - [doctor](#doctor)
+  - [wizard](#wizard)
+  - [providers](#providers)
   - [update/upgrade](#updateupgrade)
 
 ---
@@ -244,6 +247,16 @@ vibeanvil build <mode> [options] [action]
 | `--no-test` | Skip test execution |
 | `--no-lint` | Skip lint execution |
 | `--evidence` | Capture evidence (diffs, logs) |
+| `--watch` | Watch for file changes (iterate mode only) |
+| `--resume` | Resume from last session state |
+
+**Supported Providers:**
+- `human` (Copilot/Cursor)
+- `claude-code` (Claude CLI)
+- `command` (Aider/CLI agents)
+- `patch` (Unified diffs)
+
+See [PROVIDERS.md](PROVIDERS.md) for details.
 
 **Manual Actions:**
 | Action | Description |
@@ -603,6 +616,31 @@ vibeanvil wizard
 ```bash
 vibeanvil wizard
 # Displays interactive menu with arrow key navigation
+```
+
+---
+
+### `providers` - List AI Providers
+
+**Intent:** List available AI providers and their status.
+
+**Prerequisites:** None
+
+**Command:**
+```bash
+vibeanvil providers
+```
+
+**Outputs:**
+- List of providers (human, claude-code, command, patch)
+- Availability status (✅/❌)
+- Configuration instructions
+
+**Example:**
+```bash
+vibeanvil providers
+#   ✅ Available human
+#   ❌ Not available claude-code
 ```
 
 ---

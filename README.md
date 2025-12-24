@@ -238,6 +238,7 @@ vibeanvil ship --tag v1.0.0
 |---------|-------------|---------|
 | `status` | Show workflow status | `vibeanvil status -v` |
 | `log` | View audit log | `vibeanvil log -n 50` |
+| `providers` | List AI providers | `vibeanvil providers` |
 
 ---
 
@@ -267,7 +268,7 @@ vibeanvil build iterate \
 
 ---
 
-## � AI Providers
+## 🤖 AI Providers
 
 VibeAnvil works with **any AI coding assistant**. See [docs/PROVIDERS.md](docs/PROVIDERS.md) for details.
 
@@ -302,7 +303,7 @@ vibeanvil build iterate --provider command
 
 ---
 
-## �🧠 BrainPack
+## 🧠 BrainPack
 
 ### 🔍 Harvest Repositories
 
