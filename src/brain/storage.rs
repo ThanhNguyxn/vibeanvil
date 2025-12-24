@@ -75,7 +75,7 @@ impl BrainStorage {
         conn.execute(
             "CREATE TABLE IF NOT EXISTS sources (
                 source_id TEXT PRIMARY KEY,
-                commit TEXT,
+                \"commit\" TEXT,
                 license TEXT,
                 language TEXT,
                 fetched_at TEXT,
@@ -140,7 +140,7 @@ impl BrainStorage {
 
         conn.execute(
             "INSERT OR REPLACE INTO sources 
-            (source_id, commit, license, language, fetched_at, files_count, chunks_count)
+            (source_id, \"commit\", license, language, fetched_at, files_count, chunks_count)
             VALUES (?, ?, ?, ?, ?, ?, ?)",
             params![
                 source.source_id,
