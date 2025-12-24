@@ -57,7 +57,7 @@ urlencoding = "2.1"
 # Beautiful CLI
 colored = "2.1"
 indicatif = "0.17"
-console = "0.15"
+console = "0.16"
 semver = "1.0"
 
 # Interactive prompts
