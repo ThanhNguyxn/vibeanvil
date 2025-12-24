@@ -1,5 +1,7 @@
 //! Integration tests for vibeanvil CLI
 
+#![allow(deprecated)]
+
 use assert_cmd::Command;
 use predicates::prelude::*;
 use tempfile::TempDir;

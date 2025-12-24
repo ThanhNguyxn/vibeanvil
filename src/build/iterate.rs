@@ -36,6 +36,7 @@ impl IterateBuild {
     }
 
     /// Execute iterate loop
+    #[allow(unused_assignments)]
     pub async fn execute(&self, initial_prompt: &str) -> Result<BuildResult> {
         let mut iterations = 0;
         let mut all_errors = vec![];
