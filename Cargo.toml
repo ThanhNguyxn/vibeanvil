@@ -60,6 +60,13 @@ indicatif = "0.17"
 console = "0.15"
 semver = "1.0"
 
+# Interactive prompts
+inquire = "0.7"
+
+# File watching
+notify = "6.1"
+notify-debouncer-mini = "0.4"
+
 [dev-dependencies]
 assert_cmd = "2.0"
 predicates = "3.0"

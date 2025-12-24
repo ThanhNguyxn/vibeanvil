@@ -1,0 +1,38 @@
+# Release Please handles automated releases based on conventional commits
+# - feat: commits bump minor version
+# - fix: commits bump patch version
+# - BREAKING CHANGE: in footer bumps major version
+
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          release-type: rust
+
+  # After release-please creates a tag, trigger the build workflow
+  trigger-build:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release created
+        run: |
+          echo "Release ${{ needs.release-please.outputs.tag_name }} created"
+          echo "The release.yml workflow will automatically trigger for this tag"

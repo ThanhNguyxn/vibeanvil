@@ -21,6 +21,8 @@ Comprehensive guide to using VibeAnvil commands with intent, prerequisites, and 
   - [log](#log)
   - [brain](#brain)
   - [harvest](#harvest)
+  - [doctor](#doctor)
+  - [wizard](#wizard)
   - [update/upgrade](#updateupgrade)
 
 ---
@@ -537,6 +539,70 @@ vibeanvil update
 # New version available: v0.3.0
 vibeanvil upgrade
 # ✅ Upgraded to v0.3.0!
+```
+
+---
+
+### `doctor` - Check System Health
+
+**Intent:** Diagnose workspace and system configuration.
+
+**Prerequisites:** None
+
+**Command:**
+```bash
+vibeanvil doctor
+```
+
+**Checks Performed:**
+| Check | Description |
+|-------|-------------|
+| VibeAnvil CLI | Version info |
+| Rust Compiler | Optional, shows version if found |
+| Git | Shows version |
+| Workspace | Checks if `.vibeanvil/` exists |
+| State | Validates `state.json` |
+| Contract | Shows lock status and hash |
+| BrainPack | Shows record and chunk counts |
+| GitHub Token | Checks if set for harvesting |
+
+**Example:**
+```bash
+vibeanvil doctor
+# ✅ VibeAnvil CLI: v0.2.0
+# ✅ Git: git version 2.40.0
+# ✅ Workspace: .vibeanvil/ found
+# ⚠️  Contract: Not locked
+# ✅ BrainPack: 102 records, 204 chunks
+```
+
+---
+
+### `wizard` - Interactive Menu
+
+**Intent:** Beginner-friendly interactive menu when you don't know what command to use.
+
+**Prerequisites:** None
+
+**Command:**
+```bash
+vibeanvil wizard
+```
+
+**Menu Options:**
+- 📁 Initialize new workspace
+- 🧠 Install Core BrainPack
+- 🔍 Search BrainPack
+- 📝 Capture requirements (intake)
+- 📊 View current status
+- 🩺 Check system health
+- 🌾 Harvest from GitHub
+- ❓ Show help
+
+**Example:**
+```bash
+vibeanvil wizard
+# Displays interactive menu with arrow key navigation
 ```
 
 ---

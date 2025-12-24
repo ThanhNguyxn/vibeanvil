@@ -6,6 +6,7 @@ pub mod blueprint;
 pub mod brain;
 pub mod build;
 pub mod contract;
+pub mod doctor;
 pub mod harvest;
 pub mod init;
 pub mod intake;
@@ -17,6 +18,7 @@ pub mod snapshot;
 pub mod status;
 pub mod ui;
 pub mod update;
+pub mod wizard;
 
 /// VibeAnvil - Contract-first vibe coding with evidence, audit, and repo-brain harvesting
 #[derive(Parser)]
@@ -120,6 +122,12 @@ pub enum Commands {
 
     /// Download and install the latest version
     Upgrade,
+
+    /// Check system and workspace health
+    Doctor,
+
+    /// Interactive wizard menu
+    Wizard,
 }
 
 #[derive(Clone, ValueEnum)]

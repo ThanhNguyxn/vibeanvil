@@ -56,5 +56,7 @@ async fn main() -> Result<()> {
         Commands::Log { lines, json } => cli::log::run(lines, json).await,
         Commands::Update => cli::update::check_update().await,
         Commands::Upgrade => cli::update::upgrade().await,
+        Commands::Doctor => cli::doctor::run().await,
+        Commands::Wizard => cli::wizard::run().await,
     }
 }
