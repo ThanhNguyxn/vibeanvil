@@ -9,6 +9,9 @@
 //! - Provider plugins (Claude Code CLI adapter)
 //! - Repo-brain harvesting with searchable BrainPack
 
+// Allow dead code for public API functions that may be used in the future
+#![allow(dead_code)]
+
 use anyhow::Result;
 use clap::Parser;
 

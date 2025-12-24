@@ -52,25 +52,25 @@ impl BrainStorage {
     pub async fn new() -> Result<Self> {
         let brainpack_dir = workspace::brainpack_dir();
         fs::create_dir_all(&brainpack_dir).await?;
-        
+
         let jsonl_path = brainpack_dir.join("brainpack.jsonl");
         let sqlite_path = brainpack_dir.join("brainpack.sqlite");
-        
+
         let storage = Self {
             brainpack_dir,
             jsonl_path,
             sqlite_path,
         };
-        
+
         storage.init_db()?;
-        
+
         Ok(storage)
     }
 
     /// Initialize SQLite database with FTS5
     fn init_db(&self) -> Result<()> {
         let conn = Connection::open(&self.sqlite_path)?;
-        
+
         // Sources table (metadata, no URLs)
         conn.execute(
             "CREATE TABLE IF NOT EXISTS sources (
@@ -137,7 +137,7 @@ impl BrainStorage {
     /// Save source metadata
     pub async fn save_source(&self, source: &SourceMeta) -> Result<()> {
         let conn = Connection::open(&self.sqlite_path)?;
-        
+
         conn.execute(
             "INSERT OR REPLACE INTO sources 
             (source_id, commit, license, language, fetched_at, files_count, chunks_count)
@@ -176,11 +176,11 @@ impl BrainStorage {
 
         // Insert chunks to SQLite
         let conn = Connection::open(&self.sqlite_path)?;
-        
+
         for record in records {
             let signals_json = serde_json::to_string(&record.signals)?;
             let tags_str = record.tags.join(",");
-            
+
             for chunk in &record.chunks {
                 conn.execute(
                     "INSERT OR REPLACE INTO brain_chunks 
@@ -207,7 +207,7 @@ impl BrainStorage {
     /// Search the brain using FTS5
     pub fn search(&self, query: &str, limit: usize) -> Result<Vec<SearchResult>> {
         let conn = Connection::open(&self.sqlite_path)?;
-        
+
         // Use FTS5 search with BM25 ranking
         let mut stmt = conn.prepare(
             "SELECT c.chunk_id, c.source_id, c.path, c.content_type,
@@ -218,13 +218,13 @@ impl BrainStorage {
             JOIN brain_chunks c ON chunks_fts.rowid = c.rowid
             WHERE chunks_fts MATCH ?
             ORDER BY score
-            LIMIT ?"
+            LIMIT ?",
         )?;
 
         let results = stmt.query_map(params![query, limit as i64], |row| {
             let tags_str: String = row.get(6)?;
             let tags: Vec<String> = tags_str.split(',').map(|s| s.to_string()).collect();
-            
+
             Ok(SearchResult {
                 chunk_id: row.get(0)?,
                 source_id: row.get(1)?,
@@ -259,21 +259,17 @@ impl BrainStorage {
         // Query SQLite for counts
         if self.sqlite_path.exists() {
             let conn = Connection::open(&self.sqlite_path)?;
-            
+
             // Total sources
-            let sources: i64 = conn.query_row(
-                "SELECT COUNT(*) FROM sources",
-                [],
-                |row| row.get(0),
-            ).unwrap_or(0);
+            let sources: i64 = conn
+                .query_row("SELECT COUNT(*) FROM sources", [], |row| row.get(0))
+                .unwrap_or(0);
             stats.total_sources = sources as usize;
 
             // Total chunks
-            let chunks: i64 = conn.query_row(
-                "SELECT COUNT(*) FROM brain_chunks",
-                [],
-                |row| row.get(0),
-            ).unwrap_or(0);
+            let chunks: i64 = conn
+                .query_row("SELECT COUNT(*) FROM brain_chunks", [], |row| row.get(0))
+                .unwrap_or(0);
             stats.total_chunks = chunks as usize;
 
             // Count JSONL records
@@ -284,50 +280,39 @@ impl BrainStorage {
             }
 
             // By content type
-            let mut stmt = conn.prepare(
-                "SELECT content_type, COUNT(*) FROM brain_chunks GROUP BY content_type"
-            )?;
+            let mut stmt = conn
+                .prepare("SELECT content_type, COUNT(*) FROM brain_chunks GROUP BY content_type")?;
             let results = stmt.query_map([], |row| {
                 Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
             })?;
-            for result in results {
-                if let Ok((ct, count)) = result {
-                    stats.by_type.insert(ct, count as usize);
-                }
+            for (ct, count) in results.flatten() {
+                stats.by_type.insert(ct, count as usize);
             }
 
             // By language
-            let mut stmt = conn.prepare(
-                "SELECT language, COUNT(*) FROM sources GROUP BY language"
-            )?;
+            let mut stmt =
+                conn.prepare("SELECT language, COUNT(*) FROM sources GROUP BY language")?;
             let results = stmt.query_map([], |row| {
                 Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
             })?;
-            for result in results {
-                if let Ok((lang, count)) = result {
-                    stats.by_language.insert(lang, count as usize);
-                }
+            for (lang, count) in results.flatten() {
+                stats.by_language.insert(lang, count as usize);
             }
 
             // By license
-            let mut stmt = conn.prepare(
-                "SELECT license, COUNT(*) FROM sources GROUP BY license"
-            )?;
+            let mut stmt =
+                conn.prepare("SELECT license, COUNT(*) FROM sources GROUP BY license")?;
             let results = stmt.query_map([], |row| {
                 Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
             })?;
-            for result in results {
-                if let Ok((license, count)) = result {
-                    stats.by_license.insert(license, count as usize);
-                }
+            for (license, count) in results.flatten() {
+                stats.by_license.insert(license, count as usize);
             }
 
             // Last updated
-            let last: Option<String> = conn.query_row(
-                "SELECT MAX(fetched_at) FROM sources",
-                [],
-                |row| row.get(0),
-            ).ok();
+            let last: Option<String> = conn
+                .query_row("SELECT MAX(fetched_at) FROM sources", [], |row| row.get(0))
+                .ok();
 
             if let Some(timestamp) = last {
                 stats.last_updated = chrono::DateTime::parse_from_rfc3339(&timestamp)
@@ -341,14 +326,15 @@ impl BrainStorage {
 
     /// Export to JSONL (privacy-clean by default)
     pub async fn export(&self, options: &ExportOptions) -> Result<String> {
-        let output_path = options.output_path.clone()
-            .unwrap_or_else(|| {
-                let ext = match options.format {
-                    ExportFormat::Jsonl => "jsonl",
-                    ExportFormat::Markdown => "md",
-                };
-                std::env::current_dir().unwrap().join(format!("brainpack_export.{}", ext))
-            });
+        let output_path = options.output_path.clone().unwrap_or_else(|| {
+            let ext = match options.format {
+                ExportFormat::Jsonl => "jsonl",
+                ExportFormat::Markdown => "md",
+            };
+            std::env::current_dir()
+                .unwrap()
+                .join(format!("brainpack_export.{}", ext))
+        });
 
         match options.format {
             ExportFormat::Jsonl => self.export_jsonl(&output_path, options).await,
@@ -366,26 +352,31 @@ impl BrainStorage {
         let reader = BufReader::new(input);
         let mut output = std::fs::File::create(output_path)?;
 
-        for line in reader.lines() {
-            if let Ok(line) = line {
-                if let Ok(mut record) = serde_json::from_str::<serde_json::Value>(&line) {
-                    // Remove source_id if not requested
-                    if !options.include_source_ids {
-                        if let Some(obj) = record.as_object_mut() {
-                            obj.remove("source_id");
-                        }
+        for line in reader.lines().flatten() {
+            if let Ok(mut record) = serde_json::from_str::<serde_json::Value>(&line) {
+                // Remove source_id if not requested
+                if !options.include_source_ids {
+                    if let Some(obj) = record.as_object_mut() {
+                        obj.remove("source_id");
                     }
-                    writeln!(output, "{}", serde_json::to_string(&record)?)?;
                 }
+                writeln!(output, "{}", serde_json::to_string(&record)?)?;
             }
         }
 
         Ok(output_path.to_string_lossy().to_string())
     }
 
-    async fn export_markdown(&self, output_path: &PathBuf, options: &ExportOptions) -> Result<String> {
+    async fn export_markdown(
+        &self,
+        output_path: &PathBuf,
+        options: &ExportOptions,
+    ) -> Result<String> {
         let mut content = String::from("# BrainPack Export\n\n");
-        content.push_str(&format!("Exported at: {}\n\n", chrono::Utc::now().to_rfc3339()));
+        content.push_str(&format!(
+            "Exported at: {}\n\n",
+            chrono::Utc::now().to_rfc3339()
+        ));
 
         if !self.jsonl_path.exists() {
             content.push_str("*No records found.*\n");
@@ -395,50 +386,54 @@ impl BrainStorage {
 
         let file = std::fs::File::open(&self.jsonl_path)?;
         let reader = BufReader::new(file);
-        
+
         let mut current_source = String::new();
         let mut record_count = 0;
 
-        for line in reader.lines() {
-            if let Ok(line) = line {
-                if let Ok(record) = serde_json::from_str::<BrainRecord>(&line) {
-                    record_count += 1;
-                    
-                    if options.include_source_ids && record.source_id != current_source {
-                        current_source = record.source_id.clone();
-                        content.push_str(&format!("\n## Source: {}\n\n", current_source));
-                    }
+        for line in reader.lines().flatten() {
+            if let Ok(record) = serde_json::from_str::<BrainRecord>(&line) {
+                record_count += 1;
 
-                    content.push_str(&format!("### {}\n\n", record.path));
-                    content.push_str(&format!("**Type**: {:?} | **Language**: {} | **License**: {}\n\n",
-                        record.content_type, record.language, record.license));
-                    
-                    if !record.signals.is_empty() {
-                        content.push_str("**Signals**: ");
-                        content.push_str(&record.signals.iter()
+                if options.include_source_ids && record.source_id != current_source {
+                    current_source = record.source_id.clone();
+                    content.push_str(&format!("\n## Source: {}\n\n", current_source));
+                }
+
+                content.push_str(&format!("### {}\n\n", record.path));
+                content.push_str(&format!(
+                    "**Type**: {:?} | **Language**: {} | **License**: {}\n\n",
+                    record.content_type, record.language, record.license
+                ));
+
+                if !record.signals.is_empty() {
+                    content.push_str("**Signals**: ");
+                    content.push_str(
+                        &record
+                            .signals
+                            .iter()
                             .map(|s| format!("{:?}", s))
                             .collect::<Vec<_>>()
-                            .join(", "));
-                        content.push_str("\n\n");
-                    }
+                            .join(", "),
+                    );
+                    content.push_str("\n\n");
+                }
 
-                    content.push_str(&format!("{}\n\n", record.summary));
-                    
-                    // Only show first chunk
-                    if let Some(chunk) = record.chunks.first() {
-                        content.push_str("```\n");
-                        content.push_str(&chunk.text[..chunk.text.len().min(300)]);
-                        if chunk.text.len() > 300 {
-                            content.push_str("\n... (truncated)");
-                        }
-                        content.push_str("\n```\n\n");
-                    }
+                content.push_str(&format!("{}\n\n", record.summary));
 
-                    // Limit to 50 records in markdown
-                    if record_count >= 50 {
-                        content.push_str("\n*... and more records (truncated for readability)*\n");
-                        break;
+                // Only show first chunk
+                if let Some(chunk) = record.chunks.first() {
+                    content.push_str("```\n");
+                    content.push_str(&chunk.text[..chunk.text.len().min(300)]);
+                    if chunk.text.len() > 300 {
+                        content.push_str("\n... (truncated)");
                     }
+                    content.push_str("\n```\n\n");
+                }
+
+                // Limit to 50 records in markdown
+                if record_count >= 50 {
+                    content.push_str("\n*... and more records (truncated for readability)*\n");
+                    break;
                 }
             }
         }

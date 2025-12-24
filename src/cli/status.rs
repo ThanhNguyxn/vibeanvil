@@ -12,7 +12,7 @@ pub async fn run(verbose: bool) -> Result<()> {
     println!();
     println!("  Current state: {}", state_data.current_state);
     println!("  Tool version:  {}", state_data.tool_version);
-    
+
     if let Some(hash) = &state_data.spec_hash {
         println!("  Spec hash:     {}...", &hash[..16.min(hash.len())]);
     }

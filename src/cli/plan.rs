@@ -3,7 +3,7 @@
 use anyhow::Result;
 use tokio::fs;
 
-use crate::audit::{AuditLogger, generate_session_id};
+use crate::audit::{generate_session_id, AuditLogger};
 use crate::provider::{get_provider, Context};
 use crate::state::State;
 use crate::workspace;
@@ -24,12 +24,18 @@ pub async fn run(provider_name: String) -> Result<()> {
     let contract_path = workspace::contracts_path().join("contract.json");
     let contract = fs::read_to_string(&contract_path).await?;
 
-    println!("📋 Creating implementation plan with {} provider...", provider_name);
+    println!(
+        "📋 Creating implementation plan with {} provider...",
+        provider_name
+    );
 
     let provider = get_provider(&provider_name)?;
-    
+
     if !provider.is_available() {
-        println!("⚠️  Provider '{}' not available, generating template plan.", provider_name);
+        println!(
+            "⚠️  Provider '{}' not available, generating template plan.",
+            provider_name
+        );
         let plan = generate_template_plan(&contract);
         save_plan(&plan).await?;
     } else {
@@ -57,7 +63,9 @@ pub async fn run(provider_name: String) -> Result<()> {
 
     // Audit
     let logger = AuditLogger::new(&session_id);
-    logger.log_state_transition("plan", State::ContractLocked, State::PlanCreated).await?;
+    logger
+        .log_state_transition("plan", State::ContractLocked, State::PlanCreated)
+        .await?;
 
     println!("✓ Implementation plan created");
     println!("  → View at .vibeanvil/plan.md");

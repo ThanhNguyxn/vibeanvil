@@ -3,7 +3,7 @@
 use anyhow::Result;
 use tokio::fs;
 
-use crate::audit::{AuditLogger, generate_session_id};
+use crate::audit::{generate_session_id, AuditLogger};
 use crate::state::State;
 use crate::workspace;
 
@@ -28,7 +28,9 @@ pub async fn run(tag: Option<String>, message: Option<String>) -> Result<()> {
 
     // Log
     let logger = AuditLogger::new(&session_id);
-    logger.log_state_transition("ship", State::ReviewPassed, State::Shipped).await?;
+    logger
+        .log_state_transition("ship", State::ReviewPassed, State::Shipped)
+        .await?;
 
     // Save ship record
     let ship_record = serde_json::json!({

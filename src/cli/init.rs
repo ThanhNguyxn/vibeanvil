@@ -2,7 +2,7 @@
 
 use anyhow::Result;
 
-use crate::audit::{AuditLogger, generate_session_id};
+use crate::audit::{generate_session_id, AuditLogger};
 use crate::workspace;
 
 pub async fn run(force: bool) -> Result<()> {
@@ -18,7 +18,9 @@ pub async fn run(force: bool) -> Result<()> {
 
     let session_id = generate_session_id();
     let logger = AuditLogger::new(&session_id);
-    logger.log_command("init", vec![format!("force={}", force)]).await?;
+    logger
+        .log_command("init", vec![format!("force={}", force)])
+        .await?;
 
     println!("✓ Initialized .vibeanvil workspace");
     println!();

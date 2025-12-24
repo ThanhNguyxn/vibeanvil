@@ -3,7 +3,7 @@
 use anyhow::Result;
 use tokio::fs;
 
-use crate::audit::{AuditLogger, generate_session_id};
+use crate::audit::{generate_session_id, AuditLogger};
 use crate::cli::ContractAction;
 use crate::contract::{self, Contract, Priority};
 use crate::state::State;
@@ -21,7 +21,10 @@ pub async fn run(action: ContractAction) -> Result<()> {
 async fn create_contract() -> Result<()> {
     let state_data = workspace::load_state().await?;
 
-    if !state_data.current_state.is_at_least(State::BlueprintDrafted) {
+    if !state_data
+        .current_state
+        .is_at_least(State::BlueprintDrafted)
+    {
         anyhow::bail!("Blueprint not drafted. Run 'vibeanvil blueprint' first.");
     }
 
@@ -55,7 +58,13 @@ async fn create_contract() -> Result<()> {
 
     // Audit
     let logger = AuditLogger::new(&session_id);
-    logger.log_state_transition("contract create", State::BlueprintDrafted, State::ContractDrafted).await?;
+    logger
+        .log_state_transition(
+            "contract create",
+            State::BlueprintDrafted,
+            State::ContractDrafted,
+        )
+        .await?;
 
     println!("✓ Contract created");
     println!("  → Edit at .vibeanvil/contracts/contract.json");
@@ -107,7 +116,7 @@ async fn lock_contract() -> Result<()> {
 
     let mut contract = contract::load_contract().await?;
     let tool_version = env!("CARGO_PKG_VERSION");
-    
+
     let lock = contract.lock(tool_version)?;
     contract::save_contract(&contract).await?;
     contract::save_lock(&lock).await?;
@@ -121,7 +130,13 @@ async fn lock_contract() -> Result<()> {
 
     // Audit
     let logger = AuditLogger::new(&session_id);
-    logger.log_state_transition("contract lock", State::ContractDrafted, State::ContractLocked).await?;
+    logger
+        .log_state_transition(
+            "contract lock",
+            State::ContractDrafted,
+            State::ContractLocked,
+        )
+        .await?;
 
     println!("🔒 Contract LOCKED");
     println!();
@@ -142,7 +157,7 @@ async fn show_status() -> Result<()> {
             println!("Project: {}", contract.project_name);
             println!("Goals: {}", contract.goals.len());
             println!("Requirements: {}", contract.requirements.len());
-            
+
             if contract.is_locked() {
                 if let Ok(lock) = contract::load_lock().await {
                     println!();

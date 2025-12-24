@@ -50,7 +50,7 @@ impl ContentType {
     /// Determine content type from file path
     pub fn from_path(path: &str) -> Self {
         let lower = path.to_lowercase();
-        
+
         if lower.contains("readme") {
             ContentType::Readme
         } else if lower.contains("docs/") || (lower.ends_with(".md") && !lower.contains("readme")) {
@@ -61,11 +61,19 @@ impl ContentType {
             ContentType::Prompt
         } else if lower.contains("template") {
             ContentType::Template
-        } else if lower.ends_with(".toml") || lower.ends_with(".yaml") || lower.ends_with(".yml") 
-            || lower.ends_with(".json") || lower.contains("config") {
+        } else if lower.ends_with(".toml")
+            || lower.ends_with(".yaml")
+            || lower.ends_with(".yml")
+            || lower.ends_with(".json")
+            || lower.contains("config")
+        {
             ContentType::Config
-        } else if lower.ends_with(".rs") || lower.ends_with(".py") || lower.ends_with(".js") 
-            || lower.ends_with(".ts") || lower.ends_with(".go") {
+        } else if lower.ends_with(".rs")
+            || lower.ends_with(".py")
+            || lower.ends_with(".js")
+            || lower.ends_with(".ts")
+            || lower.ends_with(".go")
+        {
             ContentType::Code
         } else {
             ContentType::Other
@@ -135,7 +143,7 @@ pub struct SourceMeta {
 }
 
 /// BrainPack statistics
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct BrainStats {
     /// Total records
     pub total_records: usize,
@@ -155,22 +163,6 @@ pub struct BrainStats {
     pub by_language: std::collections::HashMap<String, usize>,
     /// By license
     pub by_license: std::collections::HashMap<String, usize>,
-}
-
-impl Default for BrainStats {
-    fn default() -> Self {
-        Self {
-            total_records: 0,
-            total_sources: 0,
-            total_chunks: 0,
-            jsonl_size_bytes: 0,
-            sqlite_size_bytes: 0,
-            last_updated: None,
-            by_type: std::collections::HashMap::new(),
-            by_language: std::collections::HashMap::new(),
-            by_license: std::collections::HashMap::new(),
-        }
-    }
 }
 
 /// Search result from brain

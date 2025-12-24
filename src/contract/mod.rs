@@ -163,8 +163,7 @@ impl Contract {
     /// Generate canonical JSON for hashing
     pub fn canonical_json(&self) -> Result<String> {
         // Sort keys and format consistently
-        serde_json::to_string(self)
-            .context("Failed to serialize contract to JSON")
+        serde_json::to_string(self).context("Failed to serialize contract to JSON")
     }
 
     /// Generate SHA-256 hash for locking
@@ -234,15 +233,14 @@ pub async fn load_contract() -> Result<Contract> {
         .await
         .context("Failed to read contract file")?;
 
-    serde_json::from_str(&content)
-        .context("Failed to parse contract.json")
+    serde_json::from_str(&content).context("Failed to parse contract.json")
 }
 
 /// Save contract to file
 pub async fn save_contract(contract: &Contract) -> Result<()> {
     let path = contract_path();
     fs::create_dir_all(path.parent().unwrap()).await?;
-    
+
     let content = serde_json::to_string_pretty(contract)?;
     fs::write(&path, content)
         .await
@@ -269,8 +267,7 @@ pub async fn load_lock() -> Result<ContractLock> {
         .await
         .context("Failed to read contract.lock")?;
 
-    serde_json::from_str(&content)
-        .context("Failed to parse contract.lock")
+    serde_json::from_str(&content).context("Failed to parse contract.lock")
 }
 
 #[cfg(test)]

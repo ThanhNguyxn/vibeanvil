@@ -79,7 +79,7 @@ impl EvidenceCollector {
     pub async fn new(session_id: &str) -> Result<Self> {
         let evidence_dir = workspace::evidence_path(session_id);
         fs::create_dir_all(&evidence_dir).await?;
-        
+
         Ok(Self {
             session_id: session_id.to_string(),
             evidence_dir,
@@ -96,9 +96,12 @@ impl EvidenceCollector {
         let content = String::from_utf8_lossy(&output.stdout);
         let (redacted_content, was_redacted) = redact_secrets(&content);
 
-        let filename = format!("git_diff_{}.txt", chrono::Utc::now().format("%Y%m%d_%H%M%S"));
+        let filename = format!(
+            "git_diff_{}.txt",
+            chrono::Utc::now().format("%Y%m%d_%H%M%S")
+        );
         let filepath = self.evidence_dir.join(&filename);
-        
+
         fs::write(&filepath, &redacted_content).await?;
 
         Ok(Evidence {
@@ -115,9 +118,12 @@ impl EvidenceCollector {
     pub async fn capture_build_log(&self, content: &str) -> Result<Evidence> {
         let (redacted_content, was_redacted) = redact_secrets(content);
 
-        let filename = format!("build_log_{}.txt", chrono::Utc::now().format("%Y%m%d_%H%M%S"));
+        let filename = format!(
+            "build_log_{}.txt",
+            chrono::Utc::now().format("%Y%m%d_%H%M%S")
+        );
         let filepath = self.evidence_dir.join(&filename);
-        
+
         fs::write(&filepath, &redacted_content).await?;
 
         Ok(Evidence {
@@ -134,9 +140,12 @@ impl EvidenceCollector {
     pub async fn capture_test_log(&self, content: &str) -> Result<Evidence> {
         let (redacted_content, was_redacted) = redact_secrets(content);
 
-        let filename = format!("test_log_{}.txt", chrono::Utc::now().format("%Y%m%d_%H%M%S"));
+        let filename = format!(
+            "test_log_{}.txt",
+            chrono::Utc::now().format("%Y%m%d_%H%M%S")
+        );
         let filepath = self.evidence_dir.join(&filename);
-        
+
         fs::write(&filepath, &redacted_content).await?;
 
         Ok(Evidence {
@@ -153,9 +162,12 @@ impl EvidenceCollector {
     pub async fn capture_lint_log(&self, content: &str) -> Result<Evidence> {
         let (redacted_content, was_redacted) = redact_secrets(content);
 
-        let filename = format!("lint_log_{}.txt", chrono::Utc::now().format("%Y%m%d_%H%M%S"));
+        let filename = format!(
+            "lint_log_{}.txt",
+            chrono::Utc::now().format("%Y%m%d_%H%M%S")
+        );
         let filepath = self.evidence_dir.join(&filename);
-        
+
         fs::write(&filepath, &redacted_content).await?;
 
         Ok(Evidence {
@@ -169,12 +181,21 @@ impl EvidenceCollector {
     }
 
     /// Capture custom evidence
-    pub async fn capture_custom(&self, name: &str, content: &str, description: &str) -> Result<Evidence> {
+    pub async fn capture_custom(
+        &self,
+        name: &str,
+        content: &str,
+        description: &str,
+    ) -> Result<Evidence> {
         let (redacted_content, was_redacted) = redact_secrets(content);
 
-        let filename = format!("{}_{}.txt", name, chrono::Utc::now().format("%Y%m%d_%H%M%S"));
+        let filename = format!(
+            "{}_{}.txt",
+            name,
+            chrono::Utc::now().format("%Y%m%d_%H%M%S")
+        );
         let filepath = self.evidence_dir.join(&filename);
-        
+
         fs::write(&filepath, &redacted_content).await?;
 
         Ok(Evidence {
@@ -201,7 +222,7 @@ impl EvidenceCollector {
         if !manifest_path.exists() {
             return Ok(vec![]);
         }
-        
+
         let content = fs::read_to_string(manifest_path).await?;
         let evidence: Vec<Evidence> = serde_json::from_str(&content)?;
         Ok(evidence)

@@ -38,10 +38,10 @@ pub struct ProviderResponse {
 pub trait Provider: Send + Sync {
     /// Execute a prompt with the provider
     async fn execute(&self, prompt: &str, context: &Context) -> Result<ProviderResponse>;
-    
+
     /// Get provider name
     fn name(&self) -> &str;
-    
+
     /// Check if provider is available
     fn is_available(&self) -> bool;
 }
@@ -51,7 +51,10 @@ pub fn get_provider(name: &str) -> Result<Box<dyn Provider>> {
     match name {
         "claude-code" | "claude" => Ok(Box::new(claude_code::ClaudeCodeProvider::new())),
         "mock" => Ok(Box::new(MockProvider)),
-        _ => Err(anyhow!("Unknown provider: {}. Available: claude-code, mock", name)),
+        _ => Err(anyhow!(
+            "Unknown provider: {}. Available: claude-code, mock",
+            name
+        )),
     }
 }
 
@@ -103,7 +106,7 @@ mod tests {
             session_id: "test".to_string(),
             contract_hash: None,
         };
-        
+
         let response = provider.execute("test prompt", &context).await.unwrap();
         assert!(response.success);
         assert!(response.output.contains("MOCK"));

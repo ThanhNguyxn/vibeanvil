@@ -3,7 +3,7 @@
 use anyhow::Result;
 use std::path::PathBuf;
 
-use crate::audit::{AuditLogger, generate_session_id};
+use crate::audit::{generate_session_id, AuditLogger};
 use crate::brain::harvester::{DownloadMethod, HarvestConfig, Harvester};
 use crate::brain::storage::BrainStorage;
 use crate::cli::HarvestArgs;
@@ -25,7 +25,10 @@ pub async fn run(args: HarvestArgs) -> Result<()> {
     if let Some(lang) = &args.language {
         println!("  Language: {}", lang);
     }
-    println!("  Min stars: {}, Max repos: {}", args.min_stars, args.max_repos);
+    println!(
+        "  Min stars: {}, Max repos: {}",
+        args.min_stars, args.max_repos
+    );
     println!("  Updated within: {} days", args.updated_within_days);
     println!();
 
@@ -37,9 +40,10 @@ pub async fn run(args: HarvestArgs) -> Result<()> {
     }
 
     // Build config
-    let cache_dir = args.cache_dir
+    let cache_dir = args
+        .cache_dir
         .map(PathBuf::from)
-        .unwrap_or_else(|| workspace::cache_dir());
+        .unwrap_or_else(workspace::cache_dir);
 
     let config = HarvestConfig {
         queries: args.query.clone(),
@@ -64,7 +68,7 @@ pub async fn run(args: HarvestArgs) -> Result<()> {
     // Search for repos
     println!("→ Searching GitHub...");
     let repos = harvester.search_repos().await?;
-    
+
     if repos.is_empty() {
         println!("No repositories found matching the criteria.");
         return Ok(());
@@ -108,14 +112,16 @@ pub async fn run(args: HarvestArgs) -> Result<()> {
     println!("Use 'vibeanvil brain stats' to view statistics");
     println!("Use 'vibeanvil brain search \"<query>\"' to search");
 
-    logger.log_command(
-        "harvest",
-        vec![
-            format!("queries={:?}", args.query),
-            format!("sources={}", sources_processed),
-            format!("records={}", total_records),
-        ],
-    ).await?;
+    logger
+        .log_command(
+            "harvest",
+            vec![
+                format!("queries={:?}", args.query),
+                format!("sources={}", sources_processed),
+                format!("records={}", total_records),
+            ],
+        )
+        .await?;
 
     Ok(())
 }

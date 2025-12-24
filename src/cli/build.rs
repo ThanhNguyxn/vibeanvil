@@ -2,9 +2,9 @@
 
 use anyhow::Result;
 
-use crate::audit::{AuditLogger, generate_session_id};
-use crate::build::{AutoBuild, BuildConfig, BuildMode, ManualBuild};
+use crate::audit::{generate_session_id, AuditLogger};
 use crate::build::iterate::IterateBuild;
+use crate::build::{AutoBuild, BuildConfig, BuildMode, ManualBuild};
 use crate::cli::{BuildArgs, ManualBuildAction};
 use crate::state::State;
 use crate::workspace;
@@ -52,7 +52,7 @@ pub async fn run(args: BuildArgs) -> Result<()> {
 
 async fn run_manual_build(args: &BuildArgs, session_id: &str, logger: &AuditLogger) -> Result<()> {
     let action = args.action.clone().unwrap_or(ManualBuildAction::Start);
-    
+
     match action {
         ManualBuildAction::Start => {
             // Update state to build in progress
@@ -60,7 +60,9 @@ async fn run_manual_build(args: &BuildArgs, session_id: &str, logger: &AuditLogg
             if state.current_state == State::PlanCreated {
                 state.transition_to(State::BuildInProgress, "build start", session_id)?;
                 workspace::save_state(&state).await?;
-                logger.log_state_transition("build start", State::PlanCreated, State::BuildInProgress).await?;
+                logger
+                    .log_state_transition("build start", State::PlanCreated, State::BuildInProgress)
+                    .await?;
             }
 
             let mut build = ManualBuild::new(session_id).await?;
@@ -73,12 +75,14 @@ async fn run_manual_build(args: &BuildArgs, session_id: &str, logger: &AuditLogg
         ManualBuildAction::Complete => {
             let build = ManualBuild::new(session_id).await?;
             let result = build.complete().await?;
-            
+
             // Update state to build done
             let mut state = workspace::load_state().await?;
             state.transition_to(State::BuildDone, "build complete", session_id)?;
             workspace::save_state(&state).await?;
-            logger.log_state_transition("build complete", State::BuildInProgress, State::BuildDone).await?;
+            logger
+                .log_state_transition("build complete", State::BuildInProgress, State::BuildDone)
+                .await?;
 
             println!("✓ Build completed");
             if result.success {
@@ -96,17 +100,25 @@ async fn run_auto_build(config: BuildConfig, session_id: &str, logger: &AuditLog
     if state.current_state == State::PlanCreated {
         state.transition_to(State::BuildInProgress, "build auto", session_id)?;
         workspace::save_state(&state).await?;
-        logger.log_state_transition("build auto start", State::PlanCreated, State::BuildInProgress).await?;
+        logger
+            .log_state_transition(
+                "build auto start",
+                State::PlanCreated,
+                State::BuildInProgress,
+            )
+            .await?;
     }
 
     println!("🔧 Running auto build with {} provider...", config.provider);
 
     let build = AutoBuild::new(config, session_id);
-    
+
     // Read plan for context
     let plan_path = workspace::workspace_path().join("plan.md");
-    let plan = tokio::fs::read_to_string(&plan_path).await.unwrap_or_default();
-    
+    let plan = tokio::fs::read_to_string(&plan_path)
+        .await
+        .unwrap_or_default();
+
     let prompt = format!("Implement the following plan:\n\n{}", plan);
     let result = build.execute(&prompt).await?;
 
@@ -114,7 +126,13 @@ async fn run_auto_build(config: BuildConfig, session_id: &str, logger: &AuditLog
     let mut state = workspace::load_state().await?;
     state.transition_to(State::BuildDone, "build auto complete", session_id)?;
     workspace::save_state(&state).await?;
-    logger.log_state_transition("build auto complete", State::BuildInProgress, State::BuildDone).await?;
+    logger
+        .log_state_transition(
+            "build auto complete",
+            State::BuildInProgress,
+            State::BuildDone,
+        )
+        .await?;
 
     if result.success {
         println!("✓ Auto build completed successfully");
@@ -131,23 +149,38 @@ async fn run_auto_build(config: BuildConfig, session_id: &str, logger: &AuditLog
     Ok(())
 }
 
-async fn run_iterate_build(config: BuildConfig, session_id: &str, logger: &AuditLogger) -> Result<()> {
+async fn run_iterate_build(
+    config: BuildConfig,
+    session_id: &str,
+    logger: &AuditLogger,
+) -> Result<()> {
     // Update state to build in progress
     let mut state = workspace::load_state().await?;
     if state.current_state == State::PlanCreated {
         state.transition_to(State::BuildInProgress, "build iterate", session_id)?;
         workspace::save_state(&state).await?;
-        logger.log_state_transition("build iterate start", State::PlanCreated, State::BuildInProgress).await?;
+        logger
+            .log_state_transition(
+                "build iterate start",
+                State::PlanCreated,
+                State::BuildInProgress,
+            )
+            .await?;
     }
 
-    println!("🔄 Running iterate build (max {} iterations)...", config.max_iterations);
+    println!(
+        "🔄 Running iterate build (max {} iterations)...",
+        config.max_iterations
+    );
 
     let build = IterateBuild::new(config.clone(), session_id).await?;
-    
+
     // Read plan for context
     let plan_path = workspace::workspace_path().join("plan.md");
-    let plan = tokio::fs::read_to_string(&plan_path).await.unwrap_or_default();
-    
+    let plan = tokio::fs::read_to_string(&plan_path)
+        .await
+        .unwrap_or_default();
+
     let prompt = format!("Implement the following plan:\n\n{}", plan);
     let result = build.execute(&prompt).await?;
 
@@ -155,12 +188,24 @@ async fn run_iterate_build(config: BuildConfig, session_id: &str, logger: &Audit
     let mut state = workspace::load_state().await?;
     state.transition_to(State::BuildDone, "build iterate complete", session_id)?;
     workspace::save_state(&state).await?;
-    logger.log_state_transition("build iterate complete", State::BuildInProgress, State::BuildDone).await?;
+    logger
+        .log_state_transition(
+            "build iterate complete",
+            State::BuildInProgress,
+            State::BuildDone,
+        )
+        .await?;
 
     if result.success {
-        println!("✓ Iterate build completed in {} iteration(s)", result.iterations);
+        println!(
+            "✓ Iterate build completed in {} iteration(s)",
+            result.iterations
+        );
     } else {
-        println!("✗ Iterate build failed after {} iteration(s):", result.iterations);
+        println!(
+            "✗ Iterate build failed after {} iteration(s):",
+            result.iterations
+        );
         for error in &result.errors {
             println!("  - {}", error);
         }

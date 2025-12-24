@@ -29,7 +29,7 @@ fn test_version() {
 #[test]
 fn test_init_creates_workspace() {
     let temp = TempDir::new().unwrap();
-    
+
     vibeanvil()
         .arg("init")
         .current_dir(temp.path())
@@ -47,7 +47,7 @@ fn test_init_creates_workspace() {
 #[test]
 fn test_init_force_reinitializes() {
     let temp = TempDir::new().unwrap();
-    
+
     // First init
     vibeanvil()
         .arg("init")
@@ -75,7 +75,7 @@ fn test_init_force_reinitializes() {
 #[test]
 fn test_status_without_init_fails() {
     let temp = TempDir::new().unwrap();
-    
+
     vibeanvil()
         .arg("status")
         .current_dir(temp.path())
@@ -87,7 +87,7 @@ fn test_status_without_init_fails() {
 #[test]
 fn test_status_after_init() {
     let temp = TempDir::new().unwrap();
-    
+
     // Init first
     vibeanvil()
         .arg("init")
@@ -107,7 +107,7 @@ fn test_status_after_init() {
 #[test]
 fn test_full_workflow_to_contract_lock() {
     let temp = TempDir::new().unwrap();
-    
+
     // Init
     vibeanvil()
         .arg("init")
@@ -161,7 +161,7 @@ fn test_full_workflow_to_contract_lock() {
 #[test]
 fn test_log_empty() {
     let temp = TempDir::new().unwrap();
-    
+
     vibeanvil()
         .arg("init")
         .current_dir(temp.path())

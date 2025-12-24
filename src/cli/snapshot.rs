@@ -3,7 +3,7 @@
 use anyhow::Result;
 use tokio::fs;
 
-use crate::audit::{AuditLogger, generate_session_id};
+use crate::audit::{generate_session_id, AuditLogger};
 use crate::evidence::EvidenceCollector;
 use crate::workspace;
 
@@ -47,7 +47,9 @@ pub async fn run(message: Option<String>) -> Result<()> {
         fs::copy(&contract_path, snapshot_dir.join("contract.json")).await?;
     }
 
-    logger.log_command("snapshot", vec![message.clone().unwrap_or_default()]).await?;
+    logger
+        .log_command("snapshot", vec![message.clone().unwrap_or_default()])
+        .await?;
 
     println!("📸 Snapshot created: {}", snapshot_name);
     if let Some(msg) = message {

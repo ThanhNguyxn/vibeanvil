@@ -3,7 +3,7 @@
 use anyhow::Result;
 use tokio::fs;
 
-use crate::audit::{AuditLogger, generate_session_id};
+use crate::audit::{generate_session_id, AuditLogger};
 use crate::state::State;
 use crate::workspace;
 
@@ -14,7 +14,10 @@ pub async fn run(auto: bool) -> Result<()> {
         anyhow::bail!("Intake not captured. Run 'vibeanvil intake' first.");
     }
 
-    if state_data.current_state.is_at_least(State::BlueprintDrafted) {
+    if state_data
+        .current_state
+        .is_at_least(State::BlueprintDrafted)
+    {
         println!("Blueprint already drafted. View with 'cat .vibeanvil/blueprints/blueprint.md'");
         return Ok(());
     }
@@ -48,7 +51,9 @@ pub async fn run(auto: bool) -> Result<()> {
 
     // Audit log
     let logger = AuditLogger::new(&session_id);
-    logger.log_state_transition("blueprint", State::IntakeCaptured, State::BlueprintDrafted).await?;
+    logger
+        .log_state_transition("blueprint", State::IntakeCaptured, State::BlueprintDrafted)
+        .await?;
 
     println!("✓ Blueprint drafted");
     println!("  → Saved to .vibeanvil/blueprints/blueprint.md");

@@ -2,7 +2,7 @@
 
 use anyhow::Result;
 
-use crate::audit::{AuditLogger, generate_session_id};
+use crate::audit::{generate_session_id, AuditLogger};
 use crate::cli::ReviewAction;
 use crate::state::State;
 use crate::workspace;
@@ -56,7 +56,9 @@ async fn pass_review() -> Result<()> {
     workspace::save_state(&state_data).await?;
 
     let logger = AuditLogger::new(&session_id);
-    logger.log_state_transition("review pass", State::BuildDone, State::ReviewPassed).await?;
+    logger
+        .log_state_transition("review pass", State::BuildDone, State::ReviewPassed)
+        .await?;
 
     println!("✓ Review PASSED");
     println!();
@@ -80,7 +82,9 @@ async fn fail_review() -> Result<()> {
     workspace::save_state(&state_data).await?;
 
     let logger = AuditLogger::new(&session_id);
-    logger.log_state_transition("review fail", State::BuildDone, State::ReviewFailed).await?;
+    logger
+        .log_state_transition("review fail", State::BuildDone, State::ReviewFailed)
+        .await?;
 
     println!("✗ Review FAILED");
     println!();
@@ -98,7 +102,10 @@ async fn show_status() -> Result<()> {
         State::ReviewPassed => println!("  ✓ PASSED"),
         State::ReviewFailed => println!("  ✗ FAILED"),
         State::BuildDone => println!("  ⏳ Pending review"),
-        _ => println!("  ⚠️  Not ready for review (state: {})", state_data.current_state),
+        _ => println!(
+            "  ⚠️  Not ready for review (state: {})",
+            state_data.current_state
+        ),
     }
 
     Ok(())

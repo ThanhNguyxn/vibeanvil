@@ -104,16 +104,15 @@ impl AuditLogger {
         prev: State,
         next: State,
     ) -> Result<AuditEntry> {
-        let entry = AuditEntry::new(command, vec![], &self.session_id)
-            .with_state_transition(prev, next);
+        let entry =
+            AuditEntry::new(command, vec![], &self.session_id).with_state_transition(prev, next);
         self.write_entry(&entry).await?;
         Ok(entry)
     }
 
     /// Log an error
     pub async fn log_error(&self, command: &str, error: &str) -> Result<AuditEntry> {
-        let entry = AuditEntry::new(command, vec![], &self.session_id)
-            .with_error(error);
+        let entry = AuditEntry::new(command, vec![], &self.session_id).with_error(error);
         self.write_entry(&entry).await?;
         Ok(entry)
     }
@@ -126,7 +125,7 @@ impl AuditLogger {
     /// Write entry to audit log file
     async fn write_entry(&self, entry: &AuditEntry) -> Result<()> {
         let path = workspace::audit_log_path();
-        
+
         // Ensure logs directory exists
         if let Some(parent) = path.parent() {
             tokio::fs::create_dir_all(parent).await?;
@@ -152,7 +151,7 @@ impl AuditLogger {
 /// Read audit log entries
 pub async fn read_audit_log(limit: Option<usize>) -> Result<Vec<AuditEntry>> {
     let path = workspace::audit_log_path();
-    
+
     if !path.exists() {
         return Ok(vec![]);
     }
@@ -185,7 +184,7 @@ mod tests {
     fn test_audit_entry_serialization() {
         let entry = AuditEntry::new("test", vec!["arg1".to_string()], "session-1")
             .with_state_transition(State::Init, State::IntakeCaptured);
-        
+
         let json = entry.to_jsonl().unwrap();
         assert!(json.contains("\"command\":\"test\""));
         assert!(json.contains("\"session_id\":\"session-1\""));
@@ -193,9 +192,8 @@ mod tests {
 
     #[test]
     fn test_error_entry() {
-        let entry = AuditEntry::new("fail", vec![], "session-1")
-            .with_error("Something went wrong");
-        
+        let entry = AuditEntry::new("fail", vec![], "session-1").with_error("Something went wrong");
+
         assert!(!entry.success);
         assert_eq!(entry.error.as_deref(), Some("Something went wrong"));
     }

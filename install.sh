@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-REPO="OWNER/vibeanvil"
+REPO="ThanhNguyxn/vibeanvil"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 VERSION="${VERSION:-latest}"
 

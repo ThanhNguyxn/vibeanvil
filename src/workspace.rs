@@ -1,7 +1,7 @@
 //! Workspace management for .vibeanvil directory
 
 use anyhow::{Context, Result};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use tokio::fs;
 
 use crate::state::StateData;
@@ -97,7 +97,7 @@ pub fn evidence_path(session_id: &str) -> PathBuf {
 /// Load state from state.json
 pub async fn load_state() -> Result<StateData> {
     let path = state_path();
-    
+
     if !path.exists() {
         anyhow::bail!("Workspace not initialized. Run 'vibeanvil init' first.");
     }
@@ -106,8 +106,8 @@ pub async fn load_state() -> Result<StateData> {
         .await
         .with_context(|| format!("Failed to read state file: {}", path.display()))?;
 
-    let state: StateData = serde_json::from_str(&content)
-        .with_context(|| "Failed to parse state.json")?;
+    let state: StateData =
+        serde_json::from_str(&content).with_context(|| "Failed to parse state.json")?;
 
     Ok(state)
 }
@@ -116,7 +116,7 @@ pub async fn load_state() -> Result<StateData> {
 pub async fn save_state(state: &StateData) -> Result<()> {
     let path = state_path();
     let content = serde_json::to_string_pretty(state)?;
-    
+
     fs::write(&path, content)
         .await
         .with_context(|| format!("Failed to write state file: {}", path.display()))?;

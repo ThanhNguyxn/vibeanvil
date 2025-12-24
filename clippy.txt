@@ -1,0 +1,267 @@
+    Checking vibeanvil v0.1.0 (D:\Code\vibeanvil)
+warning: use of deprecated associated function `assert_cmd::Command::cargo_bin`: incompatible with a custom cargo build-dir, see instead `cargo::cargo_bin_cmd!`
+ --> tests\integration_tests.rs:8:14
+  |
+8 |     Command::cargo_bin("vibeanvil").unwrap()
+  |              ^^^^^^^^^
+  |
+  = note: `#[warn(deprecated)]` on by default
+
+warning: `vibeanvil` (test "integration_tests") generated 1 warning
+warning: value assigned to `last_output` is never read
+  --> src\build\iterate.rs:43:31
+   |
+43 |         let mut last_output = String::new();
+   |                               ^^^^^^^^^^^^^
+   |
+   = help: maybe it is overwritten before being read?
+   = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: useless use of `format!`
+   --> src\brain\harvester.rs:208:32
+    |
+208 |         ContentType::Config => format!("Configuration file"),
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using `.to_string()`: `"Configuration file".to_string()`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#useless_format
+    = note: `#[warn(clippy::useless_format)]` on by default
+
+warning: useless use of `format!`
+   --> src\brain\harvester.rs:210:34
+    |
+210 |         ContentType::Workflow => format!("CI/CD workflow configuration"),
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using `.to_string()`: `"CI/CD workflow configuration".to_string()`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#useless_format
+
+warning: useless use of `format!`
+   --> src\brain\harvester.rs:211:34
+    |
+211 |         ContentType::Template => format!("Template file"),
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using `.to_string()`: `"Template file".to_string()`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#useless_format
+
+warning: useless use of `format!`
+   --> src\brain\harvester.rs:212:32
+    |
+212 |         ContentType::Prompt => format!("Prompt/rules file"),
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using `.to_string()`: `"Prompt/rules file".to_string()`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#useless_format
+
+warning: unnecessary `if let` since only the `Ok` variant of the iterator element is used
+   --> src\brain\storage.rs:288:13
+    |
+288 | /             for result in results {
+289 | |                 if let Ok((ct, count)) = result {
+290 | |                     stats.by_type.insert(ct, count as usize);
+291 | |                 }
+292 | |             }
+    | |_____________^
+    |
+help: try `.flatten()` and remove the `if let` statement in the for loop
+   --> src\brain\storage.rs:289:17
+    |
+289 | /                 if let Ok((ct, count)) = result {
+290 | |                     stats.by_type.insert(ct, count as usize);
+291 | |                 }
+    | |_________________^
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#manual_flatten
+    = note: `#[warn(clippy::manual_flatten)]` on by default
+help: try
+    |
+288 ~             for (ct, count) in results.flatten() {
+289 +                 stats.by_type.insert(ct, count as usize);
+290 +             }
+    |
+
+warning: unnecessary `if let` since only the `Ok` variant of the iterator element is used
+   --> src\brain\storage.rs:300:13
+    |
+300 | /             for result in results {
+301 | |                 if let Ok((lang, count)) = result {
+302 | |                     stats.by_language.insert(lang, count as usize);
+303 | |                 }
+304 | |             }
+    | |_____________^
+    |
+help: try `.flatten()` and remove the `if let` statement in the for loop
+   --> src\brain\storage.rs:301:17
+    |
+301 | /                 if let Ok((lang, count)) = result {
+302 | |                     stats.by_language.insert(lang, count as usize);
+303 | |                 }
+    | |_________________^
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#manual_flatten
+help: try
+    |
+300 ~             for (lang, count) in results.flatten() {
+301 +                 stats.by_language.insert(lang, count as usize);
+302 +             }
+    |
+
+warning: unnecessary `if let` since only the `Ok` variant of the iterator element is used
+   --> src\brain\storage.rs:312:13
+    |
+312 | /             for result in results {
+313 | |                 if let Ok((license, count)) = result {
+314 | |                     stats.by_license.insert(license, count as usize);
+315 | |                 }
+316 | |             }
+    | |_____________^
+    |
+help: try `.flatten()` and remove the `if let` statement in the for loop
+   --> src\brain\storage.rs:313:17
+    |
+313 | /                 if let Ok((license, count)) = result {
+314 | |                     stats.by_license.insert(license, count as usize);
+315 | |                 }
+    | |_________________^
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#manual_flatten
+help: try
+    |
+312 ~             for (license, count) in results.flatten() {
+313 +                 stats.by_license.insert(license, count as usize);
+314 +             }
+    |
+
+warning: unnecessary `if let` since only the `Ok` variant of the iterator element is used
+   --> src\brain\storage.rs:361:9
+    |
+361 | /         for line in reader.lines() {
+362 | |             if let Ok(line) = line {
+363 | |                 if let Ok(mut record) = serde_json::from_str::<serde_json::Value>(&line) {
+...   |
+373 | |         }
+    | |_________^
+    |
+help: try `.flatten()` and remove the `if let` statement in the for loop
+   --> src\brain\storage.rs:362:13
+    |
+362 | /             if let Ok(line) = line {
+363 | |                 if let Ok(mut record) = serde_json::from_str::<serde_json::Value>(&line) {
+364 | |                     // Remove source_id if not requested
+365 | |                     if !options.include_source_ids {
+...   |
+372 | |             }
+    | |_____________^
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#manual_flatten
+help: try
+    |
+361 ~         for line in reader.lines().flatten() {
+362 +             if let Ok(mut record) = serde_json::from_str::<serde_json::Value>(&line) {
+363 +                 // Remove source_id if not requested
+364 +                 if !options.include_source_ids {
+365 +                     if let Some(obj) = record.as_object_mut() {
+366 +                         obj.remove("source_id");
+367 +                     }
+368 +                 }
+369 +                 writeln!(output, "{}", serde_json::to_string(&record)?)?;
+370 +             }
+371 +         }
+    |
+
+warning: unnecessary `if let` since only the `Ok` variant of the iterator element is used
+   --> src\brain\storage.rs:401:9
+    |
+401 | /         for line in reader.lines() {
+402 | |             if let Ok(line) = line {
+403 | |                 if let Ok(record) = serde_json::from_str::<BrainRecord>(&line) {
+404 | |                     record_count += 1;
+...   |
+449 | |         }
+    | |_________^
+    |
+help: try `.flatten()` and remove the `if let` statement in the for loop
+   --> src\brain\storage.rs:402:13
+    |
+402 | /             if let Ok(line) = line {
+403 | |                 if let Ok(record) = serde_json::from_str::<BrainRecord>(&line) {
+404 | |                     record_count += 1;
+...   |
+448 | |             }
+    | |_____________^
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#manual_flatten
+help: try
+    |
+401 ~         for line in reader.lines().flatten() {
+402 +             if let Ok(record) = serde_json::from_str::<BrainRecord>(&line) {
+403 +                 record_count += 1;
+404 + 
+405 +                 if options.include_source_ids && record.source_id != current_source {
+406 +                     current_source = record.source_id.clone();
+407 +                     content.push_str(&format!("\n## Source: {}\n\n", current_source));
+408 +                 }
+409 + 
+410 +                 content.push_str(&format!("### {}\n\n", record.path));
+411 +                 content.push_str(&format!(
+412 +                     "**Type**: {:?} | **Language**: {} | **License**: {}\n\n",
+413 +                     record.content_type, record.language, record.license
+414 +                 ));
+415 + 
+416 +                 if !record.signals.is_empty() {
+417 +                     content.push_str("**Signals**: ");
+418 +                     content.push_str(
+419 +                         &record
+420 +                             .signals
+421 +                             .iter()
+422 +                             .map(|s| format!("{:?}", s))
+423 +                             .collect::<Vec<_>>()
+424 +                             .join(", "),
+425 +                     );
+426 +                     content.push_str("\n\n");
+427 +                 }
+428 + 
+429 +                 content.push_str(&format!("{}\n\n", record.summary));
+430 + 
+431 +                 // Only show first chunk
+432 +                 if let Some(chunk) = record.chunks.first() {
+433 +                     content.push_str("```\n");
+434 +                     content.push_str(&chunk.text[..chunk.text.len().min(300)]);
+435 +                     if chunk.text.len() > 300 {
+436 +                         content.push_str("\n... (truncated)");
+437 +                     }
+438 +                     content.push_str("\n```\n\n");
+439 +                 }
+440 + 
+441 +                 // Limit to 50 records in markdown
+442 +                 if record_count >= 50 {
+443 +                     content.push_str("\n*... and more records (truncated for readability)*\n");
+444 +                     break;
+445 +                 }
+446 +             }
+447 +         }
+    |
+
+warning: this `impl` can be derived
+   --> src\brain\mod.rs:168:1
+    |
+168 | / impl Default for BrainStats {
+169 | |     fn default() -> Self {
+170 | |         Self {
+171 | |             total_records: 0,
+...   |
+182 | | }
+    | |_^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#derivable_impls
+    = note: `#[warn(clippy::derivable_impls)]` on by default
+help: replace the manual implementation with a derive attribute
+    |
+147 + #[derive(Default)]
+148 | pub struct BrainStats {
+    |
+
+warning: redundant closure
+  --> src\cli\harvest.rs:46:25
+   |
+46 |         .unwrap_or_else(|| workspace::cache_dir());
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^^^ help: replace the closure with the function itself: `workspace::cache_dir`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#redundant_closure
+   = note: `#[warn(clippy::redundant_closure)]` on by default
+
+warning: `vibeanvil` (bin "vibeanvil") generated 12 warnings (run `cargo clippy --fix --bin "vibeanvil" -p vibeanvil` to apply 9 suggestions)
+warning: `vibeanvil` (bin "vibeanvil" test) generated 12 warnings (12 duplicates)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.99s

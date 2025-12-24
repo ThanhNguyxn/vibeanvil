@@ -32,3 +32,7 @@ coverage/
 
 # Ignore lock files in examples
 examples/**/*.lock
+
+# Local debug files
+errors.txt
+clippy_errors.txt

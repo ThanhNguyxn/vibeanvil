@@ -93,10 +93,10 @@ impl ManualBuild {
             anyhow::bail!("Build already started");
         }
         self.started = true;
-        
+
         // Capture initial git diff
         let _ = self.evidence.capture_git_diff().await;
-        
+
         println!("✓ Manual build started. Make your changes and run 'vibeanvil build manual evidence' to capture.");
         Ok(())
     }
@@ -106,10 +106,10 @@ impl ManualBuild {
         if !self.started {
             anyhow::bail!("Build not started. Run 'vibeanvil build manual start' first.");
         }
-        
+
         let evidence = self.evidence.capture_git_diff().await?;
         println!("✓ Captured evidence: {}", evidence.filename);
-        
+
         Ok(())
     }
 
@@ -121,7 +121,7 @@ impl ManualBuild {
 
         // Capture final diff
         let _ = self.evidence.capture_git_diff().await;
-        
+
         Ok(BuildResult {
             success: true,
             iterations: 1,
@@ -150,20 +150,20 @@ impl AutoBuild {
     /// Execute auto build
     pub async fn execute(&self, prompt: &str) -> Result<BuildResult> {
         use crate::provider::{get_provider, Context};
-        
+
         let provider = get_provider(&self.config.provider)?;
-        
+
         let context = Context {
             working_dir: std::env::current_dir()?,
             session_id: self.session_id.clone(),
             contract_hash: None,
         };
-        
+
         let response = provider.execute(prompt, &context).await?;
-        
+
         let evidence = EvidenceCollector::new(&self.session_id).await?;
         evidence.capture_build_log(&response.output).await?;
-        
+
         Ok(BuildResult {
             success: response.success,
             iterations: 1,

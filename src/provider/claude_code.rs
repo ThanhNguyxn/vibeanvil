@@ -27,20 +27,20 @@ impl ClaudeCodeProvider {
     /// Build the claude command with arguments
     fn build_command(&self, prompt: &str, context: &Context) -> Command {
         let mut cmd = Command::new(&self.command);
-        
+
         // Set working directory
         cmd.current_dir(&context.working_dir);
-        
+
         // Add prompt as argument
         cmd.arg("--print");
         cmd.arg(prompt);
-        
+
         // Add session context if available
         if let Some(hash) = &context.contract_hash {
             cmd.env("VIBEANVIL_CONTRACT_HASH", hash);
         }
         cmd.env("VIBEANVIL_SESSION_ID", &context.session_id);
-        
+
         cmd
     }
 }
@@ -61,7 +61,7 @@ impl Provider for ClaudeCodeProvider {
         }
 
         let mut cmd = self.build_command(prompt, context);
-        
+
         let output = cmd
             .output()
             .with_context(|| "Failed to execute claude command")?;
@@ -113,7 +113,7 @@ mod tests {
             session_id: "test-session".to_string(),
             contract_hash: Some("abc123".to_string()),
         };
-        
+
         let cmd = provider.build_command("test prompt", &context);
         // Command is built successfully
         assert!(cmd.get_program().to_string_lossy().contains("claude"));

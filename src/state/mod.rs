@@ -87,7 +87,7 @@ impl State {
             State::BuildDone => vec![State::ReviewPassed, State::ReviewFailed],
             State::ReviewPassed => vec![State::Shipped],
             State::ReviewFailed => vec![State::BuildInProgress], // Can retry build
-            State::Shipped => vec![], // Terminal state
+            State::Shipped => vec![],                            // Terminal state
         }
     }
 
@@ -151,7 +151,12 @@ impl Default for StateData {
 
 impl StateData {
     /// Attempt to transition to a new state
-    pub fn transition_to(&mut self, new_state: State, action: &str, session_id: &str) -> Result<()> {
+    pub fn transition_to(
+        &mut self,
+        new_state: State,
+        action: &str,
+        session_id: &str,
+    ) -> Result<()> {
         if !self.current_state.can_transition_to(new_state) {
             return Err(anyhow!(
                 "Invalid transition: {} → {}. Allowed: {:?}",
@@ -203,7 +208,9 @@ mod tests {
     #[test]
     fn test_transition() {
         let mut state = StateData::default();
-        assert!(state.transition_to(State::IntakeCaptured, "intake", "session-1").is_ok());
+        assert!(state
+            .transition_to(State::IntakeCaptured, "intake", "session-1")
+            .is_ok());
         assert_eq!(state.current_state, State::IntakeCaptured);
         assert_eq!(state.history.len(), 1);
     }
@@ -211,6 +218,8 @@ mod tests {
     #[test]
     fn test_invalid_transition() {
         let mut state = StateData::default();
-        assert!(state.transition_to(State::Shipped, "skip", "session-1").is_err());
+        assert!(state
+            .transition_to(State::Shipped, "skip", "session-1")
+            .is_err());
     }
 }

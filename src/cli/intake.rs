@@ -4,7 +4,7 @@ use anyhow::Result;
 use std::io::{self, Read};
 use tokio::fs;
 
-use crate::audit::{AuditLogger, generate_session_id};
+use crate::audit::{generate_session_id, AuditLogger};
 use crate::state::State;
 use crate::workspace;
 
@@ -12,7 +12,10 @@ pub async fn run(message: Option<String>) -> Result<()> {
     let state_data = workspace::load_state().await?;
 
     if state_data.current_state != State::Init {
-        println!("⚠️  Intake already captured. Current state: {}", state_data.current_state);
+        println!(
+            "⚠️  Intake already captured. Current state: {}",
+            state_data.current_state
+        );
         return Ok(());
     }
 
@@ -47,7 +50,9 @@ pub async fn run(message: Option<String>) -> Result<()> {
 
     // Audit log
     let logger = AuditLogger::new(&session_id);
-    logger.log_state_transition("intake", State::Init, State::IntakeCaptured).await?;
+    logger
+        .log_state_transition("intake", State::Init, State::IntakeCaptured)
+        .await?;
 
     println!("✓ Intake captured");
     println!("  → Saved to .vibeanvil/intake.md");
