@@ -15,6 +15,8 @@ pub mod review;
 pub mod ship;
 pub mod snapshot;
 pub mod status;
+pub mod ui;
+pub mod update;
 
 /// VibeAnvil - Contract-first vibe coding with evidence, audit, and repo-brain harvesting
 #[derive(Parser)]
@@ -112,6 +114,12 @@ pub enum Commands {
         #[arg(long)]
         json: bool,
     },
+
+    /// Check for updates
+    Update,
+
+    /// Download and install the latest version
+    Upgrade,
 }
 
 #[derive(Clone, ValueEnum)]

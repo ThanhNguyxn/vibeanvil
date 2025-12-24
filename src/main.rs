@@ -54,5 +54,7 @@ async fn main() -> Result<()> {
         Commands::Brain(args) => cli::brain::run(args).await,
         Commands::Status { verbose } => cli::status::run(verbose).await,
         Commands::Log { lines, json } => cli::log::run(lines, json).await,
+        Commands::Update => cli::update::check_update().await,
+        Commands::Upgrade => cli::update::upgrade().await,
     }
 }
