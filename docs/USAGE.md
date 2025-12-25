@@ -444,7 +444,7 @@ vibeanvil log --json
 **Subcommands:**
 
 #### `brain ensure`
-Install/verify Core BrainPack (50+ templates).
+Install/verify Core BrainPack (120+ templates).
 
 ```bash
 vibeanvil brain ensure

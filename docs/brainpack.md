@@ -20,7 +20,7 @@ BrainPack is VibeAnvil's **privacy-first knowledge harvesting** system. It:
 
 ### Option 1: Install Core BrainPack (Recommended)
 
-VibeAnvil ships with a **Core BrainPack** containing 50+ owner-authored templates for contracts, plans, evidence patterns, and more.
+VibeAnvil ships with a **Core BrainPack** containing 120+ owner-authored templates for contracts, plans, evidence patterns, and more.
 
 ```bash
 # Install Core BrainPack (one-time, idempotent)
@@ -33,7 +33,7 @@ Output:
 ═══════════════════════════════════════
 
   ✅ Core BrainPack installed successfully!
-  📦 Imported 50 entries
+  📦 Imported 120+ entries
 
 💡 Quick starts:
   • vibeanvil brain search 'web contract'

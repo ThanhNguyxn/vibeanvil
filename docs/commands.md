@@ -267,7 +267,7 @@ vibeanvil brain <COMMAND>
 ```
 
 #### `brain ensure`
-Install Core BrainPack (50+ templates). Safe to run repeatedly.
+Install Core BrainPack (120+ templates). Safe to run repeatedly.
 
 ```bash
 vibeanvil brain ensure
@@ -279,7 +279,7 @@ Output:
 ═══════════════════════════════════════
 
   ✅ Core BrainPack installed successfully!
-  📦 Imported 50 entries
+  📦 Imported 120+ entries
 
 💡 Quick starts:
   • vibeanvil brain search 'web contract'
