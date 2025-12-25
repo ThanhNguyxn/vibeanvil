@@ -335,11 +335,11 @@ async fn ensure_core() -> Result<()> {
 
     let storage = BrainStorage::new().await?;
 
-    // Check if core is already imported
-    let stats = storage.stats().await?;
-    let has_core = stats.total_records > 0;
+    // Check if core is already imported by looking for source_id = "core"
+    let has_core = storage.has_core_installed();
 
     if has_core {
+        let stats = storage.stats().await?;
         println!(
             "  {} {}",
             "✓".green(),

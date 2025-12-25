@@ -34,8 +34,8 @@ VibeAnvil supports multiple data source types, each with specific extraction str
 
 **How to operationalize:**
 ```bash
-# Use harvest presets (recommended)
-vibeanvil harvest --preset cli_framework_patterns
+# Use preset queries from brainpacks/presets.yaml
+vibeanvil harvest --query "cli framework argument parsing" --language rust
 
 # Or manual queries
 vibeanvil harvest -q "state machine workflow" -l rust --min-stars 100

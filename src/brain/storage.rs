@@ -324,6 +324,28 @@ impl BrainStorage {
         Ok(stats)
     }
 
+    /// Check if core brainpack is installed (source_id = "core")
+    pub fn has_core_installed(&self) -> bool {
+        if !self.sqlite_path.exists() {
+            return false;
+        }
+
+        let conn = match Connection::open(&self.sqlite_path) {
+            Ok(c) => c,
+            Err(_) => return false,
+        };
+
+        let count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM brain_chunks WHERE source_id = 'core'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap_or(0);
+
+        count > 0
+    }
+
     /// Export to JSONL (privacy-clean by default)
     pub async fn export(&self, options: &ExportOptions) -> Result<String> {
         let output_path = options.output_path.clone().unwrap_or_else(|| {

@@ -140,22 +140,22 @@ async fn handle_action(action: WizardAction) -> Result<()> {
             crate::cli::doctor::run().await?;
         }
         WizardAction::Harvest => {
-            println!("{}", "💡 Use presets for best results:".white().bold());
+            println!("{}", "💡 Harvest repos from GitHub:".white().bold());
             println!();
             println!(
                 "  {} {}",
                 "•".cyan(),
-                "vibeanvil harvest --preset cli_framework_patterns".white()
+                "vibeanvil harvest --query 'state machine workflow cli'".white()
             );
             println!(
                 "  {} {}",
                 "•".cyan(),
-                "vibeanvil harvest --preset security_redaction_ignore_rules".white()
+                "vibeanvil harvest --query 'rust error handling' --language Rust".white()
             );
             println!();
             println!(
                 "{}",
-                "See docs/HARVEST_PRESETS.md for all available presets.".dimmed()
+                "See brainpacks/presets.yaml for curated search queries.".dimmed()
             );
         }
         WizardAction::Help => {

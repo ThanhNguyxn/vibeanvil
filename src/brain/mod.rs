@@ -8,6 +8,9 @@
 pub mod harvester;
 pub mod storage;
 
+#[cfg(test)]
+mod core_jsonl_tests;
+
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 

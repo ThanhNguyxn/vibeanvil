@@ -17,17 +17,16 @@ Harvest presets are pre-configured search queries and filters designed to captur
 
 ## 🚀 Quick Start
 
-### Using a Preset
+### Using Preset Queries
+
+Presets define search queries in `brainpacks/presets.yaml`. Apply them manually:
 
 ```bash
-# Use a preset (if CLI supports --preset)
-vibeanvil harvest --preset workflow_state_machines
-
-# Or manually apply preset settings
+# Example: workflow_state_machines preset
 vibeanvil harvest \
-  -q "state machine workflow cli" \
-  -q "fsm finite state" \
-  -l rust \
+  --query "state machine workflow cli" \
+  --query "fsm finite state" \
+  --language rust \
   --min-stars 100 \
   --max-repos 20
 ```
@@ -198,20 +197,20 @@ Signals tag harvested content for focused searching:
 
 ## 🔄 Combining Presets
 
-Run multiple presets to build a comprehensive BrainPack:
+Run multiple preset queries to build a comprehensive BrainPack:
 
 ```bash
 # Quality CLI patterns
-vibeanvil harvest --preset cli_framework_patterns
-vibeanvil harvest --preset workflow_state_machines
+vibeanvil harvest --query "cli framework argument parsing" --language rust
+vibeanvil harvest --query "state machine workflow cli" --min-stars 100
 
 # Developer experience
-vibeanvil harvest --preset docs_quality_onboarding
-vibeanvil harvest --preset templates_and_scaffolding
+vibeanvil harvest --query "documentation excellent devex" --min-stars 500
+vibeanvil harvest --query "scaffolding generator template" --min-stars 100
 
 # Release and security
-vibeanvil harvest --preset release_installers_checksums
-vibeanvil harvest --preset security_redaction_ignore_rules
+vibeanvil harvest --query "installer script release" --min-stars 100
+vibeanvil harvest --query "secret redaction detection" --min-stars 50
 ```
 
 ---
