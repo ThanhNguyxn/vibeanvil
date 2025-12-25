@@ -16,13 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-      
+
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
-      
+
       - name: Check
         run: cargo check --all-targets
 
@@ -31,12 +31,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
-      
+
       - name: Check formatting
         run: cargo fmt --all -- --check
 
@@ -45,15 +45,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
-      
+
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
-      
+
       - name: Run Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
@@ -65,13 +65,13 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v6
-      
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-      
+
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
-      
+
       - name: Run tests
         run: cargo test --all-features
 
@@ -80,19 +80,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-      
+
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
-      
+
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
-      
+
       - name: Generate coverage
         run: cargo llvm-cov --lcov --output-path lcov.info
-      
+
       - name: Upload coverage
         uses: codecov/codecov-action@v5
         with:
