@@ -63,8 +63,8 @@ jobs:
         run: |
           TAG_VERSION="${GITHUB_REF#refs/tags/v}"
           echo "🔄 Syncing Cargo.toml version to $TAG_VERSION"
-          # Update version in Cargo.toml
-          sed -i "s/^version = \".*\"/version = \"$TAG_VERSION\"/" Cargo.toml
+          # Update version in Cargo.toml (portable way for Linux/macOS)
+          sed "s/^version = \".*\"/version = \"$TAG_VERSION\"/" Cargo.toml > Cargo.toml.tmp && mv Cargo.toml.tmp Cargo.toml
           # Verify update
           grep "^version = \"$TAG_VERSION\"" Cargo.toml || (echo "❌ Failed to update version" && exit 1)
           echo "✅ Version updated to $TAG_VERSION"
