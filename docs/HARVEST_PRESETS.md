@@ -231,7 +231,7 @@ Presets follow VibeAnvil's privacy-first design:
 1. **Start focused**: Use one preset at a time
 2. **Check stats**: `vibeanvil brain stats` after each harvest
 3. **Iterate**: Refine queries based on search results
-4. **Deduplicate**: Multiple harvests won't create duplicates
+4. **Search is deduplicated**: SQLite uses `INSERT OR REPLACE`, so searches return unique results. Note: JSONL file may grow with repeated harvests; use `brain export` for a clean backup.
 5. **Export regularly**: Backup with `vibeanvil brain export`
 
 ---

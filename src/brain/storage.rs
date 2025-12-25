@@ -413,6 +413,7 @@ impl BrainStorage {
         let mut record_count = 0;
 
         for line in reader.lines().map_while(Result::ok) {
+            // Try parsing as BrainRecord first (harvested records)
             if let Ok(record) = serde_json::from_str::<BrainRecord>(&line) {
                 record_count += 1;
 
@@ -451,12 +452,43 @@ impl BrainStorage {
                     }
                     content.push_str("\n```\n\n");
                 }
+            } else if let Ok(core_entry) = serde_json::from_str::<serde_json::Value>(&line) {
+                // Fallback: parse core entries (different schema)
+                record_count += 1;
 
-                // Limit to 50 records in markdown
-                if record_count >= 50 {
-                    content.push_str("\n*... and more records (truncated for readability)*\n");
-                    break;
+                let source_id = core_entry["source_id"].as_str().unwrap_or("unknown");
+                if options.include_source_ids && source_id != current_source {
+                    current_source = source_id.to_string();
+                    content.push_str(&format!("\n## Source: {}\n\n", current_source));
                 }
+
+                let title = core_entry["title"].as_str().unwrap_or("Untitled");
+                let entry_type = core_entry["type"].as_str().unwrap_or("unknown");
+                let summary = core_entry["summary"].as_str().unwrap_or("");
+
+                content.push_str(&format!("### {}\n\n", title));
+                content.push_str(&format!("**Type**: {}\n\n", entry_type));
+                content.push_str(&format!("{}\n\n", summary));
+
+                // Show first chunk if available
+                if let Some(chunks) = core_entry["chunks"].as_array() {
+                    if let Some(chunk) = chunks.first() {
+                        if let Some(text) = chunk["text"].as_str() {
+                            content.push_str("```\n");
+                            content.push_str(&text[..text.len().min(300)]);
+                            if text.len() > 300 {
+                                content.push_str("\n... (truncated)");
+                            }
+                            content.push_str("\n```\n\n");
+                        }
+                    }
+                }
+            }
+
+            // Limit to 50 records in markdown
+            if record_count >= 50 {
+                content.push_str("\n*... and more records (truncated for readability)*\n");
+                break;
             }
         }
 
