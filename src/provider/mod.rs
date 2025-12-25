@@ -4,6 +4,7 @@ pub mod claude_code;
 pub mod command;
 pub mod human;
 pub mod patch;
+pub mod safety;
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;

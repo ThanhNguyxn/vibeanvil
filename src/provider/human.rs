@@ -34,6 +34,20 @@ impl HumanProvider {
         let mut content = String::new();
 
         content.push_str("# VibeAnvil AI Prompt\n\n");
+
+        // Safety instructions first
+        content.push_str("## ⚠️ Safety Instructions\n\n");
+        content.push_str("**IMPORTANT - Please follow these rules:**\n\n");
+        content.push_str(
+            "- ❌ **Do NOT paste secrets** (API keys, tokens, passwords) into responses\n",
+        );
+        content.push_str("- ❌ **Do NOT modify files outside the repository**\n");
+        content.push_str("- ❌ **Do NOT modify .git/ directory or config files**\n");
+        content.push_str("- ✅ **DO run tests after changes** (`cargo test`, `npm test`, etc.)\n");
+        content.push_str("- ✅ **DO follow existing code style**\n\n");
+
+        content.push_str("---\n\n");
+
         content.push_str("## Instructions\n\n");
         content.push_str("Copy this entire file content and paste it into your IDE assistant ");
         content.push_str("(GitHub Copilot Chat, Cursor, VS Code Chat, or similar).\n\n");

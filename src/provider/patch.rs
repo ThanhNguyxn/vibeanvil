@@ -1,4 +1,10 @@
-//! Patch provider - safely applies unified diffs
+//! Patch provider - safely applies unified diffs with validation
+//!
+//! Features:
+//! - Path safety validation (no absolute paths, traversal, or .git/)
+//! - Size/impact limits (configurable via env vars)
+//! - Binary diff rejection
+//! - Clear summary before applying
 
 use anyhow::{Context as AnyhowContext, Result};
 use async_trait::async_trait;
@@ -6,12 +12,22 @@ use colored::Colorize;
 use std::path::{Path, PathBuf};
 use tokio::fs;
 
+use super::safety::{
+    get_patch_max_added_lines, get_patch_max_bytes, get_patch_max_file_added_lines,
+    get_patch_max_files, is_binary_content, is_forbidden_path, redact_secrets, PatchStats,
+};
 use super::{Context, Provider, ProviderResponse};
 
 /// Patch provider for unified diff workflows
 ///
 /// Configuration:
 /// - `VIBEANVIL_PATCH_FILE`: Path to unified diff file to apply
+///
+/// Safety limits (env vars):
+/// - `VIBEANVIL_PATCH_MAX_FILES`: Max files in patch (default: 50)
+/// - `VIBEANVIL_PATCH_MAX_ADDED_LINES`: Max total added lines (default: 5000)
+/// - `VIBEANVIL_PATCH_MAX_FILE_ADDED_LINES`: Max added lines per file (default: 2000)
+/// - `VIBEANVIL_PATCH_MAX_BYTES`: Max patch file size (default: 2MB)
 pub struct PatchProvider;
 
 impl PatchProvider {
@@ -40,22 +56,96 @@ impl PatchProvider {
     fn validate_path(path: &Path, _repo_root: &Path) -> Result<()> {
         let path_str = path.to_string_lossy();
 
-        // Reject absolute paths (both Windows C:\ and Unix /)
-        if path.is_absolute() || path_str.starts_with('/') {
-            anyhow::bail!("Absolute paths not allowed in diff: {}", path.display());
+        // Use shared forbidden path checker
+        if let Some(reason) = is_forbidden_path(&path_str) {
+            anyhow::bail!("{}: {}", reason, path.display());
         }
 
-        // Check for path traversal
-        if path_str.contains("..") {
-            anyhow::bail!("Path traversal not allowed in diff: {}", path.display());
-        }
-
-        // Path is relative and doesn't traverse up - it's safe
-        // The actual file existence will be checked when git apply runs
         Ok(())
     }
 
-    /// Parse and validate unified diff content
+    /// Validate the entire patch content
+    fn validate_patch(content: &str, repo_root: &Path) -> Result<PatchStats> {
+        // Check file size
+        let max_bytes = get_patch_max_bytes();
+        if content.len() > max_bytes {
+            anyhow::bail!(
+                "Patch file too large: {} bytes (max: {} bytes).\n\n\
+                 To increase the limit, set:\n  \
+                 export VIBEANVIL_PATCH_MAX_BYTES=<bytes>",
+                content.len(),
+                max_bytes
+            );
+        }
+
+        // Check for binary content
+        if is_binary_content(content) {
+            anyhow::bail!(
+                "Binary patches are not allowed.\n\n\
+                 The patch contains binary content markers or very long lines.\n\
+                 Please use text-based unified diffs only."
+            );
+        }
+
+        // Parse and validate paths
+        let mut files_in_patch: Vec<String> = Vec::new();
+        for line in content.lines() {
+            if line.starts_with("+++ ") {
+                let path_part = line.split_whitespace().nth(1).unwrap_or("");
+                let clean_path = path_part
+                    .strip_prefix("b/")
+                    .or_else(|| path_part.strip_prefix("a/"))
+                    .unwrap_or(path_part);
+
+                if !clean_path.is_empty() && clean_path != "/dev/null" {
+                    let path = PathBuf::from(clean_path);
+                    Self::validate_path(&path, repo_root)?;
+                    files_in_patch.push(clean_path.to_string());
+                }
+            }
+        }
+
+        // Calculate stats
+        let stats = PatchStats::from_diff(content);
+
+        // Check limits
+        let max_files = get_patch_max_files();
+        if stats.files_changed > max_files {
+            anyhow::bail!(
+                "Too many files in patch: {} (max: {}).\n\n\
+                 To increase the limit, set:\n  \
+                 export VIBEANVIL_PATCH_MAX_FILES=<count>",
+                stats.files_changed,
+                max_files
+            );
+        }
+
+        let max_added = get_patch_max_added_lines();
+        if stats.lines_added > max_added {
+            anyhow::bail!(
+                "Too many added lines: {} (max: {}).\n\n\
+                 To increase the limit, set:\n  \
+                 export VIBEANVIL_PATCH_MAX_ADDED_LINES=<count>",
+                stats.lines_added,
+                max_added
+            );
+        }
+
+        let max_file_added = get_patch_max_file_added_lines();
+        if stats.max_file_lines_added > max_file_added {
+            anyhow::bail!(
+                "Too many added lines in a single file: {} (max: {}).\n\n\
+                 To increase the limit, set:\n  \
+                 export VIBEANVIL_PATCH_MAX_FILE_ADDED_LINES=<count>",
+                stats.max_file_lines_added,
+                max_file_added
+            );
+        }
+
+        Ok(stats)
+    }
+
+    /// Parse and validate unified diff content (legacy, for hunk extraction)
     fn parse_diff(content: &str, repo_root: &Path) -> Result<Vec<DiffHunk>> {
         let mut hunks = Vec::new();
         let mut current_file: Option<PathBuf> = None;
@@ -63,7 +153,6 @@ impl PatchProvider {
 
         for line in content.lines() {
             if line.starts_with("--- ") || line.starts_with("+++ ") {
-                // Extract file path (skip a/ or b/ prefix)
                 let path_part = line.split_whitespace().nth(1).unwrap_or("");
                 let clean_path = path_part
                     .strip_prefix("a/")
@@ -79,7 +168,6 @@ impl PatchProvider {
                     }
                 }
             } else if line.starts_with("@@") {
-                // Start of a new hunk
                 if let Some(ref file) = current_file {
                     if !current_lines.is_empty() {
                         hunks.push(DiffHunk {
@@ -95,7 +183,6 @@ impl PatchProvider {
             }
         }
 
-        // Add final hunk
         if let Some(file) = current_file {
             if !current_lines.is_empty() {
                 hunks.push(DiffHunk {
@@ -118,6 +205,13 @@ impl PatchProvider {
 
         let content = format!(
             r#"# VibeAnvil Patch Prompt
+
+## ⚠️ Safety Instructions
+
+- **Do NOT include secrets** (API keys, tokens, passwords) in the diff
+- **Do NOT modify files outside the repository**
+- **Do NOT use absolute paths** in the diff
+- **Run tests after applying** to verify changes
 
 ## Instructions
 
@@ -171,6 +265,17 @@ Output a valid unified diff only. No markdown code blocks, no explanations.
         fs::write(&prompt_path, &content).await?;
         Ok(prompt_path)
     }
+
+    /// Print patch summary before applying
+    fn print_summary(stats: &PatchStats) {
+        println!();
+        println!("{}", "📊 Patch Summary:".yellow().bold());
+        println!(
+            "   Files: {} | Added: {} lines | Removed: {} lines",
+            stats.files_changed, stats.lines_added, stats.lines_removed
+        );
+        println!();
+    }
 }
 
 impl Default for PatchProvider {
@@ -187,11 +292,9 @@ struct DiffHunk {
 #[async_trait]
 impl Provider for PatchProvider {
     async fn execute(&self, prompt: &str, context: &Context) -> Result<ProviderResponse> {
-        // Check if patch file is provided
         let patch_file = Self::patch_file_path();
 
         if patch_file.is_none() {
-            // No patch file - generate prompt file instead
             let prompt_path = Self::generate_prompt_file(prompt, context).await?;
 
             println!();
@@ -237,12 +340,18 @@ impl Provider for PatchProvider {
 
         let patch_path = patch_file.unwrap();
 
-        // Read and parse the diff
+        // Read the diff
         let diff_content = fs::read_to_string(&patch_path)
             .await
             .with_context(|| format!("Failed to read patch file: {}", patch_path.display()))?;
 
-        // Validate paths in the diff
+        // Validate the patch (this checks all safety rules)
+        let stats = Self::validate_patch(&diff_content, &context.working_dir)?;
+
+        // Print summary
+        Self::print_summary(&stats);
+
+        // Parse hunks for file list
         let hunks = Self::parse_diff(&diff_content, &context.working_dir)?;
 
         if hunks.is_empty() {
@@ -255,7 +364,7 @@ impl Provider for PatchProvider {
             });
         }
 
-        // Apply the patch using git apply
+        // Apply the patch using git apply --check first
         let output = std::process::Command::new("git")
             .arg("apply")
             .arg("--check")
@@ -289,25 +398,29 @@ impl Provider for PatchProvider {
                         files_modified,
                     })
                 } else {
+                    let stderr = String::from_utf8_lossy(&apply_output.stderr).to_string();
                     Ok(ProviderResponse {
                         success: false,
                         output: String::new(),
-                        errors: vec![String::from_utf8_lossy(&apply_output.stderr).to_string()],
+                        errors: vec![redact_secrets(&stderr)],
                         warnings: vec![],
                         files_modified: vec![],
                     })
                 }
             }
-            Ok(check_output) => Ok(ProviderResponse {
-                success: false,
-                output: String::new(),
-                errors: vec![format!(
-                    "Patch does not apply cleanly: {}",
-                    String::from_utf8_lossy(&check_output.stderr)
-                )],
-                warnings: vec![],
-                files_modified: vec![],
-            }),
+            Ok(check_output) => {
+                let stderr = String::from_utf8_lossy(&check_output.stderr).to_string();
+                Ok(ProviderResponse {
+                    success: false,
+                    output: String::new(),
+                    errors: vec![format!(
+                        "Patch does not apply cleanly:\n{}",
+                        redact_secrets(&stderr)
+                    )],
+                    warnings: vec![],
+                    files_modified: vec![],
+                })
+            }
             Err(e) => Err(anyhow::anyhow!("Failed to run git apply: {}", e)),
         }
     }
@@ -317,7 +430,6 @@ impl Provider for PatchProvider {
     }
 
     fn is_available(&self) -> bool {
-        // Patch provider requires git
         which::which("git").is_ok()
     }
 }
@@ -333,10 +445,16 @@ mod tests {
     }
 
     #[test]
-    fn test_validate_path_rejects_absolute() {
+    fn test_validate_path_rejects_absolute_unix() {
         let repo = std::env::current_dir().unwrap();
-        // Unix absolute path
         let result = PatchProvider::validate_path(Path::new("/etc/passwd"), &repo);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_validate_path_rejects_absolute_windows() {
+        let repo = std::env::current_dir().unwrap();
+        let result = PatchProvider::validate_path(Path::new("C:\\Windows\\System32"), &repo);
         assert!(result.is_err());
     }
 
@@ -348,6 +466,13 @@ mod tests {
     }
 
     #[test]
+    fn test_validate_path_rejects_git_dir() {
+        let repo = std::env::current_dir().unwrap();
+        let result = PatchProvider::validate_path(Path::new(".git/config"), &repo);
+        assert!(result.is_err());
+    }
+
+    #[test]
     fn test_validate_path_accepts_simple_relative() {
         let repo = std::env::current_dir().unwrap();
         let result = PatchProvider::validate_path(Path::new("src/main.rs"), &repo);
@@ -355,9 +480,45 @@ mod tests {
     }
 
     #[test]
-    fn test_validate_path_accepts_nested_relative() {
+    fn test_validate_patch_rejects_binary() {
         let repo = std::env::current_dir().unwrap();
-        let result = PatchProvider::validate_path(Path::new("src/provider/patch.rs"), &repo);
+        let diff = "diff --git a/file.bin b/file.bin\nGIT binary patch\nliteral 1234";
+        let result = PatchProvider::validate_patch(diff, &repo);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("Binary"));
+    }
+
+    #[test]
+    fn test_validate_patch_rejects_too_many_files() {
+        let repo = std::env::current_dir().unwrap();
+        // Create a diff with 60 files (over default limit of 50)
+        let mut diff = String::new();
+        for i in 0..60 {
+            diff.push_str(&format!(
+                "--- a/file{}.rs\n+++ b/file{}.rs\n@@ -1,1 +1,2 @@\n line\n+added\n",
+                i, i
+            ));
+        }
+        let result = PatchProvider::validate_patch(&diff, &repo);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("Too many files"));
+    }
+
+    #[test]
+    fn test_validate_patch_accepts_small_patch() {
+        let repo = std::env::current_dir().unwrap();
+        let diff = r#"
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -1,3 +1,4 @@
+ fn main() {
++    println!("Hello");
+ }
+"#;
+        let result = PatchProvider::validate_patch(diff, &repo);
         assert!(result.is_ok());
+        let stats = result.unwrap();
+        assert_eq!(stats.files_changed, 1);
+        assert_eq!(stats.lines_added, 1);
     }
 }

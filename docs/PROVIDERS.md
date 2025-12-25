@@ -207,5 +207,74 @@ vibeanvil build manual complete
 | `VIBEANVIL_PROVIDER_COMMAND` | command | External command name |
 | `VIBEANVIL_PROVIDER_ARGS` | command | Extra arguments |
 | `VIBEANVIL_PROVIDER_MODE` | command | `stdin`, `arg`, or `file` |
-| `VIBEANVIL_PROVIDER_TIMEOUT` | command | Timeout in seconds |
+| `VIBEANVIL_PROVIDER_TIMEOUT_SECS` | command | Timeout in seconds (default: 600) |
 | `VIBEANVIL_PATCH_FILE` | patch | Path to unified diff file |
+| `VIBEANVIL_PATCH_MAX_FILES` | patch | Max files in patch (default: 50) |
+| `VIBEANVIL_PATCH_MAX_ADDED_LINES` | patch | Max total added lines (default: 5000) |
+| `VIBEANVIL_PATCH_MAX_FILE_ADDED_LINES` | patch | Max lines per file (default: 2000) |
+| `VIBEANVIL_PATCH_MAX_BYTES` | patch | Max patch size in bytes (default: 2MB) |
+
+---
+
+## Security & Safety
+
+VibeAnvil implements several safety measures to protect your codebase and prevent accidents.
+
+### Timeout Protection
+
+The `command` provider has a built-in timeout to prevent hung processes:
+
+```bash
+# Default timeout: 600 seconds (10 minutes)
+# To increase for long-running agents:
+export VIBEANVIL_PROVIDER_TIMEOUT_SECS=1800  # 30 minutes
+```
+
+If a command times out:
+- The process is terminated automatically
+- An error message shows how to increase the limit
+- No partial changes are applied
+
+### Patch Safety Limits
+
+The `patch` provider validates all diffs before applying:
+
+**Path Safety:**
+- ❌ Absolute paths (Unix `/etc/` or Windows `C:\`)
+- ❌ Path traversal (`../`)
+- ❌ Modifications to `.git/` directory
+- ✅ Only relative paths within your repo
+
+**Size Limits (override with env vars if needed):**
+
+| Limit | Default | Env Var |
+|-------|---------|---------|
+| Max files | 50 | `VIBEANVIL_PATCH_MAX_FILES` |
+| Max total added lines | 5,000 | `VIBEANVIL_PATCH_MAX_ADDED_LINES` |
+| Max lines per file | 2,000 | `VIBEANVIL_PATCH_MAX_FILE_ADDED_LINES` |
+| Max patch size | 2MB | `VIBEANVIL_PATCH_MAX_BYTES` |
+
+**Binary Protection:**
+- Binary patches (`GIT binary patch`) are rejected
+- Very long lines (>20KB) are rejected as likely binary/minified content
+
+### Secret Redaction
+
+All provider outputs are automatically scanned for secrets before display or storage:
+
+**Redacted patterns:**
+- GitHub tokens: `ghp_`, `github_pat_`, `gho_`, `ghu_`, `ghr_`
+- OpenAI/Anthropic keys: `sk-`, `sk-ant-`
+- AWS keys: `AKIA...`
+- Bearer tokens and Authorization headers
+- Generic `api_key`, `secret`, `password` patterns
+
+**Example:** `ghp_abc123...` becomes `ghp_***REDACTED***`
+
+### Generated Prompt Safety
+
+Both `human` and `patch` providers include safety instructions in generated prompts:
+- Do not paste secrets
+- Do not modify files outside the repo
+- Run tests after changes
+
