@@ -23,22 +23,39 @@ pub async fn run(args: HarvestArgs) -> Result<()> {
     }
 
     // Load preset if specified
-    let (queries, topics, language, min_stars, max_repos, updated_within_days, ignore_globs, allow_globs) = 
-        if let Some(preset_name) = &args.preset {
-            let cfg = load_preset_config(preset_name, &args)?;
-            (cfg.queries, cfg.topics, cfg.language, cfg.min_stars, cfg.max_repos, cfg.updated_within_days, cfg.ignore_globs, cfg.allow_globs)
-        } else {
-            (
-                args.query.clone(),
-                args.topic.clone(),
-                args.language.clone(),
-                args.min_stars,
-                args.max_repos,
-                args.updated_within_days,
-                args.ignore_glob.clone(),
-                args.allow_glob.clone(),
-            )
-        };
+    let (
+        queries,
+        topics,
+        language,
+        min_stars,
+        max_repos,
+        updated_within_days,
+        ignore_globs,
+        allow_globs,
+    ) = if let Some(preset_name) = &args.preset {
+        let cfg = load_preset_config(preset_name, &args)?;
+        (
+            cfg.queries,
+            cfg.topics,
+            cfg.language,
+            cfg.min_stars,
+            cfg.max_repos,
+            cfg.updated_within_days,
+            cfg.ignore_globs,
+            cfg.allow_globs,
+        )
+    } else {
+        (
+            args.query.clone(),
+            args.topic.clone(),
+            args.language.clone(),
+            args.min_stars,
+            args.max_repos,
+            args.updated_within_days,
+            args.ignore_glob.clone(),
+            args.allow_glob.clone(),
+        )
+    };
 
     // Validate inputs
     if queries.is_empty() && topics.is_empty() {
@@ -307,7 +324,7 @@ pub async fn run(args: HarvestArgs) -> Result<()> {
         .log_command(
             "harvest",
             vec![
-            format!("queries={:?}", queries),
+                format!("queries={:?}", queries),
                 format!("sources={}", sources_processed),
                 format!("records={}", total_records),
             ],
@@ -373,12 +390,9 @@ struct MergedConfig {
 }
 
 /// Load preset configuration and merge with CLI overrides
-fn load_preset_config(
-    preset_name: &str,
-    args: &HarvestArgs,
-) -> Result<MergedConfig> {
+fn load_preset_config(preset_name: &str, args: &HarvestArgs) -> Result<MergedConfig> {
     let presets_file = PresetsFile::load()?;
-    
+
     let preset = presets_file.get(preset_name).ok_or_else(|| {
         anyhow::anyhow!(
             "Preset '{}' not found. Run 'vibeanvil harvest presets' to see available presets.",
@@ -395,13 +409,17 @@ fn load_preset_config(
 
     let topics = args.topic.clone(); // Presets don't have topics, only queries
 
-    let language = args.language.clone().or_else(|| {
-        preset.filters.languages.first().cloned()
-    });
+    let language = args
+        .language
+        .clone()
+        .or_else(|| preset.filters.languages.first().cloned());
 
     let min_stars = if args.min_stars == 10 {
         // Default value, use preset
-        preset.filters.min_stars.unwrap_or(presets_file.defaults.min_stars)
+        preset
+            .filters
+            .min_stars
+            .unwrap_or(presets_file.defaults.min_stars)
     } else {
         args.min_stars
     };
@@ -415,7 +433,10 @@ fn load_preset_config(
 
     let updated_within_days = if args.updated_within_days == 365 {
         // Default value, use preset
-        preset.filters.updated_within_days.unwrap_or(presets_file.defaults.updated_within_days)
+        preset
+            .filters
+            .updated_within_days
+            .unwrap_or(presets_file.defaults.updated_within_days)
     } else {
         args.updated_within_days
     };
@@ -432,7 +453,10 @@ fn load_preset_config(
         args.allow_glob.clone()
     };
 
-    println!("{}", format!("📦 Using preset: {}", preset.name).green().bold());
+    println!(
+        "{}",
+        format!("📦 Using preset: {}", preset.name).green().bold()
+    );
 
     Ok(MergedConfig {
         queries,

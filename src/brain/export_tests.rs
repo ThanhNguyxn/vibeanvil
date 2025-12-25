@@ -20,14 +20,12 @@ async fn test_canonical_export_deduplication() -> Result<()> {
         content_type: ContentType::Code,
         signals: vec![Signal::CommandSurface],
         summary: "Test summary".to_string(),
-        chunks: vec![
-            crate::brain::ContentChunk {
-                chunk_id: "chunk1".to_string(),
-                text: "fn main() {}".to_string(),
-                start_line: 1,
-                end_line: 1,
-            }
-        ],
+        chunks: vec![crate::brain::ContentChunk {
+            chunk_id: "chunk1".to_string(),
+            text: "fn main() {}".to_string(),
+            start_line: 1,
+            end_line: 1,
+        }],
         tags: vec!["test".to_string()],
     };
 
@@ -41,9 +39,15 @@ async fn test_canonical_export_deduplication() -> Result<()> {
 
     // Save record twice (simulating repeated harvest)
     println!("Saving record 1...");
-    storage.save_records(&[record.clone()]).await.expect("Failed to save record 1");
+    storage
+        .save_records(&[record.clone()])
+        .await
+        .expect("Failed to save record 1");
     println!("Saving record 2...");
-    storage.save_records(&[record.clone()]).await.expect("Failed to save record 2");
+    storage
+        .save_records(&[record.clone()])
+        .await
+        .expect("Failed to save record 2");
 
     // Export JSONL
     let export_path = temp_dir.path().join("export.jsonl");
@@ -76,11 +80,8 @@ async fn test_content_type_migration() -> Result<()> {
 
     // Manually insert a record with quoted content_type (simulating old data)
     let conn = rusqlite::Connection::open(brain_dir.join("brainpack.sqlite"))?;
-    
-    conn.execute(
-        "INSERT INTO sources (source_id) VALUES ('src_old')",
-        [],
-    )?;
+
+    conn.execute("INSERT INTO sources (source_id) VALUES ('src_old')", [])?;
 
     conn.execute(
         "INSERT INTO brain_chunks (chunk_id, source_id, path, content_type, start_line, end_line, text)
@@ -100,7 +101,10 @@ async fn test_content_type_migration() -> Result<()> {
         |row| row.get(0),
     )?;
 
-    assert_eq!(content_type, "code", "Quotes should be trimmed by migration");
+    assert_eq!(
+        content_type, "code",
+        "Quotes should be trimmed by migration"
+    );
 
     Ok(())
 }

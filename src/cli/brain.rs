@@ -437,26 +437,54 @@ async fn compact() -> Result<()> {
     let before_stats = storage.stats().await?;
 
     println!("{}", "📊 Before:".white().bold());
-    println!("  {} {}", "JSONL:".dimmed(), format_bytes(before_stats.jsonl_size_bytes).cyan());
-    println!("  {} {}", "SQLite:".dimmed(), format_bytes(before_stats.sqlite_size_bytes).cyan());
-    println!("  {} {}", "Chunks:".dimmed(), before_stats.total_chunks.to_string().cyan());
+    println!(
+        "  {} {}",
+        "JSONL:".dimmed(),
+        format_bytes(before_stats.jsonl_size_bytes).cyan()
+    );
+    println!(
+        "  {} {}",
+        "SQLite:".dimmed(),
+        format_bytes(before_stats.sqlite_size_bytes).cyan()
+    );
+    println!(
+        "  {} {}",
+        "Chunks:".dimmed(),
+        before_stats.total_chunks.to_string().cyan()
+    );
     println!();
 
     println!("{}", "⏳ Compacting...".yellow());
     let result = storage.compact().await?;
-    
+
     let after_stats = storage.stats().await?;
 
     println!();
     println!("{}", "📊 After:".white().bold());
-    println!("  {} {}", "JSONL:".dimmed(), format_bytes(after_stats.jsonl_size_bytes).green());
-    println!("  {} {}", "SQLite:".dimmed(), format_bytes(after_stats.sqlite_size_bytes).green());
-    println!("  {} {}", "Records:".dimmed(), result.records_written.to_string().green());
+    println!(
+        "  {} {}",
+        "JSONL:".dimmed(),
+        format_bytes(after_stats.jsonl_size_bytes).green()
+    );
+    println!(
+        "  {} {}",
+        "SQLite:".dimmed(),
+        format_bytes(after_stats.sqlite_size_bytes).green()
+    );
+    println!(
+        "  {} {}",
+        "Records:".dimmed(),
+        result.records_written.to_string().green()
+    );
     println!();
 
-    let saved = before_stats.jsonl_size_bytes.saturating_sub(after_stats.jsonl_size_bytes)
-        + before_stats.sqlite_size_bytes.saturating_sub(after_stats.sqlite_size_bytes);
-    
+    let saved = before_stats
+        .jsonl_size_bytes
+        .saturating_sub(after_stats.jsonl_size_bytes)
+        + before_stats
+            .sqlite_size_bytes
+            .saturating_sub(after_stats.sqlite_size_bytes);
+
     if saved > 0 {
         println!(
             "{} {}",

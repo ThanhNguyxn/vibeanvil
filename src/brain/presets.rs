@@ -24,9 +24,15 @@ pub struct PresetDefaults {
     pub ignore_globs: Vec<String>,
 }
 
-fn default_min_stars() -> u32 { 50 }
-fn default_updated_within_days() -> u32 { 365 }
-fn default_max_repos() -> usize { 20 }
+fn default_min_stars() -> u32 {
+    50
+}
+fn default_updated_within_days() -> u32 {
+    365
+}
+fn default_max_repos() -> usize {
+    20
+}
 
 /// A single preset configuration
 #[derive(Debug, Clone, Deserialize)]
@@ -74,7 +80,8 @@ impl PresetsFile {
 
     /// List all preset names with their descriptions
     pub fn list(&self) -> Vec<(&str, &str, &str)> {
-        let mut items: Vec<_> = self.presets
+        let mut items: Vec<_> = self
+            .presets
             .iter()
             .map(|(key, preset)| (key.as_str(), preset.name.as_str(), preset.purpose.as_str()))
             .collect();

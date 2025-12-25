@@ -131,7 +131,10 @@ impl BrainStorage {
             .prepare("SELECT summary FROM brain_chunks LIMIT 1")
             .is_ok();
         if !has_summary {
-            conn.execute("ALTER TABLE brain_chunks ADD COLUMN summary TEXT DEFAULT ''", [])?;
+            conn.execute(
+                "ALTER TABLE brain_chunks ADD COLUMN summary TEXT DEFAULT ''",
+                [],
+            )?;
             conn.execute(
                 "ALTER TABLE brain_chunks ADD COLUMN language TEXT DEFAULT 'unknown'",
                 [],
@@ -416,11 +419,7 @@ impl BrainStorage {
         }
     }
 
-    async fn export_jsonl(
-        &self,
-        output_path: &PathBuf,
-        options: &ExportOptions,
-    ) -> Result<String> {
+    async fn export_jsonl(&self, output_path: &PathBuf, options: &ExportOptions) -> Result<String> {
         let mut output = std::fs::File::create(output_path)?;
         let conn = Connection::open(&self.sqlite_path)?;
 
@@ -429,21 +428,21 @@ impl BrainStorage {
             "SELECT source_id, path, content_type, summary, language, license, 
                     chunk_id, start_line, end_line, text, signals, tags
              FROM brain_chunks 
-             ORDER BY source_id, path, start_line"
+             ORDER BY source_id, path, start_line",
         )?;
 
         let rows = stmt.query_map([], |row| {
             Ok((
-                row.get::<_, String>(0)?, // source_id
-                row.get::<_, String>(1)?, // path
-                row.get::<_, String>(2)?, // content_type
-                row.get::<_, String>(3)?, // summary
-                row.get::<_, String>(4)?, // language
-                row.get::<_, String>(5)?, // license
-                row.get::<_, String>(6)?, // chunk_id
-                row.get::<_, u32>(7)?,    // start_line
-                row.get::<_, u32>(8)?,    // end_line
-                row.get::<_, String>(9)?, // text
+                row.get::<_, String>(0)?,  // source_id
+                row.get::<_, String>(1)?,  // path
+                row.get::<_, String>(2)?,  // content_type
+                row.get::<_, String>(3)?,  // summary
+                row.get::<_, String>(4)?,  // language
+                row.get::<_, String>(5)?,  // license
+                row.get::<_, String>(6)?,  // chunk_id
+                row.get::<_, u32>(7)?,     // start_line
+                row.get::<_, u32>(8)?,     // end_line
+                row.get::<_, String>(9)?,  // text
                 row.get::<_, String>(10)?, // signals
                 row.get::<_, String>(11)?, // tags
             ))
@@ -452,8 +451,20 @@ impl BrainStorage {
         let mut current_record: Option<BrainRecord> = None;
 
         for row in rows {
-            let (source_id, path, content_type_str, summary, language, license, 
-                 chunk_id, start_line, end_line, text, signals_json, tags_str) = row?;
+            let (
+                source_id,
+                path,
+                content_type_str,
+                summary,
+                language,
+                license,
+                chunk_id,
+                start_line,
+                end_line,
+                text,
+                signals_json,
+                tags_str,
+            ) = row?;
 
             // Check if we need to start a new record
             let is_new_record = match &current_record {
@@ -476,8 +487,13 @@ impl BrainStorage {
                 let content_type = crate::brain::ContentType::from_path(clean_type); // Best effort mapping
 
                 // Parse signals and tags
-                let signals: Vec<crate::brain::Signal> = serde_json::from_str(&signals_json).unwrap_or_default();
-                let tags: Vec<String> = tags_str.split(',').filter(|s| !s.is_empty()).map(|s| s.to_string()).collect();
+                let signals: Vec<crate::brain::Signal> =
+                    serde_json::from_str(&signals_json).unwrap_or_default();
+                let tags: Vec<String> = tags_str
+                    .split(',')
+                    .filter(|s| !s.is_empty())
+                    .map(|s| s.to_string())
+                    .collect();
 
                 // Start new record
                 current_record = Some(BrainRecord {
@@ -528,18 +544,18 @@ impl BrainStorage {
         ));
 
         let conn = Connection::open(&self.sqlite_path)?;
-        
+
         // Query chunks grouped by source and path
         let mut stmt = conn.prepare(
             "SELECT source_id, path, content_type, summary, language, license, text, signals
              FROM brain_chunks 
              GROUP BY source_id, path 
              ORDER BY source_id, path
-             LIMIT 50" // Limit for markdown export safety
+             LIMIT 50", // Limit for markdown export safety
         )?;
 
         let rows = stmt.query_map([], |row| {
-             Ok((
+            Ok((
                 row.get::<_, String>(0)?, // source_id
                 row.get::<_, String>(1)?, // path
                 row.get::<_, String>(2)?, // content_type
@@ -554,7 +570,8 @@ impl BrainStorage {
         let mut current_source = String::new();
 
         for row in rows {
-            let (source_id, path, content_type, summary, language, license, text, signals_json) = row?;
+            let (source_id, path, content_type, summary, language, license, text, signals_json) =
+                row?;
 
             if options.include_source_ids && source_id != current_source {
                 current_source = source_id.clone();
@@ -564,10 +581,13 @@ impl BrainStorage {
             content.push_str(&format!("### {}\n\n", path));
             content.push_str(&format!(
                 "**Type**: {} | **Language**: {} | **License**: {}\n\n",
-                content_type.trim_matches('"'), language, license
+                content_type.trim_matches('"'),
+                language,
+                license
             ));
 
-            let signals: Vec<crate::brain::Signal> = serde_json::from_str(&signals_json).unwrap_or_default();
+            let signals: Vec<crate::brain::Signal> =
+                serde_json::from_str(&signals_json).unwrap_or_default();
             if !signals.is_empty() {
                 content.push_str("**Signals**: ");
                 content.push_str(
@@ -692,21 +712,21 @@ impl BrainStorage {
             "SELECT source_id, path, content_type, summary, language, license, 
                     chunk_id, start_line, end_line, text, signals, tags
              FROM brain_chunks 
-             ORDER BY source_id, path, start_line"
+             ORDER BY source_id, path, start_line",
         )?;
 
         let rows = stmt.query_map([], |row| {
             Ok((
-                row.get::<_, String>(0)?, // source_id
-                row.get::<_, String>(1)?, // path
-                row.get::<_, String>(2)?, // content_type
-                row.get::<_, String>(3)?, // summary
-                row.get::<_, String>(4)?, // language
-                row.get::<_, String>(5)?, // license
-                row.get::<_, String>(6)?, // chunk_id
-                row.get::<_, u32>(7)?,    // start_line
-                row.get::<_, u32>(8)?,    // end_line
-                row.get::<_, String>(9)?, // text
+                row.get::<_, String>(0)?,  // source_id
+                row.get::<_, String>(1)?,  // path
+                row.get::<_, String>(2)?,  // content_type
+                row.get::<_, String>(3)?,  // summary
+                row.get::<_, String>(4)?,  // language
+                row.get::<_, String>(5)?,  // license
+                row.get::<_, String>(6)?,  // chunk_id
+                row.get::<_, u32>(7)?,     // start_line
+                row.get::<_, u32>(8)?,     // end_line
+                row.get::<_, String>(9)?,  // text
                 row.get::<_, String>(10)?, // signals
                 row.get::<_, String>(11)?, // tags
             ))
@@ -724,9 +744,21 @@ impl BrainStorage {
         let mut records_written = 0;
         let chunks_count = all_rows.len();
 
-        for (source_id, path, content_type_str, summary, language, license, 
-             chunk_id, start_line, end_line, text, signals_json, tags_str) in all_rows {
-
+        for (
+            source_id,
+            path,
+            content_type_str,
+            summary,
+            language,
+            license,
+            chunk_id,
+            start_line,
+            end_line,
+            text,
+            signals_json,
+            tags_str,
+        ) in all_rows
+        {
             // Check if we need to start a new record
             let is_new_record = match &current_record {
                 Some(r) => r.source_id != source_id || r.path != path,
@@ -745,8 +777,13 @@ impl BrainStorage {
                 let content_type = crate::brain::ContentType::from_path(clean_type);
 
                 // Parse signals and tags
-                let signals: Vec<crate::brain::Signal> = serde_json::from_str(&signals_json).unwrap_or_default();
-                let tags: Vec<String> = tags_str.split(',').filter(|s| !s.is_empty()).map(|s| s.to_string()).collect();
+                let signals: Vec<crate::brain::Signal> =
+                    serde_json::from_str(&signals_json).unwrap_or_default();
+                let tags: Vec<String> = tags_str
+                    .split(',')
+                    .filter(|s| !s.is_empty())
+                    .map(|s| s.to_string())
+                    .collect();
 
                 // Start new record
                 current_record = Some(BrainRecord {
