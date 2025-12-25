@@ -12,6 +12,19 @@ VibeAnvil is **AI-agnostic** — you can use it with any AI coding assistant. Th
 | `patch` | Diff-based workflows, API LLMs | `git` installed |
 | `mock` | Testing | None |
 
+## Which Provider Should I Use?
+
+| If you use... | Choose | Why |
+|---------------|--------|-----|
+| **GitHub Copilot** | `human` | Copilot works in your IDE; copy the generated prompt, apply suggestions manually |
+| **Cursor / Windsurf** | `human` | AI-assisted editing in IDE; paste prompt, let AI suggest, you approve |
+| **Claude CLI** | `claude-code` | Direct automation; Claude executes plan and reports back |
+| **Aider / Shell Agent** | `command` | Runs any CLI command; agent handles the implementation |
+| **API + Custom Script** | `patch` | Generate diffs via API, validate and apply with git |
+| **Testing VibeAnvil** | `mock` | No external dependencies; useful for CI/CD testing |
+
+> **Tip:** Not sure? Start with `human`. It works everywhere and teaches you the workflow.
+
 ## List Available Providers
 
 ```bash

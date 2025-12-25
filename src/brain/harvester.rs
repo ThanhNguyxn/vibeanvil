@@ -540,6 +540,7 @@ impl Harvester {
 
         // Default ignores
         let default_ignores = [
+            // Build/cache directories
             "node_modules/",
             "vendor/",
             "target/",
@@ -551,6 +552,27 @@ impl Harvester {
             "package-lock.json",
             "yarn.lock",
             "Cargo.lock",
+            // SECRET FILE PATTERNS - privacy rails
+            ".env",
+            ".env.",
+            "secrets/",
+            "credentials/",
+            ".aws/",
+            ".ssh/",
+            "id_rsa",
+            "id_dsa",
+            "id_ecdsa",
+            "id_ed25519",
+            ".pem",
+            ".key",
+            ".p12",
+            ".pfx",
+            ".jks",
+            ".keystore",
+            ".htpasswd",
+            ".netrc",
+            ".npmrc",
+            ".pypirc",
         ];
 
         for pattern in default_ignores {

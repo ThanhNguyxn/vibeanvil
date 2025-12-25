@@ -40,6 +40,12 @@ impl Default for ExportOptions {
     }
 }
 
+/// Result of compact operation
+pub struct CompactResult {
+    pub records_written: usize,
+    pub chunks_count: usize,
+}
+
 /// Storage for brain records
 pub struct BrainStorage {
     brainpack_dir: PathBuf,
@@ -64,6 +70,23 @@ impl BrainStorage {
 
         storage.init_db()?;
 
+        Ok(storage)
+    }
+
+    /// Create new brain storage for testing
+    #[cfg(test)]
+    pub fn new_for_test(path: PathBuf) -> Result<Self> {
+        std::fs::create_dir_all(&path)?;
+        let jsonl_path = path.join("brainpack.jsonl");
+        let sqlite_path = path.join("brainpack.sqlite");
+
+        let storage = Self {
+            brainpack_dir: path,
+            jsonl_path,
+            sqlite_path,
+        };
+
+        storage.init_db()?;
         Ok(storage)
     }
 
@@ -99,6 +122,32 @@ impl BrainStorage {
                 tags TEXT,
                 FOREIGN KEY (source_id) REFERENCES sources(source_id)
             )",
+            [],
+        )?;
+
+        // MIGRATION: Add summary, language, license columns if missing
+        // We check if columns exist by trying to select them. If error, we add them.
+        let has_summary = conn
+            .prepare("SELECT summary FROM brain_chunks LIMIT 1")
+            .is_ok();
+        if !has_summary {
+            conn.execute("ALTER TABLE brain_chunks ADD COLUMN summary TEXT DEFAULT ''", [])?;
+            conn.execute(
+                "ALTER TABLE brain_chunks ADD COLUMN language TEXT DEFAULT 'unknown'",
+                [],
+            )?;
+            conn.execute(
+                "ALTER TABLE brain_chunks ADD COLUMN license TEXT DEFAULT 'unknown'",
+                [],
+            )?;
+        }
+
+        // MIGRATION: Fix content_type quotes
+        // Update any content_type that starts/ends with quotes (JSON string artifact)
+        conn.execute(
+            "UPDATE brain_chunks 
+             SET content_type = TRIM(content_type, '\"') 
+             WHERE content_type LIKE '\"%\"'",
             [],
         )?;
 
@@ -184,18 +233,21 @@ impl BrainStorage {
             for chunk in &record.chunks {
                 conn.execute(
                     "INSERT OR REPLACE INTO brain_chunks 
-                    (chunk_id, source_id, path, content_type, start_line, end_line, text, signals, tags)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (chunk_id, source_id, path, content_type, start_line, end_line, text, signals, tags, summary, language, license)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     params![
                         chunk.chunk_id,
                         record.source_id,
                         record.path,
-                        serde_json::to_string(&record.content_type)?,
+                        record.content_type.to_string(), // Use Display trait (no quotes)
                         chunk.start_line,
                         chunk.end_line,
                         chunk.text,
                         signals_json,
                         tags_str,
+                        record.summary,
+                        record.language,
+                        record.license,
                     ],
                 )?;
             }
@@ -364,26 +416,101 @@ impl BrainStorage {
         }
     }
 
-    async fn export_jsonl(&self, output_path: &PathBuf, options: &ExportOptions) -> Result<String> {
-        if !self.jsonl_path.exists() {
-            tokio::fs::write(output_path, "").await?;
-            return Ok(output_path.to_string_lossy().to_string());
+    async fn export_jsonl(
+        &self,
+        output_path: &PathBuf,
+        options: &ExportOptions,
+    ) -> Result<String> {
+        let mut output = std::fs::File::create(output_path)?;
+        let conn = Connection::open(&self.sqlite_path)?;
+
+        // Query all chunks ordered by source and path to group them
+        let mut stmt = conn.prepare(
+            "SELECT source_id, path, content_type, summary, language, license, 
+                    chunk_id, start_line, end_line, text, signals, tags
+             FROM brain_chunks 
+             ORDER BY source_id, path, start_line"
+        )?;
+
+        let rows = stmt.query_map([], |row| {
+            Ok((
+                row.get::<_, String>(0)?, // source_id
+                row.get::<_, String>(1)?, // path
+                row.get::<_, String>(2)?, // content_type
+                row.get::<_, String>(3)?, // summary
+                row.get::<_, String>(4)?, // language
+                row.get::<_, String>(5)?, // license
+                row.get::<_, String>(6)?, // chunk_id
+                row.get::<_, u32>(7)?,    // start_line
+                row.get::<_, u32>(8)?,    // end_line
+                row.get::<_, String>(9)?, // text
+                row.get::<_, String>(10)?, // signals
+                row.get::<_, String>(11)?, // tags
+            ))
+        })?;
+
+        let mut current_record: Option<BrainRecord> = None;
+
+        for row in rows {
+            let (source_id, path, content_type_str, summary, language, license, 
+                 chunk_id, start_line, end_line, text, signals_json, tags_str) = row?;
+
+            // Check if we need to start a new record
+            let is_new_record = match &current_record {
+                Some(r) => r.source_id != source_id || r.path != path,
+                None => true,
+            };
+
+            if is_new_record {
+                // Write previous record if exists
+                if let Some(mut record) = current_record.take() {
+                    // Remove source_id if not requested
+                    if !options.include_source_ids {
+                        record.source_id = String::new();
+                    }
+                    writeln!(output, "{}", serde_json::to_string(&record)?)?;
+                }
+
+                // Parse content type (handle legacy quoted strings if any remain)
+                let clean_type = content_type_str.trim_matches('"');
+                let content_type = crate::brain::ContentType::from_path(clean_type); // Best effort mapping
+
+                // Parse signals and tags
+                let signals: Vec<crate::brain::Signal> = serde_json::from_str(&signals_json).unwrap_or_default();
+                let tags: Vec<String> = tags_str.split(',').filter(|s| !s.is_empty()).map(|s| s.to_string()).collect();
+
+                // Start new record
+                current_record = Some(BrainRecord {
+                    source_id: source_id.clone(),
+                    commit: "export".to_string(), // We don't store commit per chunk, could join sources table
+                    license,
+                    language,
+                    path,
+                    content_type,
+                    signals,
+                    summary,
+                    chunks: Vec::new(),
+                    tags,
+                });
+            }
+
+            // Add chunk to current record
+            if let Some(record) = &mut current_record {
+                record.chunks.push(crate::brain::ContentChunk {
+                    chunk_id,
+                    text,
+                    start_line,
+                    end_line,
+                });
+            }
         }
 
-        let input = std::fs::File::open(&self.jsonl_path)?;
-        let reader = BufReader::new(input);
-        let mut output = std::fs::File::create(output_path)?;
-
-        for line in reader.lines().map_while(Result::ok) {
-            if let Ok(mut record) = serde_json::from_str::<serde_json::Value>(&line) {
-                // Remove source_id if not requested
-                if !options.include_source_ids {
-                    if let Some(obj) = record.as_object_mut() {
-                        obj.remove("source_id");
-                    }
-                }
-                writeln!(output, "{}", serde_json::to_string(&record)?)?;
+        // Write last record
+        if let Some(mut record) = current_record {
+            if !options.include_source_ids {
+                record.source_id = String::new();
             }
+            writeln!(output, "{}", serde_json::to_string(&record)?)?;
         }
 
         Ok(output_path.to_string_lossy().to_string())
@@ -400,96 +527,68 @@ impl BrainStorage {
             chrono::Utc::now().to_rfc3339()
         ));
 
-        if !self.jsonl_path.exists() {
-            content.push_str("*No records found.*\n");
-            tokio::fs::write(output_path, &content).await?;
-            return Ok(output_path.to_string_lossy().to_string());
-        }
+        let conn = Connection::open(&self.sqlite_path)?;
+        
+        // Query chunks grouped by source and path
+        let mut stmt = conn.prepare(
+            "SELECT source_id, path, content_type, summary, language, license, text, signals
+             FROM brain_chunks 
+             GROUP BY source_id, path 
+             ORDER BY source_id, path
+             LIMIT 50" // Limit for markdown export safety
+        )?;
 
-        let file = std::fs::File::open(&self.jsonl_path)?;
-        let reader = BufReader::new(file);
+        let rows = stmt.query_map([], |row| {
+             Ok((
+                row.get::<_, String>(0)?, // source_id
+                row.get::<_, String>(1)?, // path
+                row.get::<_, String>(2)?, // content_type
+                row.get::<_, String>(3)?, // summary
+                row.get::<_, String>(4)?, // language
+                row.get::<_, String>(5)?, // license
+                row.get::<_, String>(6)?, // text (first chunk due to GROUP BY)
+                row.get::<_, String>(7)?, // signals
+            ))
+        })?;
 
         let mut current_source = String::new();
-        let mut record_count = 0;
 
-        for line in reader.lines().map_while(Result::ok) {
-            // Try parsing as BrainRecord first (harvested records)
-            if let Ok(record) = serde_json::from_str::<BrainRecord>(&line) {
-                record_count += 1;
+        for row in rows {
+            let (source_id, path, content_type, summary, language, license, text, signals_json) = row?;
 
-                if options.include_source_ids && record.source_id != current_source {
-                    current_source = record.source_id.clone();
-                    content.push_str(&format!("\n## Source: {}\n\n", current_source));
-                }
-
-                content.push_str(&format!("### {}\n\n", record.path));
-                content.push_str(&format!(
-                    "**Type**: {:?} | **Language**: {} | **License**: {}\n\n",
-                    record.content_type, record.language, record.license
-                ));
-
-                if !record.signals.is_empty() {
-                    content.push_str("**Signals**: ");
-                    content.push_str(
-                        &record
-                            .signals
-                            .iter()
-                            .map(|s| format!("{:?}", s))
-                            .collect::<Vec<_>>()
-                            .join(", "),
-                    );
-                    content.push_str("\n\n");
-                }
-
-                content.push_str(&format!("{}\n\n", record.summary));
-
-                // Only show first chunk
-                if let Some(chunk) = record.chunks.first() {
-                    content.push_str("```\n");
-                    content.push_str(&chunk.text[..chunk.text.len().min(300)]);
-                    if chunk.text.len() > 300 {
-                        content.push_str("\n... (truncated)");
-                    }
-                    content.push_str("\n```\n\n");
-                }
-            } else if let Ok(core_entry) = serde_json::from_str::<serde_json::Value>(&line) {
-                // Fallback: parse core entries (different schema)
-                record_count += 1;
-
-                let source_id = core_entry["source_id"].as_str().unwrap_or("unknown");
-                if options.include_source_ids && source_id != current_source {
-                    current_source = source_id.to_string();
-                    content.push_str(&format!("\n## Source: {}\n\n", current_source));
-                }
-
-                let title = core_entry["title"].as_str().unwrap_or("Untitled");
-                let entry_type = core_entry["type"].as_str().unwrap_or("unknown");
-                let summary = core_entry["summary"].as_str().unwrap_or("");
-
-                content.push_str(&format!("### {}\n\n", title));
-                content.push_str(&format!("**Type**: {}\n\n", entry_type));
-                content.push_str(&format!("{}\n\n", summary));
-
-                // Show first chunk if available
-                if let Some(chunks) = core_entry["chunks"].as_array() {
-                    if let Some(chunk) = chunks.first() {
-                        if let Some(text) = chunk["text"].as_str() {
-                            content.push_str("```\n");
-                            content.push_str(&text[..text.len().min(300)]);
-                            if text.len() > 300 {
-                                content.push_str("\n... (truncated)");
-                            }
-                            content.push_str("\n```\n\n");
-                        }
-                    }
-                }
+            if options.include_source_ids && source_id != current_source {
+                current_source = source_id.clone();
+                content.push_str(&format!("\n## Source: {}\n\n", current_source));
             }
 
-            // Limit to 50 records in markdown
-            if record_count >= 50 {
-                content.push_str("\n*... and more records (truncated for readability)*\n");
-                break;
+            content.push_str(&format!("### {}\n\n", path));
+            content.push_str(&format!(
+                "**Type**: {} | **Language**: {} | **License**: {}\n\n",
+                content_type.trim_matches('"'), language, license
+            ));
+
+            let signals: Vec<crate::brain::Signal> = serde_json::from_str(&signals_json).unwrap_or_default();
+            if !signals.is_empty() {
+                content.push_str("**Signals**: ");
+                content.push_str(
+                    &signals
+                        .iter()
+                        .map(|s| format!("{:?}", s))
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                );
+                content.push_str("\n\n");
             }
+
+            content.push_str(&format!("{}\n\n", summary));
+
+            // Show first chunk
+            content.push_str("```\n");
+            content.push_str(&text[..text.len().min(300)]);
+            if text.len() > 300 {
+                content.push_str("\n... (truncated)");
+            }
+            content.push_str("\n```\n\n");
         }
 
         tokio::fs::write(output_path, &content).await?;
@@ -554,8 +653,8 @@ impl BrainStorage {
 
                     conn.execute(
                         "INSERT OR REPLACE INTO brain_chunks 
-                        (chunk_id, source_id, path, content_type, start_line, end_line, text, signals, tags)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        (chunk_id, source_id, path, content_type, start_line, end_line, text, signals, tags, summary, language, license)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         params![
                             chunk_id,
                             source_id,
@@ -563,9 +662,12 @@ impl BrainStorage {
                             record_type,
                             start_line,
                             end_line,
-                            format!("{}\n\n{}", summary, text), // Combine summary and text for search
+                            text,
                             signals_str,
                             tags_str,
+                            summary,
+                            "mixed", // Core brainpack language
+                            "MIT",   // Core brainpack license
                         ],
                     )?;
                 }
@@ -577,6 +679,114 @@ impl BrainStorage {
         }
 
         Ok(count)
+    }
+
+    /// Compact the brain pack: rewrite JSONL from SQLite (dedup), run VACUUM
+    pub async fn compact(&self) -> Result<CompactResult> {
+        use std::io::Write;
+
+        let conn = Connection::open(&self.sqlite_path)?;
+
+        // Query all distinct records from SQLite, group by source_id + path
+        let mut stmt = conn.prepare(
+            "SELECT source_id, path, content_type, summary, language, license, 
+                    chunk_id, start_line, end_line, text, signals, tags
+             FROM brain_chunks 
+             ORDER BY source_id, path, start_line"
+        )?;
+
+        let rows = stmt.query_map([], |row| {
+            Ok((
+                row.get::<_, String>(0)?, // source_id
+                row.get::<_, String>(1)?, // path
+                row.get::<_, String>(2)?, // content_type
+                row.get::<_, String>(3)?, // summary
+                row.get::<_, String>(4)?, // language
+                row.get::<_, String>(5)?, // license
+                row.get::<_, String>(6)?, // chunk_id
+                row.get::<_, u32>(7)?,    // start_line
+                row.get::<_, u32>(8)?,    // end_line
+                row.get::<_, String>(9)?, // text
+                row.get::<_, String>(10)?, // signals
+                row.get::<_, String>(11)?, // tags
+            ))
+        })?;
+
+        // Collect all rows
+        let mut all_rows = Vec::new();
+        for row in rows {
+            all_rows.push(row?);
+        }
+
+        // Rewrite JSONL file from scratch
+        let mut output = std::fs::File::create(&self.jsonl_path)?;
+        let mut current_record: Option<BrainRecord> = None;
+        let mut records_written = 0;
+        let chunks_count = all_rows.len();
+
+        for (source_id, path, content_type_str, summary, language, license, 
+             chunk_id, start_line, end_line, text, signals_json, tags_str) in all_rows {
+
+            // Check if we need to start a new record
+            let is_new_record = match &current_record {
+                Some(r) => r.source_id != source_id || r.path != path,
+                None => true,
+            };
+
+            if is_new_record {
+                // Write previous record if exists
+                if let Some(record) = current_record.take() {
+                    writeln!(output, "{}", serde_json::to_string(&record)?)?;
+                    records_written += 1;
+                }
+
+                // Parse content type
+                let clean_type = content_type_str.trim_matches('"');
+                let content_type = crate::brain::ContentType::from_path(clean_type);
+
+                // Parse signals and tags
+                let signals: Vec<crate::brain::Signal> = serde_json::from_str(&signals_json).unwrap_or_default();
+                let tags: Vec<String> = tags_str.split(',').filter(|s| !s.is_empty()).map(|s| s.to_string()).collect();
+
+                // Start new record
+                current_record = Some(BrainRecord {
+                    source_id: source_id.clone(),
+                    commit: "compact".to_string(),
+                    license,
+                    language,
+                    path,
+                    content_type,
+                    signals,
+                    summary,
+                    chunks: Vec::new(),
+                    tags,
+                });
+            }
+
+            // Add chunk to current record
+            if let Some(record) = &mut current_record {
+                record.chunks.push(crate::brain::ContentChunk {
+                    chunk_id,
+                    text,
+                    start_line,
+                    end_line,
+                });
+            }
+        }
+
+        // Write last record
+        if let Some(record) = current_record {
+            writeln!(output, "{}", serde_json::to_string(&record)?)?;
+            records_written += 1;
+        }
+
+        // Run VACUUM on SQLite
+        conn.execute("VACUUM", [])?;
+
+        Ok(CompactResult {
+            records_written,
+            chunks_count,
+        })
     }
 }
 

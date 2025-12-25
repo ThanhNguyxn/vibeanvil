@@ -17,6 +17,7 @@ pub async fn run(args: BrainArgs) -> Result<()> {
             output,
             include_source_ids,
         } => export(format, output, include_source_ids).await,
+        BrainCommands::Compact => compact().await,
     }
 }
 
@@ -410,6 +411,61 @@ async fn ensure_core() -> Result<()> {
         "•".cyan(),
         "vibeanvil brain search 'iterate loop'".white()
     );
+    println!();
+
+    Ok(())
+}
+
+/// Compact the brain pack (dedup JSONL, optimize SQLite)
+async fn compact() -> Result<()> {
+    println!();
+    println!(
+        "{}",
+        "╔═══════════════════════════════════════════════════════════════╗".cyan()
+    );
+    println!(
+        "{}",
+        "║               🧹 BrainPack Compact                            ║".cyan()
+    );
+    println!(
+        "{}",
+        "╚═══════════════════════════════════════════════════════════════╝".cyan()
+    );
+    println!();
+
+    let storage = BrainStorage::new().await?;
+    let before_stats = storage.stats().await?;
+
+    println!("{}", "📊 Before:".white().bold());
+    println!("  {} {}", "JSONL:".dimmed(), format_bytes(before_stats.jsonl_size_bytes).cyan());
+    println!("  {} {}", "SQLite:".dimmed(), format_bytes(before_stats.sqlite_size_bytes).cyan());
+    println!("  {} {}", "Chunks:".dimmed(), before_stats.total_chunks.to_string().cyan());
+    println!();
+
+    println!("{}", "⏳ Compacting...".yellow());
+    let result = storage.compact().await?;
+    
+    let after_stats = storage.stats().await?;
+
+    println!();
+    println!("{}", "📊 After:".white().bold());
+    println!("  {} {}", "JSONL:".dimmed(), format_bytes(after_stats.jsonl_size_bytes).green());
+    println!("  {} {}", "SQLite:".dimmed(), format_bytes(after_stats.sqlite_size_bytes).green());
+    println!("  {} {}", "Records:".dimmed(), result.records_written.to_string().green());
+    println!();
+
+    let saved = before_stats.jsonl_size_bytes.saturating_sub(after_stats.jsonl_size_bytes)
+        + before_stats.sqlite_size_bytes.saturating_sub(after_stats.sqlite_size_bytes);
+    
+    if saved > 0 {
+        println!(
+            "{} {}",
+            "✅ Saved:".green().bold(),
+            format_bytes(saved).green().bold()
+        );
+    } else {
+        println!("{}", "✅ Already compact!".green().bold());
+    }
     println!();
 
     Ok(())

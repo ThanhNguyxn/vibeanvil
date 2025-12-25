@@ -481,7 +481,7 @@ vibeanvil brain search "acceptance criteria" -n 20
 ```
 
 #### `brain export`
-Export BrainPack to file.
+Export BrainPack to file. This performs a canonical export from the SQLite database, ensuring deduplication and clean metadata.
 
 ```bash
 vibeanvil brain export <format> [-o <path>] [--include-source-ids]
@@ -492,7 +492,25 @@ vibeanvil brain export <format> [-o <path>] [--include-source-ids]
 **Example:**
 ```bash
 vibeanvil brain export jsonl -o backup.jsonl
+vibeanvil brain export md
 ```
+
+#### `brain compact`
+Compact the BrainPack: rewrite JSONL from SQLite (deduplicated) and optimize the database.
+
+```bash
+vibeanvil brain compact
+```
+
+**Effects:**
+- Rewrites `brainpack.jsonl` from SQLite (canonical, deduplicated)
+- Runs SQLite `VACUUM` to reclaim space
+- Shows before/after file sizes
+
+**When to use:**
+- After multiple harvest runs to clean up duplicates
+- When storage grows unexpectedly
+- Before creating a backup or sharing
 
 ---
 

@@ -231,6 +231,13 @@ pub enum ManualBuildAction {
 /// Harvest command arguments
 #[derive(clap::Args)]
 pub struct HarvestArgs {
+    #[command(subcommand)]
+    pub command: Option<HarvestCommands>,
+
+    /// Use a named preset from brainpacks/presets.yaml
+    #[arg(long)]
+    pub preset: Option<String>,
+
     /// Search query terms (repeatable)
     #[arg(short, long, action = clap::ArgAction::Append)]
     pub query: Vec<String>,
@@ -270,6 +277,12 @@ pub struct HarvestArgs {
     /// Allow glob patterns (repeatable)
     #[arg(long, action = clap::ArgAction::Append)]
     pub allow_glob: Vec<String>,
+}
+
+#[derive(Subcommand)]
+pub enum HarvestCommands {
+    /// List available harvest presets
+    Presets,
 }
 
 #[derive(Clone, ValueEnum, Default)]
@@ -319,6 +332,9 @@ pub enum BrainCommands {
         #[arg(long, default_value = "true")]
         include_source_ids: bool,
     },
+
+    /// Compact the brain pack (dedup JSONL, optimize SQLite)
+    Compact,
 }
 
 #[derive(Clone, ValueEnum)]

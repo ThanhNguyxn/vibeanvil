@@ -6,10 +6,13 @@
 //! - User-driven search queries (no hardcoded repos)
 
 pub mod harvester;
+pub mod presets;
 pub mod storage;
 
 #[cfg(test)]
 mod core_jsonl_tests;
+#[cfg(test)]
+mod export_tests;
 
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -80,6 +83,21 @@ impl ContentType {
             ContentType::Code
         } else {
             ContentType::Other
+        }
+    }
+}
+
+impl std::fmt::Display for ContentType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ContentType::Readme => write!(f, "readme"),
+            ContentType::Doc => write!(f, "doc"),
+            ContentType::Config => write!(f, "config"),
+            ContentType::Code => write!(f, "code"),
+            ContentType::Workflow => write!(f, "workflow"),
+            ContentType::Template => write!(f, "template"),
+            ContentType::Prompt => write!(f, "prompt"),
+            ContentType::Other => write!(f, "other"),
         }
     }
 }

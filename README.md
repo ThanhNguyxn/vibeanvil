@@ -235,7 +235,7 @@ vibeanvil ship --tag v1.0.0
 | `harvest` | Harvest repositories | `vibeanvil harvest --query "cli"` |
 | `brain stats` | View statistics | `vibeanvil brain stats` |
 | `brain search` | Search brain | `vibeanvil brain search "pattern"` |
-| `brain export` | Export data | `vibeanvil brain export --format md` |
+| `brain export` | Export data | `vibeanvil brain export md` |
 
 ### 📊 Utility Commands
 
