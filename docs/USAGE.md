@@ -454,6 +454,35 @@ vibeanvil brain ensure
 - Imports embedded Core BrainPack if not present
 - Idempotent - safe to run repeatedly
 
+> **Note:** `brain ensure` only imports if the Core BrainPack is not already installed.
+> To update with new content after upgrading VibeAnvil, see [Updating BrainPack](#updating-brainpack) below.
+
+#### Updating BrainPack
+
+When VibeAnvil is updated with new templates, you may need to re-import the Core BrainPack:
+
+**Option 1: Re-import (recommended)**
+```bash
+# Windows (PowerShell)
+Remove-Item "$env:LOCALAPPDATA\vibeanvil\brainpack\*" -Force -Recurse
+vibeanvil brain ensure
+
+# Linux/macOS
+rm -rf ~/.local/share/vibeanvil/brainpack/*
+vibeanvil brain ensure
+```
+
+**Option 2: Check current status**
+```bash
+vibeanvil brain stats  # Shows record count
+```
+
+**When to update:**
+- After upgrading VibeAnvil (`vibeanvil upgrade`)
+- When you see fewer records than expected
+- After adding custom content to `brainpacks/`
+
+
 #### `brain stats`
 Show BrainPack statistics.
 

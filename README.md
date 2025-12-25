@@ -76,6 +76,9 @@ vibeanvil contract lock   # 🔒 "Contract LOCKED = License to Build"
 > 💡 **Core BrainPack ships with VibeAnvil!** No need to run `harvest` first.
 > Use `brain search` immediately to find templates for contracts, plans, and best practices.
 
+> 🔄 **After upgrading VibeAnvil**, re-import the brainpack to get new templates:
+> See [Updating BrainPack](docs/USAGE.md#updating-brainpack) for instructions.
+
 📚 **Detailed guides:** [Getting Started](docs/getting-started.md) | [Workflow](docs/workflow.md) | [Commands](docs/commands.md) | [Providers](docs/PROVIDERS.md)
 
 ---
