@@ -76,6 +76,8 @@ vibeanvil contract lock   # 🔒 "Contract LOCKED = License to Build"
 > 💡 **Core BrainPack ships with VibeAnvil!** No need to run `harvest` first.
 > Use `brain search` immediately to find templates for contracts, plans, and best practices.
 
+📚 **Detailed guides:** [Getting Started](docs/getting-started.md) | [Workflow](docs/workflow.md) | [Commands](docs/commands.md) | [Providers](docs/PROVIDERS.md)
+
 ---
 
 ## 🚀 Features
@@ -194,16 +196,19 @@ vibeanvil contract validate
 vibeanvil contract lock    # 🔒 "Contract LOCKED = License to Build"
 
 # 5️⃣ Create implementation plan
-vibeanvil plan --provider claude-code
+vibeanvil plan
 
-# 6️⃣ Build with iterate mode
-vibeanvil build iterate --max 5 --evidence
+# 6️⃣ Build with your preferred AI provider
+# Choose: human (Copilot/Cursor), claude-code, command (Aider), or patch
+vibeanvil build iterate --provider human --max 5
 
 # 7️⃣ Review and ship
 vibeanvil review pass
 vibeanvil snapshot --message "v1.0.0 ready"
 vibeanvil ship --tag v1.0.0
 ```
+
+> 📚 **See [docs/PROVIDERS.md](docs/PROVIDERS.md) for detailed provider setup**
 
 ---
 
