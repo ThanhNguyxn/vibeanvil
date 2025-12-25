@@ -2,10 +2,11 @@
 //!
 //! These tests ensure the embedded core brainpack parses correctly.
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 /// Core record schema (matches core.jsonl structure)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct CoreRecord {
     source_id: String,
     #[serde(rename = "type")]
@@ -17,7 +18,8 @@ struct CoreRecord {
     chunks: Vec<CoreChunk>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct CoreChunk {
     chunk_id: String,
     text: String,
@@ -96,21 +98,21 @@ mod tests {
         // This simulates the logic fix: we now check for source_id = "core"
         // not just "any records exist"
 
-        let non_core_records = vec!["src_abc123", "src_def456"];
-        let core_records = vec!["core"];
+        let non_core_records: &[&str] = &["src_abc123", "src_def456"];
+        let core_records: &[&str] = &["core"];
 
         // Old buggy logic: any records = has_core
         let buggy_has_core = !non_core_records.is_empty();
         assert!(buggy_has_core, "Buggy logic would return true");
 
         // Fixed logic: check for "core" specifically
-        let fixed_has_core = non_core_records.iter().any(|&id| id == "core");
+        let fixed_has_core = non_core_records.contains(&"core");
         assert!(
             !fixed_has_core,
             "Fixed logic correctly returns false for non-core"
         );
 
-        let fixed_has_core_with_core = core_records.iter().any(|&id| id == "core");
+        let fixed_has_core_with_core = core_records.contains(&"core");
         assert!(
             fixed_has_core_with_core,
             "Fixed logic returns true when core exists"
