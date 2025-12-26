@@ -263,4 +263,85 @@ mod tests {
             "Chunk count should match initial import"
         );
     }
+
+    /// Test: All chunk_ids in core.jsonl are non-empty
+    #[test]
+    fn test_core_jsonl_chunk_ids_non_empty() {
+        let content = include_str!("../../brainpacks/core/core.jsonl");
+
+        for (line_number, line) in content.lines().enumerate() {
+            let trimmed = line.trim();
+            if trimmed.is_empty() {
+                continue;
+            }
+
+            if let Ok(record) = serde_json::from_str::<CoreRecord>(trimmed) {
+                for chunk in &record.chunks {
+                    assert!(
+                        !chunk.chunk_id.is_empty(),
+                        "Line {}: chunk_id should not be empty in record '{}'. \
+                        Empty chunk_ids cause import issues.",
+                        line_number + 1,
+                        record.title
+                    );
+                }
+            }
+        }
+    }
+
+    /// Test: All chunk_ids in core.jsonl are unique
+    #[test]
+    fn test_core_jsonl_chunk_ids_unique() {
+        use std::collections::HashSet;
+
+        let content = include_str!("../../brainpacks/core/core.jsonl");
+        let mut seen_ids: HashSet<String> = HashSet::new();
+
+        for (line_number, line) in content.lines().enumerate() {
+            let trimmed = line.trim();
+            if trimmed.is_empty() {
+                continue;
+            }
+
+            if let Ok(record) = serde_json::from_str::<CoreRecord>(trimmed) {
+                for chunk in &record.chunks {
+                    let is_new = seen_ids.insert(chunk.chunk_id.clone());
+                    assert!(
+                        is_new,
+                        "Line {}: Duplicate chunk_id '{}' found in record '{}'. \
+                        Each chunk_id must be unique.",
+                        line_number + 1,
+                        chunk.chunk_id,
+                        record.title
+                    );
+                }
+            }
+        }
+    }
+
+    /// Test: All chunk_ids in core.jsonl start with "core:"
+    #[test]
+    fn test_core_jsonl_chunk_ids_have_core_prefix() {
+        let content = include_str!("../../brainpacks/core/core.jsonl");
+
+        for (line_number, line) in content.lines().enumerate() {
+            let trimmed = line.trim();
+            if trimmed.is_empty() {
+                continue;
+            }
+
+            if let Ok(record) = serde_json::from_str::<CoreRecord>(trimmed) {
+                for chunk in &record.chunks {
+                    assert!(
+                        chunk.chunk_id.starts_with("core:"),
+                        "Line {}: chunk_id '{}' should start with 'core:' in record '{}'. \
+                        This prefix ensures Core BrainPack entries are identifiable.",
+                        line_number + 1,
+                        chunk.chunk_id,
+                        record.title
+                    );
+                }
+            }
+        }
+    }
 }

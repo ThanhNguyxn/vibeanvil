@@ -26,7 +26,7 @@ pub enum ExportFormat {
 pub struct ExportOptions {
     pub format: ExportFormat,
     pub output_path: Option<PathBuf>,
-    /// Include anonymized source IDs (default: true)
+    /// Include anonymized source IDs (default: false for privacy)
     pub include_source_ids: bool,
 }
 
@@ -35,7 +35,7 @@ impl Default for ExportOptions {
         Self {
             format: ExportFormat::Jsonl,
             output_path: None,
-            include_source_ids: true,
+            include_source_ids: false,
         }
     }
 }
@@ -987,6 +987,6 @@ mod tests {
     #[test]
     fn test_export_options_default() {
         let opts = ExportOptions::default();
-        assert!(opts.include_source_ids);
+        assert!(!opts.include_source_ids);
     }
 }

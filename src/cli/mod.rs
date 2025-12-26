@@ -336,8 +336,8 @@ pub enum BrainCommands {
         #[arg(short, long)]
         output: Option<String>,
 
-        /// Include anonymized source IDs (default: true for debugging)
-        #[arg(long, default_value = "true")]
+        /// Include anonymized source IDs (default: false for privacy)
+        #[arg(long, default_value = "false")]
         include_source_ids: bool,
     },
 
