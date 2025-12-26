@@ -40,12 +40,12 @@ async fn test_canonical_export_deduplication() -> Result<()> {
     // Save record twice (simulating repeated harvest)
     println!("Saving record 1...");
     storage
-        .save_records(&[record.clone()])
+        .save_records(std::slice::from_ref(&record))
         .await
         .expect("Failed to save record 1");
     println!("Saving record 2...");
     storage
-        .save_records(&[record.clone()])
+        .save_records(std::slice::from_ref(&record))
         .await
         .expect("Failed to save record 2");
 
