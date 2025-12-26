@@ -34,7 +34,5 @@ coverage/
 examples/**/*.lock
 
 # Local debug files
-errors.txt
-clippy_errors.txt
-clippy_output.txt
-clippy_err.txt
+*.txt
+jobs.json
