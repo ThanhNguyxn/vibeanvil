@@ -268,13 +268,13 @@ mod tests {
     #[test]
     fn test_core_jsonl_chunk_ids_non_empty() {
         let content = include_str!("../../brainpacks/core/core.jsonl");
-        
+
         for (line_number, line) in content.lines().enumerate() {
             let trimmed = line.trim();
             if trimmed.is_empty() {
                 continue;
             }
-            
+
             if let Ok(record) = serde_json::from_str::<CoreRecord>(trimmed) {
                 for chunk in &record.chunks {
                     assert!(
@@ -293,16 +293,16 @@ mod tests {
     #[test]
     fn test_core_jsonl_chunk_ids_unique() {
         use std::collections::HashSet;
-        
+
         let content = include_str!("../../brainpacks/core/core.jsonl");
         let mut seen_ids: HashSet<String> = HashSet::new();
-        
+
         for (line_number, line) in content.lines().enumerate() {
             let trimmed = line.trim();
             if trimmed.is_empty() {
                 continue;
             }
-            
+
             if let Ok(record) = serde_json::from_str::<CoreRecord>(trimmed) {
                 for chunk in &record.chunks {
                     let is_new = seen_ids.insert(chunk.chunk_id.clone());
@@ -323,13 +323,13 @@ mod tests {
     #[test]
     fn test_core_jsonl_chunk_ids_have_core_prefix() {
         let content = include_str!("../../brainpacks/core/core.jsonl");
-        
+
         for (line_number, line) in content.lines().enumerate() {
             let trimmed = line.trim();
             if trimmed.is_empty() {
                 continue;
             }
-            
+
             if let Ok(record) = serde_json::from_str::<CoreRecord>(trimmed) {
                 for chunk in &record.chunks {
                     assert!(
