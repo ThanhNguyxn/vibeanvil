@@ -139,23 +139,33 @@ impl BrainStorage {
         )?;
 
         // MIGRATION: Add summary, language, license columns if missing
-        // We check if columns exist by trying to select them. If error, we add them.
-        let has_summary = conn
-            .prepare("SELECT summary FROM brain_chunks LIMIT 1")
-            .is_ok();
-        if !has_summary {
-            conn.execute(
+        // We use PRAGMA table_info to check for columns reliably, avoiding "duplicate column" errors
+        // if a previous check failed due to locking but the column was actually added.
+        let mut existing_columns = std::collections::HashSet::new();
+        let mut stmt = conn.prepare("PRAGMA table_info(brain_chunks)")?;
+        let rows = stmt.query_map([], |row| row.get::<_, String>(1))?;
+        for row in rows {
+            existing_columns.insert(row?);
+        }
+
+        if !existing_columns.contains("summary") {
+            // Ignore error if column exists (race condition safety)
+            let _ = conn.execute(
                 "ALTER TABLE brain_chunks ADD COLUMN summary TEXT DEFAULT ''",
                 [],
-            )?;
-            conn.execute(
+            );
+        }
+        if !existing_columns.contains("language") {
+            let _ = conn.execute(
                 "ALTER TABLE brain_chunks ADD COLUMN language TEXT DEFAULT 'unknown'",
                 [],
-            )?;
-            conn.execute(
+            );
+        }
+        if !existing_columns.contains("license") {
+            let _ = conn.execute(
                 "ALTER TABLE brain_chunks ADD COLUMN license TEXT DEFAULT 'unknown'",
                 [],
-            )?;
+            );
         }
 
         // MIGRATION: Fix content_type quotes
