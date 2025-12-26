@@ -9,7 +9,7 @@ use crate::cli::{BrainArgs, BrainCommands};
 
 pub async fn run(args: BrainArgs) -> Result<()> {
     match args.command {
-        BrainCommands::Ensure => ensure_core().await,
+        BrainCommands::Ensure { refresh_core, verbose } => ensure_core(refresh_core, verbose).await,
         BrainCommands::Stats => show_stats().await,
         BrainCommands::Search { query, limit } => search(&query, limit).await,
         BrainCommands::Export {
@@ -316,7 +316,7 @@ async fn export(
     Ok(())
 }
 
-async fn ensure_core() -> Result<()> {
+async fn ensure_core(refresh_core: bool, verbose: bool) -> Result<()> {
     use indicatif::{ProgressBar, ProgressStyle};
 
     println!();
@@ -335,22 +335,43 @@ async fn ensure_core() -> Result<()> {
     println!();
 
     let storage = BrainStorage::new().await?;
+    let fingerprint = crate::brain::storage::BrainStorage::core_fingerprint();
+    let brainpack_dir = crate::workspace::brainpack_dir();
 
-    // Check if core is already imported by looking for source_id = "core"
-    let has_core = storage.has_core_installed();
+    // Import core brainpack (handles upgrade detection internally)
+    let spinner = ProgressBar::new_spinner();
+    spinner.set_style(
+        ProgressStyle::default_spinner()
+            .template("{spinner:.cyan} {msg}")
+            .unwrap(),
+    );
+    spinner.set_message(if refresh_core {
+        "Force refreshing Core BrainPack..."
+    } else {
+        "Checking Core BrainPack..."
+    });
+    spinner.enable_steady_tick(std::time::Duration::from_millis(100));
 
-    if has_core {
-        let stats = storage.stats().await?;
+    let stats = storage.import_core(refresh_core).await?;
+    spinner.finish_and_clear();
+
+    // Check if nothing was imported (already up-to-date)
+    if stats.inserted == 0 && !refresh_core {
+        let core_chunks = storage.get_source_chunk_count("core");
         println!(
             "  {} {}",
             "✓".green(),
-            "Core BrainPack already installed".green().bold()
+            "Core BrainPack already up-to-date".green().bold()
         );
         println!(
-            "  {} {} records, {} chunks available",
+            "  {} {} core chunks installed",
             "📊".dimmed(),
-            stats.total_records.to_string().cyan(),
-            stats.total_chunks.to_string().cyan()
+            core_chunks.to_string().cyan(),
+        );
+        println!(
+            "  {} Fingerprint: {}",
+            "🔑".dimmed(),
+            fingerprint.dimmed()
         );
         println!();
         println!("{}", "─".repeat(50).dimmed());
@@ -358,41 +379,83 @@ async fn ensure_core() -> Result<()> {
             "{}",
             "💡 Try: vibeanvil brain search 'acceptance criteria'".dimmed()
         );
+        println!(
+            "{}",
+            "💡 Tip: Use --refresh-core to force refresh".dimmed()
+        );
         println!();
         return Ok(());
     }
 
-    // Import core brainpack
-    let spinner = ProgressBar::new_spinner();
-    spinner.set_style(
-        ProgressStyle::default_spinner()
-            .template("{spinner:.cyan} {msg}")
-            .unwrap(),
-    );
-    spinner.set_message("Importing Core BrainPack...");
-    spinner.enable_steady_tick(std::time::Duration::from_millis(100));
-
-    let imported = storage.import_core().await?;
-    spinner.finish_and_clear();
-
+    // Show success message
+    let action = if stats.was_upgrade { "upgraded" } else { "installed" };
     println!(
         "{}",
         "┌─────────────────────────────────────────────┐".green()
     );
     println!(
-        "{}",
-        "│  ✅ Core BrainPack installed successfully!  │".green()
+        "│  {} Core BrainPack {} successfully!  │",
+        "✅".green(),
+        action.green().bold()
     );
     println!(
         "{}",
         "└─────────────────────────────────────────────┘".green()
     );
     println!();
+
+    // Show detailed import statistics
     println!(
-        "  {} Imported {} entries",
+        "  {} {} chunks inserted ({} lines parsed)",
         "📦".white(),
-        imported.to_string().cyan().bold()
+        stats.inserted.to_string().cyan().bold(),
+        stats.total_lines.to_string().dimmed()
     );
+
+    if stats.skipped_errors > 0 {
+        println!(
+            "  {} {} lines skipped (parse errors)",
+            "⚠️".yellow(),
+            stats.skipped_errors.to_string().yellow()
+        );
+
+        // Show error line numbers in verbose mode
+        if verbose && !stats.error_lines.is_empty() {
+            println!(
+                "  {} Error line numbers: {}",
+                "📋".dimmed(),
+                stats
+                    .error_lines
+                    .iter()
+                    .map(|n| n.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+                    .dimmed()
+            );
+        }
+    }
+
+    if stats.was_upgrade {
+        println!(
+            "  {} {}",
+            "🔄".white(),
+            "Previous core data was replaced with new version".dimmed()
+        );
+    }
+
+    println!(
+        "  {} Fingerprint: {}",
+        "🔑".dimmed(),
+        fingerprint.dimmed()
+    );
+
+    // Show log/data path
+    println!(
+        "  {} Data: {}",
+        "📁".dimmed(),
+        brainpack_dir.display().to_string().dimmed()
+    );
+
     println!();
     println!("{}", "─".repeat(50).dimmed());
     println!("{}", "💡 Quick starts:".white().bold());

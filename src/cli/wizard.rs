@@ -95,7 +95,7 @@ async fn handle_action(action: WizardAction) -> Result<()> {
         }
         WizardAction::BrainEnsure => {
             crate::cli::brain::run(crate::cli::BrainArgs {
-                command: crate::cli::BrainCommands::Ensure,
+                command: crate::cli::BrainCommands::Ensure { refresh_core: false, verbose: false },
             })
             .await?;
         }

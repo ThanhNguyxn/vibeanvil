@@ -46,6 +46,19 @@ pub struct CompactResult {
     pub chunks_count: usize,
 }
 
+/// Statistics from core import
+#[derive(Debug, Default)]
+pub struct ImportStats {
+    pub total_lines: usize,
+    pub parsed: usize,
+    pub inserted: usize,
+    pub skipped_errors: usize,
+    pub skipped_duplicates: usize,
+    pub was_upgrade: bool,
+    /// Line numbers that had parse errors (for --verbose)
+    pub error_lines: Vec<usize>,
+}
+
 /// Storage for brain records
 pub struct BrainStorage {
     brainpack_dir: PathBuf,
@@ -180,6 +193,15 @@ impl BrainStorage {
                 INSERT INTO chunks_fts(chunks_fts, rowid, text, tags, path)
                 VALUES('delete', old.rowid, old.text, old.tags, old.path);
             END",
+            [],
+        )?;
+
+        // Metadata table for tracking versions, hashes, etc.
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS metadata (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            )",
             [],
         )?;
 
@@ -401,6 +423,92 @@ impl BrainStorage {
         count > 0
     }
 
+    /// Get metadata value by key
+    pub fn get_meta(&self, key: &str) -> Option<String> {
+        if !self.sqlite_path.exists() {
+            return None;
+        }
+
+        let conn = Connection::open(&self.sqlite_path).ok()?;
+        conn.query_row(
+            "SELECT value FROM metadata WHERE key = ?",
+            params![key],
+            |row| row.get(0),
+        )
+        .ok()
+    }
+
+    /// Set metadata value
+    pub fn set_meta(&self, key: &str, value: &str) -> Result<()> {
+        let conn = Connection::open(&self.sqlite_path)?;
+        conn.execute(
+            "INSERT OR REPLACE INTO metadata (key, value) VALUES (?, ?)",
+            params![key, value],
+        )?;
+        Ok(())
+    }
+
+    /// Get the commit/fingerprint for a source
+    pub fn get_source_commit(&self, source_id: &str) -> Option<String> {
+        if !self.sqlite_path.exists() {
+            return None;
+        }
+
+        let conn = Connection::open(&self.sqlite_path).ok()?;
+        conn.query_row(
+            "SELECT \"commit\" FROM sources WHERE source_id = ?",
+            params![source_id],
+            |row| row.get(0),
+        )
+        .ok()
+    }
+
+    /// Delete all data for a source (chunks + source row)
+    pub fn delete_source(&self, source_id: &str) -> Result<usize> {
+        let conn = Connection::open(&self.sqlite_path)?;
+        
+        // Delete chunks first (foreign key)
+        let chunks_deleted: usize = conn.execute(
+            "DELETE FROM brain_chunks WHERE source_id = ?",
+            params![source_id],
+        )?;
+        
+        // Delete source row
+        conn.execute(
+            "DELETE FROM sources WHERE source_id = ?",
+            params![source_id],
+        )?;
+        
+        Ok(chunks_deleted)
+    }
+
+    /// Get chunk count for a specific source
+    pub fn get_source_chunk_count(&self, source_id: &str) -> usize {
+        if !self.sqlite_path.exists() {
+            return 0;
+        }
+
+        let conn = match Connection::open(&self.sqlite_path) {
+            Ok(c) => c,
+            Err(_) => return 0,
+        };
+
+        conn.query_row(
+            "SELECT COUNT(*) FROM brain_chunks WHERE source_id = ?",
+            params![source_id],
+            |row| row.get::<_, i64>(0),
+        )
+        .unwrap_or(0) as usize
+    }
+
+    /// Generate fingerprint for embedded core.jsonl
+    /// Format: embedded@{version}@{line_count}
+    pub fn core_fingerprint() -> String {
+        const CORE_JSONL: &str = include_str!("../../brainpacks/core/core.jsonl");
+        let line_count = CORE_JSONL.lines().filter(|l| !l.trim().is_empty()).count();
+        format!("embedded@{}@{}", env!("CARGO_PKG_VERSION"), line_count)
+    }
+
     /// Export to JSONL (privacy-clean by default)
     pub async fn export(&self, options: &ExportOptions) -> Result<String> {
         let output_path = options.output_path.clone().unwrap_or_else(|| {
@@ -616,18 +724,38 @@ impl BrainStorage {
     }
 
     /// Import the core brainpack from embedded data
-    pub async fn import_core(&self) -> Result<usize> {
+    /// If force is true, always re-import. Otherwise, only import if fingerprint changed.
+    pub async fn import_core(&self, force: bool) -> Result<ImportStats> {
         // Embedded core brainpack JSONL
         const CORE_JSONL: &str = include_str!("../../brainpacks/core/core.jsonl");
 
-        let mut count = 0;
+        let mut stats = ImportStats::default();
+        let desired_fingerprint = Self::core_fingerprint();
+
+        // Check if we need to update using fingerprint in sources.commit
+        let stored_fingerprint = self.get_source_commit("core");
+        if !force {
+            if let Some(ref fp) = stored_fingerprint {
+                if fp == &desired_fingerprint {
+                    // Already up-to-date
+                    return Ok(stats);
+                }
+            }
+        }
+
+        // If we have old core data, delete it first
+        if stored_fingerprint.is_some() || self.has_core_installed() {
+            stats.was_upgrade = true;
+            self.delete_source("core")?;
+        }
+
         let conn = Connection::open(&self.sqlite_path)?;
 
-        // First, insert the "core" source record to satisfy foreign key
+        // Insert the "core" source record with fingerprint as commit
         conn.execute(
             "INSERT OR REPLACE INTO sources (source_id, \"commit\", license, language, fetched_at, files_count, chunks_count)
-             VALUES ('core', 'embedded', 'MIT', 'mixed', datetime('now'), 0, 0)",
-            [],
+             VALUES ('core', ?, 'MIT', 'mixed', datetime('now'), 0, 0)",
+            params![desired_fingerprint],
         )?;
 
         // Also append to JSONL file
@@ -637,14 +765,21 @@ impl BrainStorage {
             .open(&self.jsonl_path)
             .context("Failed to open JSONL file")?;
 
-        for line in CORE_JSONL.lines() {
+        for (line_idx, line) in CORE_JSONL.lines().enumerate() {
+            let line_num = line_idx + 1; // 1-indexed for user display
             if line.trim().is_empty() {
                 continue;
             }
 
-            // Parse the core record format
-            let record: serde_json::Value =
-                serde_json::from_str(line).context("Failed to parse core JSONL line")?;
+            // Parse the core record format (gracefully handle errors)
+            let record: serde_json::Value = match serde_json::from_str(line) {
+                Ok(r) => r,
+                Err(_) => {
+                    stats.skipped_errors += 1;
+                    stats.error_lines.push(line_num);
+                    continue;
+                }
+            };
 
             let source_id = record["source_id"].as_str().unwrap_or("core");
             let record_type = record["type"].as_str().unwrap_or("template");
@@ -690,15 +825,18 @@ impl BrainStorage {
                             "MIT",   // Core brainpack license
                         ],
                     )?;
+                    stats.inserted += 1;
                 }
             }
 
             // Append to JSONL
             writeln!(jsonl_file, "{}", line)?;
-            count += 1;
+            stats.parsed += 1;
         }
 
-        Ok(count)
+        stats.total_lines = CORE_JSONL.lines().filter(|l| !l.trim().is_empty()).count();
+
+        Ok(stats)
     }
 
     /// Compact the brain pack: rewrite JSONL from SQLite (dedup), run VACUUM

@@ -303,7 +303,15 @@ pub struct BrainArgs {
 #[derive(Subcommand)]
 pub enum BrainCommands {
     /// Ensure brain pack is initialized with core knowledge
-    Ensure,
+    Ensure {
+        /// Force refresh core even if fingerprint matches
+        #[arg(long)]
+        refresh_core: bool,
+
+        /// Show detailed parsing errors (line numbers)
+        #[arg(short, long)]
+        verbose: bool,
+    },
 
     /// Show brain pack statistics
     Stats,

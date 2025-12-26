@@ -76,7 +76,7 @@ async fn test_canonical_export_deduplication() -> Result<()> {
 async fn test_content_type_migration() -> Result<()> {
     let temp_dir = TempDir::new()?;
     let brain_dir = temp_dir.path().join("brain");
-    let storage = BrainStorage::new_for_test(brain_dir.clone())?;
+    let _storage = BrainStorage::new_for_test(brain_dir.clone())?;
 
     // Manually insert a record with quoted content_type (simulating old data)
     let conn = rusqlite::Connection::open(brain_dir.join("brainpack.sqlite"))?;

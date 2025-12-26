@@ -118,4 +118,119 @@ mod tests {
             "Fixed logic returns true when core exists"
         );
     }
+
+    /// Smoke test: brain ensure imports core and search returns results
+    #[tokio::test]
+    async fn test_brain_ensure_and_search() {
+        use crate::brain::storage::BrainStorage;
+        use tempfile::TempDir;
+
+        // Create temp directory for test DB
+        let temp_dir = TempDir::new().expect("Failed to create temp dir");
+        let storage =
+            BrainStorage::new_for_test(temp_dir.path().to_path_buf()).expect("Failed to create storage");
+
+        // Import core (force = true to ensure fresh import)
+        let stats = storage
+            .import_core(true)
+            .await
+            .expect("import_core should succeed");
+
+        // Verify import worked
+        assert!(
+            stats.inserted > 0,
+            "Should have inserted some records, got {}",
+            stats.inserted
+        );
+        assert!(
+            stats.total_lines > 0,
+            "Should have parsed some lines, got {}",
+            stats.total_lines
+        );
+
+        // Verify search works
+        let results = storage
+            .search("acceptance criteria", 10)
+            .expect("search should succeed");
+
+        assert!(
+            !results.is_empty(),
+            "Search for 'acceptance criteria' should return at least 1 result"
+        );
+
+        // Verify first result has expected properties
+        let first = &results[0];
+        assert_eq!(first.source_id, "core", "Result should be from core");
+        assert!(!first.snippet.is_empty(), "Snippet should not be empty");
+    }
+
+    /// Test: fingerprint mismatch triggers core refresh
+    #[tokio::test]
+    async fn test_fingerprint_mismatch_refreshes_core() {
+        use crate::brain::storage::BrainStorage;
+        use rusqlite::Connection;
+        use tempfile::TempDir;
+
+        // Create temp directory for test DB
+        let temp_dir = TempDir::new().expect("Failed to create temp dir");
+        let storage =
+            BrainStorage::new_for_test(temp_dir.path().to_path_buf()).expect("Failed to create storage");
+
+        // Import core initially
+        let stats = storage
+            .import_core(false)
+            .await
+            .expect("import_core should succeed");
+        assert!(stats.inserted > 0, "First import should insert records");
+
+        let initial_count = storage.get_source_chunk_count("core");
+        assert!(initial_count > 0, "Should have core chunks");
+
+        // Manually update sources.commit to simulate fingerprint mismatch
+        let db_path = temp_dir.path().join("brainpack.sqlite");
+        {
+            let conn = Connection::open(&db_path).expect("Failed to open DB");
+            conn.execute(
+                "UPDATE sources SET \"commit\" = 'old_fingerprint' WHERE source_id = 'core'",
+                [],
+            )
+            .expect("Failed to update fingerprint");
+        }
+
+        // Verify fingerprint was changed
+        let stored = storage.get_source_commit("core");
+        assert_eq!(stored, Some("old_fingerprint".to_string()));
+
+        // Run import_core again (without force) - should detect mismatch and refresh
+        let refresh_stats = storage
+            .import_core(false)
+            .await
+            .expect("refresh import should succeed");
+
+        // Should have refreshed because fingerprint didn't match
+        assert!(
+            refresh_stats.was_upgrade,
+            "Should detect upgrade due to fingerprint mismatch"
+        );
+        assert!(
+            refresh_stats.inserted > 0,
+            "Should re-insert records after refresh"
+        );
+
+        // Verify fingerprint is now correct
+        let new_fingerprint = storage.get_source_commit("core");
+        let expected_fingerprint = BrainStorage::core_fingerprint();
+        assert_eq!(
+            new_fingerprint,
+            Some(expected_fingerprint.clone()),
+            "Fingerprint should be updated to current"
+        );
+
+        // Verify chunk count matches current embedded CORE_JSONL
+        let final_count = storage.get_source_chunk_count("core");
+        assert_eq!(
+            final_count, initial_count,
+            "Chunk count should match initial import"
+        );
+    }
 }
