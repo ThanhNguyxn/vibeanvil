@@ -512,11 +512,16 @@ impl BrainStorage {
     }
 
     /// Generate fingerprint for embedded core.jsonl
-    /// Format: embedded@{version}@{line_count}
+    /// Format: embedded@{version}@{sha256_prefix}
+    /// Uses SHA256 hash of content for robust change detection
     pub fn core_fingerprint() -> String {
+        use sha2::{Digest, Sha256};
         const CORE_JSONL: &str = include_str!("../../brainpacks/core/core.jsonl");
-        let line_count = CORE_JSONL.lines().filter(|l| !l.trim().is_empty()).count();
-        format!("embedded@{}@{}", env!("CARGO_PKG_VERSION"), line_count)
+        let mut hasher = Sha256::new();
+        hasher.update(CORE_JSONL.as_bytes());
+        let hash = format!("{:x}", hasher.finalize());
+        // Use first 12 chars of hash for readability
+        format!("embedded@{}@{}", env!("CARGO_PKG_VERSION"), &hash[..12])
     }
 
     /// Export to JSONL (privacy-clean by default)

@@ -111,7 +111,7 @@ Set environment variables:
 | `VIBEANVIL_PROVIDER_COMMAND` | Yes | Command name (e.g., `aider`) |
 | `VIBEANVIL_PROVIDER_ARGS` | No | Extra arguments (space-separated) |
 | `VIBEANVIL_PROVIDER_MODE` | No | How to pass prompt: `stdin` (default), `arg`, or `file` |
-| `VIBEANVIL_PROVIDER_TIMEOUT` | No | Timeout in seconds (default: 300) |
+| `VIBEANVIL_PROVIDER_TIMEOUT_SECS` | No | Timeout in seconds (default: 600). Legacy: `VIBEANVIL_PROVIDER_TIMEOUT` also works |
 
 ### Examples
 
