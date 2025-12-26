@@ -288,9 +288,13 @@ impl PatchStats {
 // ============================================================================
 
 /// Get timeout from environment variable
+/// Supports both VIBEANVIL_PROVIDER_TIMEOUT_SECS (preferred) and
+/// VIBEANVIL_PROVIDER_TIMEOUT (legacy) for backward compatibility
 pub fn get_timeout_secs() -> u64 {
+    // Prefer new name, fallback to legacy
     std::env::var("VIBEANVIL_PROVIDER_TIMEOUT_SECS")
         .ok()
+        .or_else(|| std::env::var("VIBEANVIL_PROVIDER_TIMEOUT").ok())
         .and_then(|s| s.parse().ok())
         .unwrap_or(DEFAULT_TIMEOUT_SECS)
 }
@@ -517,5 +521,41 @@ mod tests {
         assert_eq!(stats.lines_added, 3);
         assert_eq!(stats.lines_removed, 1);
         assert_eq!(stats.max_file_lines_added, 2);
+    }
+
+    // ------------------------------------------------------------------------
+    // Env Var Backwards Compatibility Tests
+    // ------------------------------------------------------------------------
+
+    #[test]
+    fn test_timeout_env_var_new_name() {
+        std::env::set_var("VIBEANVIL_PROVIDER_TIMEOUT_SECS", "120");
+        std::env::remove_var("VIBEANVIL_PROVIDER_TIMEOUT");
+        assert_eq!(get_timeout_secs(), 120);
+        std::env::remove_var("VIBEANVIL_PROVIDER_TIMEOUT_SECS");
+    }
+
+    #[test]
+    fn test_timeout_env_var_legacy_fallback() {
+        std::env::remove_var("VIBEANVIL_PROVIDER_TIMEOUT_SECS");
+        std::env::set_var("VIBEANVIL_PROVIDER_TIMEOUT", "300");
+        assert_eq!(get_timeout_secs(), 300);
+        std::env::remove_var("VIBEANVIL_PROVIDER_TIMEOUT");
+    }
+
+    #[test]
+    fn test_timeout_env_var_new_takes_precedence() {
+        std::env::set_var("VIBEANVIL_PROVIDER_TIMEOUT_SECS", "60");
+        std::env::set_var("VIBEANVIL_PROVIDER_TIMEOUT", "999");
+        assert_eq!(get_timeout_secs(), 60);
+        std::env::remove_var("VIBEANVIL_PROVIDER_TIMEOUT_SECS");
+        std::env::remove_var("VIBEANVIL_PROVIDER_TIMEOUT");
+    }
+
+    #[test]
+    fn test_timeout_env_var_default() {
+        std::env::remove_var("VIBEANVIL_PROVIDER_TIMEOUT_SECS");
+        std::env::remove_var("VIBEANVIL_PROVIDER_TIMEOUT");
+        assert_eq!(get_timeout_secs(), DEFAULT_TIMEOUT_SECS);
     }
 }

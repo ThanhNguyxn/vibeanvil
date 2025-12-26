@@ -118,7 +118,7 @@ presets:
 
 ### 2. Apply Manually
 
-Until CLI preset loading is implemented:
+Preset files define query patterns that you translate to CLI flags:
 
 ```bash
 # Translate preset to harvest command
@@ -129,6 +129,8 @@ vibeanvil harvest \
   --min-stars 100 \
   --max-repos 20
 ```
+
+> **Note**: A `--preset` flag for automatic loading is planned for a future release.
 
 ---
 

@@ -92,6 +92,36 @@ mod tests {
         println!("✓ Parsed {} core records successfully", record_count);
     }
 
+    /// Safety test: core.jsonl must NOT contain external URLs
+    /// This prevents accidental inclusion of third-party content
+    #[test]
+    fn test_core_jsonl_no_external_urls() {
+        const CORE_JSONL: &str = include_str!("../../brainpacks/core/core.jsonl");
+
+        let forbidden_patterns = ["http://", "https://", "github.com/"];
+
+        for (line_idx, line) in CORE_JSONL.lines().enumerate() {
+            let line_num = line_idx + 1;
+            let trimmed = line.trim();
+
+            if trimmed.is_empty() {
+                continue;
+            }
+
+            for pattern in &forbidden_patterns {
+                assert!(
+                    !trimmed.contains(pattern),
+                    "Line {}: core.jsonl must not contain '{}'\nFound in: {}...",
+                    line_num,
+                    pattern,
+                    &trimmed[..trimmed.len().min(80)]
+                );
+            }
+        }
+
+        println!("✓ core.jsonl contains no external URLs");
+    }
+
     /// Test: ensure bug case - DB has non-core records but no core
     #[test]
     fn test_has_core_installed_logic() {
