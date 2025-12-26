@@ -59,7 +59,7 @@ curl -fsSL https://raw.githubusercontent.com/ThanhNguyxn/vibeanvil/main/install.
 # 2. Initialize workspace
 vibeanvil init
 
-# 3. Install Core BrainPack (120+ templates included!)
+# 3. Install Core BrainPack (curated templates included!)
 vibeanvil brain ensure
 
 # 4. Search for guidance
