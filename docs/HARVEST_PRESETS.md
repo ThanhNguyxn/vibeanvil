@@ -116,21 +116,22 @@ presets:
         - Python
 ```
 
-### 2. Apply Manually
+### 2. Use with --preset Flag
 
-Preset files define query patterns that you translate to CLI flags:
+The `--preset` flag loads preset configurations automatically:
 
 ```bash
-# Translate preset to harvest command
-vibeanvil harvest \
-  -q "my specific query" \
-  -q "another related query" \
-  -l python \
-  --min-stars 100 \
-  --max-repos 20
+# Use a preset directly
+vibeanvil harvest --preset cli_framework_patterns
+
+# Override preset settings with CLI flags
+vibeanvil harvest --preset ai_engineering_patterns --max-repos 10
+
+# List all available presets
+vibeanvil harvest presets
 ```
 
-> **Note**: A `--preset` flag for automatic loading is planned for a future release.
+> **Tip**: CLI flags override preset values when both are specified.
 
 ---
 
