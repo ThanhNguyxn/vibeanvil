@@ -466,19 +466,19 @@ impl BrainStorage {
     /// Delete all data for a source (chunks + source row)
     pub fn delete_source(&self, source_id: &str) -> Result<usize> {
         let conn = Connection::open(&self.sqlite_path)?;
-        
+
         // Delete chunks first (foreign key)
         let chunks_deleted: usize = conn.execute(
             "DELETE FROM brain_chunks WHERE source_id = ?",
             params![source_id],
         )?;
-        
+
         // Delete source row
         conn.execute(
             "DELETE FROM sources WHERE source_id = ?",
             params![source_id],
         )?;
-        
+
         Ok(chunks_deleted)
     }
 

@@ -127,8 +127,8 @@ mod tests {
 
         // Create temp directory for test DB
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
-        let storage =
-            BrainStorage::new_for_test(temp_dir.path().to_path_buf()).expect("Failed to create storage");
+        let storage = BrainStorage::new_for_test(temp_dir.path().to_path_buf())
+            .expect("Failed to create storage");
 
         // Import core (force = true to ensure fresh import)
         let stats = storage
@@ -173,8 +173,8 @@ mod tests {
 
         // Create temp directory for test DB
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
-        let storage =
-            BrainStorage::new_for_test(temp_dir.path().to_path_buf()).expect("Failed to create storage");
+        let storage = BrainStorage::new_for_test(temp_dir.path().to_path_buf())
+            .expect("Failed to create storage");
 
         // Import core initially
         let stats = storage
