@@ -9,7 +9,10 @@ use crate::cli::{BrainArgs, BrainCommands};
 
 pub async fn run(args: BrainArgs) -> Result<()> {
     match args.command {
-        BrainCommands::Ensure { refresh_core, verbose } => ensure_core(refresh_core, verbose).await,
+        BrainCommands::Ensure {
+            refresh_core,
+            verbose,
+        } => ensure_core(refresh_core, verbose).await,
         BrainCommands::Stats => show_stats().await,
         BrainCommands::Search { query, limit } => search(&query, limit).await,
         BrainCommands::Export {
@@ -368,27 +371,24 @@ async fn ensure_core(refresh_core: bool, verbose: bool) -> Result<()> {
             "📊".dimmed(),
             core_chunks.to_string().cyan(),
         );
-        println!(
-            "  {} Fingerprint: {}",
-            "🔑".dimmed(),
-            fingerprint.dimmed()
-        );
+        println!("  {} Fingerprint: {}", "🔑".dimmed(), fingerprint.dimmed());
         println!();
         println!("{}", "─".repeat(50).dimmed());
         println!(
             "{}",
             "💡 Try: vibeanvil brain search 'acceptance criteria'".dimmed()
         );
-        println!(
-            "{}",
-            "💡 Tip: Use --refresh-core to force refresh".dimmed()
-        );
+        println!("{}", "💡 Tip: Use --refresh-core to force refresh".dimmed());
         println!();
         return Ok(());
     }
 
     // Show success message
-    let action = if stats.was_upgrade { "upgraded" } else { "installed" };
+    let action = if stats.was_upgrade {
+        "upgraded"
+    } else {
+        "installed"
+    };
     println!(
         "{}",
         "┌─────────────────────────────────────────────┐".green()
@@ -443,11 +443,7 @@ async fn ensure_core(refresh_core: bool, verbose: bool) -> Result<()> {
         );
     }
 
-    println!(
-        "  {} Fingerprint: {}",
-        "🔑".dimmed(),
-        fingerprint.dimmed()
-    );
+    println!("  {} Fingerprint: {}", "🔑".dimmed(), fingerprint.dimmed());
 
     // Show log/data path
     println!(
