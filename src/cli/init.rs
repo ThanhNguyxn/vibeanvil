@@ -63,7 +63,7 @@ pub async fn run(force: bool) -> Result<()> {
     );
     println!(
         "{}",
-        "   50+ templates for contracts, plans, and best practices".dimmed()
+        "   Curated templates for contracts, plans, and best practices".dimmed()
     );
     println!();
 

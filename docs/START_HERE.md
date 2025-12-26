@@ -20,7 +20,7 @@ cargo install vibeanvil
 ```bash
 cd your-project
 vibeanvil init
-vibeanvil brain ensure  # Load 120+ curated templates
+vibeanvil brain ensure  # Load curated templates
 ```
 
 ## 3. First Workflow

@@ -444,7 +444,7 @@ vibeanvil log --json
 **Subcommands:**
 
 #### `brain ensure`
-Install/verify Core BrainPack (120+ templates).
+Install/verify Core BrainPack (curated templates).
 
 ```bash
 vibeanvil brain ensure
@@ -459,28 +459,23 @@ vibeanvil brain ensure
 
 #### Updating BrainPack
 
-When VibeAnvil is updated with new templates, you may need to re-import the Core BrainPack:
+When VibeAnvil is updated with new templates, the Core BrainPack is automatically refreshed based on a fingerprint check:
 
-**Option 1: Re-import (recommended)**
 ```bash
-# Windows (PowerShell)
-Remove-Item "$env:LOCALAPPDATA\vibeanvil\brainpack\*" -Force -Recurse
+# Automatic: re-import if fingerprint changed (run after upgrading VibeAnvil)
 vibeanvil brain ensure
 
-# Linux/macOS
-rm -rf ~/.local/share/vibeanvil/brainpack/*
-vibeanvil brain ensure
+# Force refresh: re-import even if fingerprint matches
+vibeanvil brain ensure --refresh-core
+
+# Verbose mode: show detailed parsing info
+vibeanvil brain ensure --verbose
 ```
 
-**Option 2: Check current status**
-```bash
-vibeanvil brain stats  # Shows record count
-```
-
-**When to update:**
-- After upgrading VibeAnvil (`vibeanvil upgrade`)
-- When you see fewer records than expected
-- After adding custom content to `brainpacks/`
+**When to use `--refresh-core`:**
+- If you want to force a fresh import
+- After manually editing the Core BrainPack source
+- When troubleshooting import issues
 
 
 #### `brain stats`
