@@ -512,15 +512,23 @@ vibeanvil brain search "acceptance criteria" -n 20
 Export BrainPack to file. This performs a canonical export from the SQLite database, ensuring deduplication and clean metadata.
 
 ```bash
-vibeanvil brain export <format> [-o <path>] [--include-source-ids]
+vibeanvil brain export <format> [-o <path>] [--include-source-ids] [--limit <N>]
 ```
 
 **Formats:** `jsonl`, `md`
 
-**Example:**
+**Options:**
+- `--include-source-ids` - Include anonymized source IDs (default: excluded for privacy)
+- `--limit <N>` - Limit entries for markdown export (default: 50, use 0 for no limit)
+
+> **Note:** Markdown export is a preview format. Text is truncated to 300 chars per chunk.
+
+**Examples:**
 ```bash
 vibeanvil brain export jsonl -o backup.jsonl
 vibeanvil brain export md
+vibeanvil brain export md --limit 200
+vibeanvil brain export md --limit 0  # No limit
 ```
 
 #### `brain compact`

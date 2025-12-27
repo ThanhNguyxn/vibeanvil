@@ -332,8 +332,14 @@ vibeanvil brain export [FORMAT] [OPTIONS]
 # Export to JSONL
 vibeanvil brain export jsonl -o brain.jsonl
 
-# Export to Markdown
+# Export to Markdown (preview, default 50 entries)
 vibeanvil brain export md -o brain.md
+
+# Export more entries
+vibeanvil brain export md --limit 200
+
+# Export all entries (no limit)
+vibeanvil brain export md --limit 0
 ```
 
 ---
