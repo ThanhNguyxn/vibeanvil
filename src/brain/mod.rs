@@ -85,6 +85,21 @@ impl ContentType {
             ContentType::Other
         }
     }
+
+    /// Parse content type from database string (case-insensitive)
+    /// Maps known type names directly, falls back to Other for unknown values
+    pub fn from_db_str(s: &str) -> Self {
+        match s.to_lowercase().as_str() {
+            "readme" => ContentType::Readme,
+            "doc" => ContentType::Doc,
+            "config" => ContentType::Config,
+            "code" => ContentType::Code,
+            "workflow" => ContentType::Workflow,
+            "template" => ContentType::Template,
+            "prompt" => ContentType::Prompt,
+            _ => ContentType::Other,
+        }
+    }
 }
 
 impl std::fmt::Display for ContentType {
