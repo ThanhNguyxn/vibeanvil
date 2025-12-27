@@ -477,6 +477,10 @@ vibeanvil brain ensure --verbose
 - After manually editing the Core BrainPack source
 - When troubleshooting import issues
 
+**Troubleshooting:**
+- After upgrading VibeAnvil: run `vibeanvil brain ensure --refresh-core`
+- If chunk counts look odd: run `vibeanvil brain compact`, then `vibeanvil brain stats`
+- For verbose diagnostics: use `vibeanvil brain ensure --verbose`
 
 #### `brain stats`
 Show BrainPack statistics.
