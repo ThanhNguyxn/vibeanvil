@@ -361,13 +361,13 @@ vibeanvil brain search "state machine transition"
 
 ```bash
 # JSONL format (privacy-clean)
-vibeanvil brain export --format jsonl
+vibeanvil brain export jsonl
 
 # Markdown format
-vibeanvil brain export --format md
+vibeanvil brain export md
 
 # Include anonymized source IDs
-vibeanvil brain export --include-source-ids=true
+vibeanvil brain export jsonl --include-source-ids
 ```
 
 ---
