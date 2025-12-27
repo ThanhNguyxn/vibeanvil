@@ -220,10 +220,20 @@ Stored:   source_id: "a1b2c3d4e5f6..." (SHA-256 hash)
 vibeanvil brain export jsonl -o brain.jsonl
 ```
 
-Output format:
+Output format (source_id redacted by default for privacy):
 ```json
-{"type":"code","language":"rust","content":"fn main()...","source_id":"a1b2..."}
-{"type":"doc","language":"markdown","content":"# README...","source_id":"a1b2..."}
+{"type":"code","language":"rust","content":"fn main()...","source_id":""}
+{"type":"doc","language":"markdown","content":"# README...","source_id":""}
+```
+
+To include source IDs:
+```bash
+vibeanvil brain export jsonl --include-source-ids -o brain.jsonl
+```
+
+Output with source IDs:
+```json
+{"type":"code","language":"rust","content":"fn main()...","source_id":"a1b2c3..."}
 ```
 
 ### Markdown Format

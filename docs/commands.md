@@ -325,7 +325,8 @@ vibeanvil brain export [FORMAT] [OPTIONS]
 | Option | Description |
 |--------|-------------|
 | `-o, --output <PATH>` | Output file |
-| `--include-source-ids` | Include source IDs |
+| `--include-source-ids` | Include source IDs (default: excluded for privacy) |
+| `--limit <N>` | Limit entries for md export (default 50, 0=no limit) |
 
 **Examples:**
 ```bash
