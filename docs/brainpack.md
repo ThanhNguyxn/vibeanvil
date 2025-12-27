@@ -231,7 +231,7 @@ Output format:
 vibeanvil brain export md -o brain.md
 ```
 
-Creates a readable markdown document with all chunks organized by source.
+Creates a readable markdown preview (default: 50 entries). Use `--limit` for more.
 
 ---
 
