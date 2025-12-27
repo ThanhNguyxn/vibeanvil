@@ -55,6 +55,7 @@ async fn test_canonical_export_deduplication() -> Result<()> {
         format: ExportFormat::Jsonl,
         output_path: Some(export_path.clone()),
         include_source_ids: true,
+        limit: 50,
     };
     println!("Exporting to {:?}", export_path);
     storage.export(&options).await.expect("Failed to export");
