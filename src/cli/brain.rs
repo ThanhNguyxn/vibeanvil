@@ -310,7 +310,7 @@ async fn export(
         println!(
             "  {} {}",
             "   ".dimmed(),
-            "Use --include-source-ids=true to include them".dimmed()
+            "Use --include-source-ids to include them".dimmed()
         );
     }
 
