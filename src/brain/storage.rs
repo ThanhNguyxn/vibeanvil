@@ -738,10 +738,11 @@ impl BrainStorage {
 
             content.push_str(&format!("{}\n\n", summary));
 
-            // Show first chunk
+            // Show first chunk (UTF-8 safe truncation)
             content.push_str("```\n");
-            content.push_str(&text[..text.len().min(300)]);
-            if text.len() > 300 {
+            let truncated: String = text.chars().take(300).collect();
+            content.push_str(&truncated);
+            if text.chars().count() > 300 {
                 content.push_str("\n... (truncated)");
             }
             content.push_str("\n```\n\n");

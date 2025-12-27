@@ -222,8 +222,7 @@ vibeanvil brain export jsonl -o brain.jsonl
 
 Output format (source_id redacted by default for privacy):
 ```json
-{"type":"code","language":"rust","content":"fn main()...","source_id":""}
-{"type":"doc","language":"markdown","content":"# README...","source_id":""}
+{"source_id":"","commit":"abc123","license":"MIT","language":"rust","path":"src/main.rs","type":"code","signals":[],"summary":"...","chunks":[{"chunk_id":"...","text":"fn main()...","start_line":1,"end_line":10}],"tags":[]}
 ```
 
 To include source IDs:
@@ -233,7 +232,7 @@ vibeanvil brain export jsonl --include-source-ids -o brain.jsonl
 
 Output with source IDs:
 ```json
-{"type":"code","language":"rust","content":"fn main()...","source_id":"a1b2c3..."}
+{"source_id":"a1b2c3...","commit":"abc123","license":"MIT","language":"rust","path":"src/main.rs","type":"code","signals":[],"summary":"...","chunks":[...],"tags":[]}
 ```
 
 ### Markdown Format
