@@ -474,12 +474,23 @@ async fn ensure_core(refresh_core: bool, verbose: bool) -> Result<()> {
         "vibeanvil brain search 'iterate loop'".white()
     );
 
-    // Add hint to run compact for clean stats
+    // Auto-compact after core upgrade to prevent JSONL inflation
     if stats.was_upgrade {
         println!();
         println!(
             "{}",
-            "💡 Tip: Run 'vibeanvil brain compact' to keep JSONL stats clean.".dimmed()
+            "🔄 Running auto-compact to keep JSONL stats clean...".dimmed()
+        );
+
+        // Run compact silently (it will handle its own output)
+        let storage = BrainStorage::new().await?;
+        let result = storage.compact().await?;
+
+        println!(
+            "  {} Compacted: {} records, {} chunks",
+            "✅".green(),
+            result.records_written.to_string().cyan(),
+            result.chunks_count.to_string().cyan()
         );
     }
     println!();

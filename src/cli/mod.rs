@@ -337,7 +337,7 @@ pub enum BrainCommands {
         output: Option<String>,
 
         /// Include anonymized source IDs (default: false for privacy)
-        #[arg(long, default_value = "false")]
+        #[arg(long)]
         include_source_ids: bool,
 
         /// Limit entries for markdown export (default: 50, use 0 for no limit)

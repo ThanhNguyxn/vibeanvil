@@ -664,10 +664,6 @@ impl BrainStorage {
         options: &ExportOptions,
     ) -> Result<String> {
         let mut content = String::from("# BrainPack Export\n\n");
-        content.push_str(&format!(
-            "Exported at: {}\n\n",
-            chrono::Utc::now().to_rfc3339()
-        ));
 
         let conn = Connection::open(&self.sqlite_path)?;
 
