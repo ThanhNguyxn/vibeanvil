@@ -36,11 +36,15 @@ vibeanvil init
 **Files created:**
 ```
 .vibeanvil/
-├── state.json       # Current state
-├── audit.jsonl      # Audit log
-├── evidence/        # Evidence directory
-└── brainpack/       # BrainPack storage
+├── state.json           # Current state
+├── logs/
+│   └── audit.jsonl      # Audit log
+└── sessions/
+    └── <session_id>/
+        └── evidence/    # Evidence per session
 ```
+
+> **Note:** BrainPack data is stored in your OS cache directory. Run `vibeanvil brain stats` to see the location.
 
 ---
 

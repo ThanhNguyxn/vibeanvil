@@ -608,9 +608,9 @@ impl BrainStorage {
                     writeln!(output, "{}", serde_json::to_string(&record)?)?;
                 }
 
-                // Parse content type (handle legacy quoted strings if any remain)
+                // Parse content type (map DB string to ContentType)
                 let clean_type = content_type_str.trim_matches('"');
-                let content_type = crate::brain::ContentType::from_path(clean_type); // Best effort mapping
+                let content_type = crate::brain::ContentType::from_db_str(clean_type);
 
                 // Parse signals and tags
                 let signals: Vec<crate::brain::Signal> =
@@ -939,9 +939,9 @@ impl BrainStorage {
                     records_written += 1;
                 }
 
-                // Parse content type
+                // Parse content type (map DB string to ContentType)
                 let clean_type = content_type_str.trim_matches('"');
-                let content_type = crate::brain::ContentType::from_path(clean_type);
+                let content_type = crate::brain::ContentType::from_db_str(clean_type);
 
                 // Parse signals and tags
                 let signals: Vec<crate::brain::Signal> =
