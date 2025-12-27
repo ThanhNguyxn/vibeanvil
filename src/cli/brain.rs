@@ -19,7 +19,8 @@ pub async fn run(args: BrainArgs) -> Result<()> {
             format,
             output,
             include_source_ids,
-        } => export(format, output, include_source_ids).await,
+            limit,
+        } => export(format, output, include_source_ids, limit).await,
         BrainCommands::Compact => compact().await,
     }
 }
@@ -263,6 +264,7 @@ async fn export(
     format: crate::cli::ExportFormat,
     output: Option<String>,
     include_source_ids: bool,
+    limit: usize,
 ) -> Result<()> {
     println!();
     println!(
@@ -280,6 +282,7 @@ async fn export(
         },
         output_path: output.map(PathBuf::from),
         include_source_ids,
+        limit,
     };
 
     let output_path = storage.export(&options).await?;
@@ -470,6 +473,15 @@ async fn ensure_core(refresh_core: bool, verbose: bool) -> Result<()> {
         "•".cyan(),
         "vibeanvil brain search 'iterate loop'".white()
     );
+
+    // Add hint to run compact for clean stats
+    if stats.was_upgrade {
+        println!();
+        println!(
+            "{}",
+            "💡 Tip: Run 'vibeanvil brain compact' to keep JSONL stats clean.".dimmed()
+        );
+    }
     println!();
 
     Ok(())

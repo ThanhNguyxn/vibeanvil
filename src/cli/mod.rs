@@ -339,6 +339,10 @@ pub enum BrainCommands {
         /// Include anonymized source IDs (default: false for privacy)
         #[arg(long, default_value = "false")]
         include_source_ids: bool,
+
+        /// Limit entries for markdown export (default: 50, use 0 for no limit)
+        #[arg(long, default_value = "50")]
+        limit: usize,
     },
 
     /// Compact the brain pack (dedup JSONL, optimize SQLite)

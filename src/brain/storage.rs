@@ -28,6 +28,8 @@ pub struct ExportOptions {
     pub output_path: Option<PathBuf>,
     /// Include anonymized source IDs (default: false for privacy)
     pub include_source_ids: bool,
+    /// Limit entries for markdown export (default: 50, 0 = no limit)
+    pub limit: usize,
 }
 
 impl Default for ExportOptions {
@@ -36,6 +38,7 @@ impl Default for ExportOptions {
             format: ExportFormat::Jsonl,
             output_path: None,
             include_source_ids: false,
+            limit: 50,
         }
     }
 }
@@ -668,14 +671,28 @@ impl BrainStorage {
 
         let conn = Connection::open(&self.sqlite_path)?;
 
-        // Query chunks grouped by source and path
-        let mut stmt = conn.prepare(
-            "SELECT source_id, path, content_type, summary, language, license, text, signals
-             FROM brain_chunks 
-             GROUP BY source_id, path 
-             ORDER BY source_id, path
-             LIMIT 50", // Limit for markdown export safety
-        )?;
+        // Deterministic query: select one chunk per (source_id, path) using MIN(start_line)
+        // This ensures consistent output across runs
+        let limit_clause = if options.limit > 0 {
+            format!("LIMIT {}", options.limit)
+        } else {
+            String::new() // No limit
+        };
+
+        let query = format!(
+            "SELECT bc.source_id, bc.path, bc.content_type, bc.summary, bc.language, bc.license, bc.text, bc.signals
+             FROM brain_chunks bc
+             INNER JOIN (
+                 SELECT source_id, path, MIN(start_line) as min_start
+                 FROM brain_chunks
+                 GROUP BY source_id, path
+             ) sub ON bc.source_id = sub.source_id AND bc.path = sub.path AND bc.start_line = sub.min_start
+             ORDER BY bc.source_id, bc.path
+             {}",
+            limit_clause
+        );
+
+        let mut stmt = conn.prepare(&query)?;
 
         let rows = stmt.query_map([], |row| {
             Ok((
@@ -685,7 +702,7 @@ impl BrainStorage {
                 row.get::<_, String>(3)?, // summary
                 row.get::<_, String>(4)?, // language
                 row.get::<_, String>(5)?, // license
-                row.get::<_, String>(6)?, // text (first chunk due to GROUP BY)
+                row.get::<_, String>(6)?, // text (deterministic: min start_line chunk)
                 row.get::<_, String>(7)?, // signals
             ))
         })?;
