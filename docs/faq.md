@@ -114,11 +114,12 @@ vibeanvil brain stats
 
 ### Can I delete harvested data?
 
-Yes, during uninstall you'll be asked about deleting `~/.vibeanvil` which contains the BrainPack data.
+Yes, you can delete BrainPack data from your OS cache directory. See [DATA_LAYOUT.md](DATA_LAYOUT.md) for exact paths per platform.
 
-Or manually:
+Example (varies by OS):
 ```bash
-rm -rf ~/.vibeanvil/brainpack
+# Check your data location first
+vibeanvil brain stats
 ```
 
 ---
