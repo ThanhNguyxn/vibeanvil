@@ -683,7 +683,7 @@ impl BrainStorage {
                  FROM brain_chunks
                  GROUP BY source_id, path
              ) sub ON bc.source_id = sub.source_id AND bc.path = sub.path AND bc.start_line = sub.min_start
-             ORDER BY bc.source_id, bc.path
+             ORDER BY bc.source_id, bc.path, bc.chunk_id
              {}",
             limit_clause
         );

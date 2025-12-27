@@ -482,16 +482,34 @@ async fn ensure_core(refresh_core: bool, verbose: bool) -> Result<()> {
             "🔄 Running auto-compact to keep JSONL stats clean...".dimmed()
         );
 
-        // Run compact silently (it will handle its own output)
+        // Run compact with soft-fail (don't abort ensure on compact failure)
         let storage = BrainStorage::new().await?;
-        let result = storage.compact().await?;
-
-        println!(
-            "  {} Compacted: {} records, {} chunks",
-            "✅".green(),
-            result.records_written.to_string().cyan(),
-            result.chunks_count.to_string().cyan()
-        );
+        match storage.compact().await {
+            Ok(result) => {
+                println!(
+                    "  {} Compacted: {} records, {} chunks",
+                    "✅".green(),
+                    result.records_written.to_string().cyan(),
+                    result.chunks_count.to_string().cyan()
+                );
+            }
+            Err(e) => {
+                eprintln!(
+                    "  {} Auto-compact failed: {}",
+                    "⚠️".yellow(),
+                    e.to_string().yellow()
+                );
+                eprintln!(
+                    "  {} Run manually: {}",
+                    "💡".dimmed(),
+                    "vibeanvil brain compact".white()
+                );
+                eprintln!(
+                    "  {}",
+                    "This fixes inflated JSONL counts after core upgrades.".dimmed()
+                );
+            }
+        }
     }
     println!();
 
