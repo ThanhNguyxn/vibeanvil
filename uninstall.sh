@@ -60,15 +60,33 @@ if [ -d ".vibeanvil" ]; then
     fi
 fi
 
-# Remove global data
+# Remove BrainPack cache (OS-specific location)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    BRAINPACK_CACHE="$HOME/Library/Caches/vibeanvil"
+else
+    BRAINPACK_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/vibeanvil"
+fi
+
+if [ -d "$BRAINPACK_CACHE" ]; then
+    echo ""
+    read -p "Remove BrainPack cache ($BRAINPACK_CACHE)? [y/N] " confirm
+    if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
+        rm -rf "$BRAINPACK_CACHE"
+        success "Removed BrainPack cache: $BRAINPACK_CACHE"
+    else
+        info "Keeping BrainPack cache"
+    fi
+fi
+
+# Remove legacy data path (if present)
 if [ -d "$HOME/.vibeanvil" ]; then
     echo ""
-    read -p "Remove global data (~/.vibeanvil)? [y/N] " confirm
+    read -p "Remove legacy/old data path (~/.vibeanvil, if present)? [y/N] " confirm
     if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
         rm -rf "$HOME/.vibeanvil"
-        success "Removed global data: $HOME/.vibeanvil"
+        success "Removed legacy data: $HOME/.vibeanvil"
     else
-        info "Keeping global data (BrainPack, etc.)"
+        info "Keeping legacy data"
     fi
 fi
 

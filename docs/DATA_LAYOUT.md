@@ -182,7 +182,10 @@ vibeanvil init
 # Windows
 rd /s /q %LOCALAPPDATA%\vibeanvil
 
-# macOS/Linux
+# macOS
+rm -rf ~/Library/Caches/vibeanvil
+
+# Linux
 rm -rf ~/.cache/vibeanvil
 ```
 

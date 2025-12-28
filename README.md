@@ -483,8 +483,9 @@ vibeanvil update
 | Location | Path | Scope |
 |----------|------|-------|
 | Workspace | `.vibeanvil/` (in project) | Per-project |
-| BrainPack | `~/.cache/vibeanvil/brainpack/` (Linux/macOS) | User-level |
-| BrainPack | `%LOCALAPPDATA%\vibeanvil\brainpack\` (Windows) | User-level |
+| BrainPack (Linux) | `~/.cache/vibeanvil/brainpack/` | User-level |
+| BrainPack (macOS) | `~/Library/Caches/vibeanvil/brainpack/` | User-level |
+| BrainPack (Windows) | `%LOCALAPPDATA%\vibeanvil\brainpack\` | User-level |
 
 See [docs/DATA_LAYOUT.md](docs/DATA_LAYOUT.md) for complete details.
 
