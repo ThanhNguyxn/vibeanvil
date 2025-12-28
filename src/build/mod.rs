@@ -162,10 +162,12 @@ impl ManualBuild {
                     // Interactive prompt - only if TTY and not CI
                     let is_ci = std::env::var("CI").is_ok();
                     let is_tty = console::user_attended();
-                    
+
                     if is_ci || !is_tty {
                         // In CI/non-interactive, just confirm automatically or skip
-                        crate::cli::style::info("Non-interactive mode detected. Auto-confirming commit.");
+                        crate::cli::style::info(
+                            "Non-interactive mode detected. Auto-confirming commit.",
+                        );
                         Self::execute_commit(&msg)?;
                     } else {
                         let options = vec!["Confirm", "Edit", "Cancel"];
@@ -174,7 +176,7 @@ impl ManualBuild {
                             options,
                         )
                         .prompt();
-                        
+
                         match ans {
                             Ok("Confirm") => {
                                 Self::execute_commit(&msg)?;
@@ -190,8 +192,6 @@ impl ManualBuild {
                             }
                         }
                     }
-
-
                 }
                 Err(e) => {
                     pb.finish_with_message("Failed");

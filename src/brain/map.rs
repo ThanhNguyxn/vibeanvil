@@ -46,7 +46,6 @@ impl RepositoryMap {
         let js_const_fn_re =
             Regex::new(r"^(export\s+)?const\s+(\w+)\s*=\s*(\(.*\)|async\s*\(.*\))\s*=>").unwrap();
 
-
         for entry in walker.filter_entry(|e| !is_hidden(e)) {
             let entry = entry?;
             let path = entry.path();
