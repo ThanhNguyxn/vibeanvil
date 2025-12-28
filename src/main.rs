@@ -21,6 +21,7 @@ mod build;
 mod cli;
 mod contract;
 mod evidence;
+mod prompt;
 mod provider;
 mod state;
 mod workspace;

@@ -244,6 +244,35 @@ Creates a readable markdown preview (default: 50 entries). Use `--limit` for mor
 
 ---
 
+## 📦 Context Packaging (Local Codebase)
+
+Pack your **current project** (not BrainPack) into a single AI-friendly file. Perfect for pasting into Copilot, Cursor, Claude, ChatGPT, etc.
+
+```bash
+# Pack to XML (best for Claude/Anthropic)
+vibeanvil brain pack
+
+# Pack to Markdown
+vibeanvil brain pack --format md -o context.md
+
+# Custom output
+vibeanvil brain pack -o my_project.xml
+```
+
+Output:
+```
+➤ Context Pack
+ℹ Packed 13,019 chars (~3,122 tokens)
+✔ Packed to context.xml
+```
+
+The packer:
+- ✅ Respects `.gitignore` and `.vibeanvilignore`
+- ✅ Skips binary files (images, executables, etc.)
+- ✅ Shows token estimation
+
+---
+
 ## 💡 Best Practices
 
 ### 1. Start Focused

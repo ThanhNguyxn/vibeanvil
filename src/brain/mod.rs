@@ -7,6 +7,7 @@
 
 pub mod harvester;
 pub mod map;
+pub mod pack;
 pub mod presets;
 pub mod storage;
 

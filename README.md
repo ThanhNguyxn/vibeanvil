@@ -47,6 +47,7 @@
 | 🧠 **BrainPack** | Dynamic repo harvesting into searchable knowledge base |
 | 🔌 **AI-Agnostic** | Works with Copilot, Cursor, Claude Code, any CLI agent |
 | 🌊 **Vibe Coding** | Smart Context (Repo Map) & Interactive Auto-Commit |
+| 📦 **Context Pack** | Export codebase as single AI-friendly file (XML/MD) |
 | 🔐 **Privacy-First** | Anonymized source IDs, no external URLs stored |
 
 ---

@@ -346,6 +346,30 @@ vibeanvil brain export md --limit 200
 vibeanvil brain export md --limit 0
 ```
 
+#### `brain pack`
+```bash
+vibeanvil brain pack [OPTIONS]
+```
+
+Pack the current codebase into a single AI-friendly file. Works with any AI coding assistant (Copilot, Cursor, Claude, ChatGPT, etc.).
+
+| Option | Description |
+|--------|-------------|
+| `-o, --output <FILE>` | Output file (default: `context.xml`) |
+| `-f, --format <FMT>` | Format: `xml` (default) or `markdown` |
+
+**Examples:**
+```bash
+# Pack to XML (best for Claude/Anthropic)
+vibeanvil brain pack
+
+# Pack to Markdown
+vibeanvil brain pack --format md -o context.md
+
+# Custom output
+vibeanvil brain pack -o my_project.xml
+```
+
 ---
 
 ## 🛠️ Utility Commands
