@@ -98,7 +98,9 @@ impl ManualBuild {
     /// Start the manual build
     pub async fn start(&mut self) -> Result<()> {
         if Self::is_build_in_progress().await {
-            anyhow::bail!("Build already in progress. Run 'vibeanvil build manual complete' to finish.");
+            anyhow::bail!(
+                "Build already in progress. Run 'vibeanvil build manual complete' to finish."
+            );
         }
 
         // Capture initial git diff
