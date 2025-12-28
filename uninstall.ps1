@@ -64,17 +64,31 @@ if (Test-Path $WorkspaceDir) {
     }
 }
 
-# Remove global data
-$GlobalDir = "$HOME\.vibeanvil"
-if (Test-Path $GlobalDir) {
+# Remove BrainPack cache (%LOCALAPPDATA%\vibeanvil)
+$BrainPackCache = Join-Path $env:LOCALAPPDATA "vibeanvil"
+if (Test-Path $BrainPackCache) {
     Write-Host ""
-    $Confirm = Read-Host "Remove global data (~/.vibeanvil)? [y/N]"
+    $Confirm = Read-Host "Remove BrainPack cache ($BrainPackCache)? [y/N]"
     if ($Confirm -eq "y" -or $Confirm -eq "Y") {
-        Remove-Item -Recurse -Force $GlobalDir
-        Write-SuccessMessage "Removed global data: $GlobalDir"
+        Remove-Item -Recurse -Force $BrainPackCache
+        Write-SuccessMessage "Removed BrainPack cache: $BrainPackCache"
     }
     else {
-        Write-InfoMessage "Keeping global data (BrainPack, etc.)"
+        Write-InfoMessage "Keeping BrainPack cache"
+    }
+}
+
+# Remove legacy data path (if present)
+$LegacyDir = "$HOME\.vibeanvil"
+if (Test-Path $LegacyDir) {
+    Write-Host ""
+    $Confirm = Read-Host "Remove legacy/old data path (~/.vibeanvil, if present)? [y/N]"
+    if ($Confirm -eq "y" -or $Confirm -eq "Y") {
+        Remove-Item -Recurse -Force $LegacyDir
+        Write-SuccessMessage "Removed legacy data: $LegacyDir"
+    }
+    else {
+        Write-InfoMessage "Keeping legacy data"
     }
 }
 

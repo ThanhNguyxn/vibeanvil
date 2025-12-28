@@ -23,8 +23,6 @@ Comprehensive guide to using VibeAnvil commands with intent, prerequisites, and 
   - [harvest](#harvest)
   - [doctor](#doctor)
   - [wizard](#wizard)
-  - [doctor](#doctor)
-  - [wizard](#wizard)
   - [providers](#providers)
   - [update/upgrade](#updateupgrade)
 
@@ -512,7 +510,7 @@ vibeanvil brain search "acceptance criteria" -n 20
 Export BrainPack to file. This performs a canonical export from the SQLite database, ensuring deduplication and clean metadata.
 
 ```bash
-vibeanvil brain export <format> [-o <path>] [--include-source-ids] [--limit <N>]
+vibeanvil brain export <jsonl|md> [-o <path>] [--include-source-ids] [--limit <N>]
 ```
 
 **Formats:** `jsonl`, `md`

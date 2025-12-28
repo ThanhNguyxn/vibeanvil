@@ -319,7 +319,7 @@ vibeanvil brain search "error handling" -n 20
 
 #### `brain export`
 ```bash
-vibeanvil brain export [FORMAT] [OPTIONS]
+vibeanvil brain export <jsonl|md> [OPTIONS]
 ```
 
 | Option | Description |
