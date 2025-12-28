@@ -36,3 +36,4 @@ examples/**/*.lock
 # Local debug files
 *.txt
 jobs.json
+build_log.md
