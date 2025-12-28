@@ -159,28 +159,39 @@ impl ManualBuild {
                 Ok(msg) => {
                     pb.finish_and_clear();
 
-                    // Interactive prompt
-                    let options = vec!["Confirm", "Edit", "Cancel"];
-                    let ans = inquire::Select::new(
-                        &format!("Proposed commit: \"{}\"", msg.cyan()),
-                        options,
-                    )
-                    .prompt();
-
-                    match ans {
-                        Ok("Confirm") => {
-                            Self::execute_commit(&msg)?;
-                        }
-                        Ok("Edit") => {
-                            let edited = inquire::Text::new("Edit commit message:")
-                                .with_initial_value(&msg)
-                                .prompt()?;
-                            Self::execute_commit(&edited)?;
-                        }
-                        _ => {
-                            crate::cli::style::info("Commit cancelled.");
+                    // Interactive prompt - only if TTY and not CI
+                    let is_ci = std::env::var("CI").is_ok();
+                    let is_tty = console::user_attended();
+                    
+                    if is_ci || !is_tty {
+                        // In CI/non-interactive, just confirm automatically or skip
+                        crate::cli::style::info("Non-interactive mode detected. Auto-confirming commit.");
+                        Self::execute_commit(&msg)?;
+                    } else {
+                        let options = vec!["Confirm", "Edit", "Cancel"];
+                        let ans = inquire::Select::new(
+                            &format!("Proposed commit: \"{}\"", msg.cyan()),
+                            options,
+                        )
+                        .prompt();
+                        
+                        match ans {
+                            Ok("Confirm") => {
+                                Self::execute_commit(&msg)?;
+                            }
+                            Ok("Edit") => {
+                                let edited = inquire::Text::new("Edit commit message:")
+                                    .with_initial_value(&msg)
+                                    .prompt()?;
+                                Self::execute_commit(&edited)?;
+                            }
+                            _ => {
+                                crate::cli::style::info("Commit cancelled.");
+                            }
                         }
                     }
+
+
                 }
                 Err(e) => {
                     pb.finish_with_message("Failed");
