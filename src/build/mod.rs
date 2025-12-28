@@ -136,7 +136,8 @@ impl ManualBuild {
         crate::cli::style::step("Vibe Commit");
 
         // Read the diff content
-        let diff_content = std::fs::read_to_string(&evidence_file.filename).unwrap_or_default();
+        let full_path = self.evidence.evidence_dir.join(&evidence_file.filename);
+        let diff_content = std::fs::read_to_string(full_path).unwrap_or_default();
 
         if diff_content.trim().is_empty() {
             crate::cli::style::warn("No changes detected, skipping auto-commit.");

@@ -71,7 +71,7 @@ pub fn redact_secrets(content: &str) -> (String, bool) {
 /// Evidence collector for a session
 pub struct EvidenceCollector {
     session_id: String,
-    evidence_dir: PathBuf,
+    pub evidence_dir: PathBuf,
 }
 
 impl EvidenceCollector {
