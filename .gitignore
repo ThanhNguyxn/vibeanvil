@@ -37,3 +37,6 @@ examples/**/*.lock
 *.txt
 jobs.json
 build_log.md
+
+# Test workspace
+/test-workspace/
