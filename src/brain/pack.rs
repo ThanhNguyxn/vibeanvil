@@ -119,12 +119,26 @@ fn is_skippable(path: &Path) -> bool {
     let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
     matches!(
         ext,
-        "lock" | "png" | "jpg" | "jpeg" | "gif" | "ico" | "pdf" | "zip" | "tar" | "gz" | "exe" | "dll" | "so" | "dylib" | "class" | "o" | "obj"
+        "lock"
+            | "png"
+            | "jpg"
+            | "jpeg"
+            | "gif"
+            | "ico"
+            | "pdf"
+            | "zip"
+            | "tar"
+            | "gz"
+            | "exe"
+            | "dll"
+            | "so"
+            | "dylib"
+            | "class"
+            | "o"
+            | "obj"
     )
 }
 
 fn detect_lang(path: &Path) -> &str {
-    path.extension()
-        .and_then(|s| s.to_str())
-        .unwrap_or("text")
+    path.extension().and_then(|s| s.to_str()).unwrap_or("text")
 }
