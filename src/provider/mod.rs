@@ -43,6 +43,15 @@ pub trait Provider: Send + Sync {
     /// Execute a prompt with the provider
     async fn execute(&self, prompt: &str, context: &Context) -> Result<ProviderResponse>;
 
+    /// Generate a commit message based on a diff
+    async fn generate_commit_message(&self, diff: &str, _context: &Context) -> Result<String> {
+        // Default implementation: simple message
+        Ok(format!(
+            "update: changes based on diff of length {}",
+            diff.len()
+        ))
+    }
+
     /// Get provider name
     fn name(&self) -> &str;
 

@@ -1,0 +1,74 @@
+{
+  "tool_version": "0.4.1",
+  "schema_version": "1.0.0",
+  "current_state": "BUILD_DONE",
+  "current_session_id": "aba71fb1-226f-4d84-868c-087401ef42e6",
+  "spec_hash": "19ae9b55855517fc6fadbc0e743799bb8dca7f4fc38bcfe5980f76facf726bc7",
+  "history": [
+    {
+      "from_state": "INIT",
+      "to_state": "INTAKE_CAPTURED",
+      "timestamp": "2025-12-28T07:44:30.500836400Z",
+      "action": "intake",
+      "session_id": "d2355684-b202-4c5d-8a0d-a1fb9289c541"
+    },
+    {
+      "from_state": "INTAKE_CAPTURED",
+      "to_state": "BLUEPRINT_DRAFTED",
+      "timestamp": "2025-12-28T07:44:30.515554100Z",
+      "action": "blueprint",
+      "session_id": "bab15131-fe1d-4140-9fea-32b00d57aebb"
+    },
+    {
+      "from_state": "BLUEPRINT_DRAFTED",
+      "to_state": "CONTRACT_DRAFTED",
+      "timestamp": "2025-12-28T07:44:30.531078100Z",
+      "action": "contract create",
+      "session_id": "f5a3805a-a7cc-40d3-b72d-5d248de69010"
+    },
+    {
+      "from_state": "CONTRACT_DRAFTED",
+      "to_state": "CONTRACT_LOCKED",
+      "timestamp": "2025-12-28T07:44:30.548485500Z",
+      "action": "contract lock",
+      "session_id": "3e751560-e60f-40bb-b022-84f0326856ab"
+    },
+    {
+      "from_state": "CONTRACT_LOCKED",
+      "to_state": "PLAN_CREATED",
+      "timestamp": "2025-12-28T07:44:38.989528300Z",
+      "action": "plan",
+      "session_id": "626d98bc-9be1-4f3e-ad79-8eb8e7f98031"
+    },
+    {
+      "from_state": "PLAN_CREATED",
+      "to_state": "BUILD_IN_PROGRESS",
+      "timestamp": "2025-12-28T07:45:03.772681600Z",
+      "action": "build start",
+      "session_id": "406eee63-f533-490f-a9c8-359fec5a837d"
+    },
+    {
+      "from_state": "BUILD_IN_PROGRESS",
+      "to_state": "BUILD_DONE",
+      "timestamp": "2025-12-28T07:45:06.489452400Z",
+      "action": "build complete",
+      "session_id": "c697ec25-5e28-41df-8fda-8765abcca79b"
+    },
+    {
+      "from_state": "BUILD_DONE",
+      "to_state": "BUILD_IN_PROGRESS",
+      "timestamp": "2025-12-28T07:55:49.740061700Z",
+      "action": "build start",
+      "session_id": "d6b86590-680f-4f0e-8b6c-d586c67aa4e7"
+    },
+    {
+      "from_state": "BUILD_IN_PROGRESS",
+      "to_state": "BUILD_DONE",
+      "timestamp": "2025-12-28T07:55:49.840881900Z",
+      "action": "build complete",
+      "session_id": "aba71fb1-226f-4d84-868c-087401ef42e6"
+    }
+  ],
+  "updated_at": "2025-12-28T07:55:49.840882500Z",
+  "created_at": "2025-12-28T07:44:30.480713800Z"
+}

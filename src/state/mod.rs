@@ -84,7 +84,11 @@ impl State {
             State::ContractLocked => vec![State::PlanCreated],
             State::PlanCreated => vec![State::BuildInProgress],
             State::BuildInProgress => vec![State::BuildDone],
-            State::BuildDone => vec![State::ReviewPassed, State::ReviewFailed],
+            State::BuildDone => vec![
+                State::ReviewPassed,
+                State::ReviewFailed,
+                State::BuildInProgress,
+            ],
             State::ReviewPassed => vec![State::Shipped],
             State::ReviewFailed => vec![State::BuildInProgress], // Can retry build
             State::Shipped => vec![],                            // Terminal state

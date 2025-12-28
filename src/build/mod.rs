@@ -3,6 +3,7 @@
 pub mod iterate;
 
 use anyhow::Result;
+use colored::*;
 use serde::{Deserialize, Serialize};
 
 use crate::evidence::EvidenceCollector;
@@ -129,16 +130,91 @@ impl ManualBuild {
         }
 
         // Capture final diff
-        let _ = self.evidence.capture_git_diff().await;
+        let evidence_file = self.evidence.capture_git_diff().await?;
+
+        // Auto-Commit Logic
+        crate::cli::style::step("Vibe Commit");
+
+        // Read the diff content
+        let diff_content = std::fs::read_to_string(&evidence_file.filename).unwrap_or_default();
+
+        if diff_content.trim().is_empty() {
+            crate::cli::style::warn("No changes detected, skipping auto-commit.");
+        } else {
+            // Get provider for commit message generation
+            use crate::provider::{get_provider, Context};
+            let provider = get_provider("claude-code").or_else(|_| get_provider("mock"))?;
+
+            let context = Context {
+                working_dir: std::env::current_dir()?,
+                session_id: self.session_id.clone(),
+                contract_hash: None,
+            };
+
+            let pb = crate::cli::style::spinner("Dreaming up a commit message...");
+            match provider
+                .generate_commit_message(&diff_content, &context)
+                .await
+            {
+                Ok(msg) => {
+                    pb.finish_and_clear();
+
+                    // Interactive prompt
+                    let options = vec!["Confirm", "Edit", "Cancel"];
+                    let ans = inquire::Select::new(
+                        &format!("Proposed commit: \"{}\"", msg.cyan()),
+                        options,
+                    )
+                    .prompt();
+
+                    match ans {
+                        Ok("Confirm") => {
+                            Self::execute_commit(&msg)?;
+                        }
+                        Ok("Edit") => {
+                            let edited = inquire::Text::new("Edit commit message:")
+                                .with_initial_value(&msg)
+                                .prompt()?;
+                            Self::execute_commit(&edited)?;
+                        }
+                        _ => {
+                            crate::cli::style::info("Commit cancelled.");
+                        }
+                    }
+                }
+                Err(e) => {
+                    pb.finish_with_message("Failed");
+                    crate::cli::style::error(&format!("Failed to generate commit message: {}", e));
+                }
+            }
+        }
 
         Ok(BuildResult {
             success: true,
             iterations: 1,
             errors: vec![],
             warnings: vec![],
-            evidence_files: vec![],
+            evidence_files: vec![evidence_file.filename],
             output: "Manual build completed.".to_string(),
         })
+    }
+
+    fn execute_commit(msg: &str) -> Result<()> {
+        let output = std::process::Command::new("git")
+            .arg("commit")
+            .arg("-am")
+            .arg(msg)
+            .output()?;
+
+        if output.status.success() {
+            crate::cli::style::success("Auto-commit successful");
+        } else {
+            crate::cli::style::error(&format!(
+                "Auto-commit failed: {}",
+                String::from_utf8_lossy(&output.stderr)
+            ));
+        }
+        Ok(())
     }
 }
 

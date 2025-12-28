@@ -6,6 +6,7 @@
 //! - User-driven search queries (no hardcoded repos)
 
 pub mod harvester;
+pub mod map;
 pub mod presets;
 pub mod storage;
 

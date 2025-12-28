@@ -18,6 +18,7 @@ pub mod review;
 pub mod ship;
 pub mod snapshot;
 pub mod status;
+pub mod style;
 pub mod ui;
 pub mod update;
 pub mod watch;

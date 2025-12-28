@@ -7,6 +7,7 @@ use crate::audit::{generate_session_id, AuditLogger};
 use crate::provider::{get_provider, Context};
 use crate::state::State;
 use crate::workspace;
+use colored::*;
 
 pub async fn run(provider_name: String) -> Result<()> {
     let state_data = workspace::load_state().await?;
@@ -31,6 +32,21 @@ pub async fn run(provider_name: String) -> Result<()> {
 
     let provider = get_provider(&provider_name)?;
 
+    // Scan repository map
+    crate::cli::style::step("Context Awareness");
+    let mut repo_map = crate::brain::map::RepositoryMap::new();
+    let workspace_path = workspace::workspace_path();
+    let root = workspace_path.parent().unwrap_or(std::path::Path::new("."));
+
+    if let Err(e) = repo_map.scan(root) {
+        crate::cli::style::warn(&format!("Failed to scan repository: {}", e));
+    } else {
+        crate::cli::style::success(&format!(
+            "Repository map generated ({} files)",
+            repo_map.files.len()
+        ));
+    }
+
     if !provider.is_available() {
         println!(
             "⚠️  Provider '{}' not available, generating template plan.",
@@ -46,11 +62,14 @@ pub async fn run(provider_name: String) -> Result<()> {
             contract_hash: state_data.spec_hash.clone(),
         };
 
+        let map_markdown = repo_map.to_markdown();
         let prompt = format!(
-            "Based on this contract, create a detailed implementation plan:\n\n{}",
-            contract
+            "Based on this contract and the current codebase structure, create a detailed implementation plan.\n\nCONTRACT:\n{}\n\nCODEBASE STRUCTURE:\n{}",
+            contract,
+            map_markdown
         );
 
+        println!("{}", "🤖 Generating plan with AI...".cyan());
         let response = provider.execute(&prompt, &context).await?;
         save_plan(&response.output).await?;
     }
