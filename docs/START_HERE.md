@@ -6,10 +6,10 @@ Welcome to VibeAnvil! Get started in 3 steps:
 
 ```bash
 # macOS/Linux
-curl -fsSL https://vibeanvil.dev/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/ThanhNguyxn/vibeanvil/main/install.sh | bash
 
 # Windows (PowerShell admin)
-irm https://vibeanvil.dev/install.ps1 | iex
+irm https://raw.githubusercontent.com/ThanhNguyxn/vibeanvil/main/install.ps1 | iex
 
 # Cargo
 cargo install vibeanvil

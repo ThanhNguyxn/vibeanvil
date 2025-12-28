@@ -153,7 +153,6 @@ vibeanvil contract lock
 **Purpose:** Create implementation plan
 
 ```bash
-```bash
 vibeanvil plan --provider claude-code
 # or
 vibeanvil plan --provider human
