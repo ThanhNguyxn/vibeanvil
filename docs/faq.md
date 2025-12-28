@@ -165,7 +165,7 @@ Custom commands coming in a future version.
 - File changes
 - Timestamps
 
-All stored in `.vibeanvil/evidence/`
+All stored in `.vibeanvil/sessions/<id>/evidence/`
 
 ---
 

@@ -345,18 +345,24 @@ async fn ensure_core(refresh_core: bool, verbose: bool) -> Result<()> {
     let brainpack_dir = crate::workspace::brainpack_dir();
 
     // Import core brainpack (handles upgrade detection internally)
-    let spinner = ProgressBar::new_spinner();
-    spinner.set_style(
-        ProgressStyle::default_spinner()
-            .template("{spinner:.cyan} {msg}")
-            .unwrap(),
-    );
+    let spinner = if std::env::var("CI").is_ok() || !console::user_attended() {
+        ProgressBar::hidden()
+    } else {
+        let pb = ProgressBar::new_spinner();
+        pb.set_style(
+            ProgressStyle::default_spinner()
+                .template("{spinner:.cyan} {msg}")
+                .unwrap(),
+        );
+        pb.enable_steady_tick(std::time::Duration::from_millis(100));
+        pb
+    };
+
     spinner.set_message(if refresh_core {
         "Force refreshing Core BrainPack..."
     } else {
         "Checking Core BrainPack..."
     });
-    spinner.enable_steady_tick(std::time::Duration::from_millis(100));
 
     let stats = storage.import_core(refresh_core).await?;
     spinner.finish_and_clear();

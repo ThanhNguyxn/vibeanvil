@@ -153,17 +153,17 @@ vibeanvil contract lock
 **Purpose:** Create implementation plan
 
 ```bash
-```bash
 vibeanvil plan --provider claude-code
 # or
 vibeanvil plan --provider human
 ```
 
 **What happens:**
-- AI analyzes contract
-- Generates step-by-step implementation
-- Creates task breakdown
-- Estimates complexity
+- 🧠 **Smart Context**: Scans your codebase to create a "Repository Map" (types, functions, signatures).
+- AI analyzes contract & repo map.
+- Generates step-by-step implementation.
+- Creates task breakdown.
+- Estimates complexity.
 
 **Output:**
 ```
@@ -190,6 +190,13 @@ vibeanvil build manual start
 vibeanvil build manual evidence  # capture evidence
 vibeanvil build manual complete
 ```
+
+**Interactive Auto-Commit 🌊**
+When you run `complete`, VibeAnvil:
+1. Analyzes your changes.
+2. "Dreams up" a Conventional Commit message.
+3. Asks you to **Confirm**, **Edit**, or **Cancel**.
+4. Commits for you if confirmed.
 
 ### Auto Build
 ```bash

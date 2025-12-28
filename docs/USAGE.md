@@ -206,6 +206,7 @@ vibeanvil plan [--provider <name>]
 
 **Outputs:**
 - Implementation plan (provider-dependent)
+- **Smart Context**: Scans codebase for types/functions to inform the AI
 - Updates `state.json` to `Planned`
 
 **Next Step:** `vibeanvil build`
@@ -261,7 +262,12 @@ See [PROVIDERS.md](PROVIDERS.md) for details.
 |--------|-------------|
 | `start` | Start manual build session |
 | `evidence` | Capture evidence mid-build |
-| `complete` | Complete the manual build |
+| `complete` | Complete the manual build (triggers Interactive Auto-Commit) |
+
+**Interactive Auto-Commit:**
+When completing a manual build, VibeAnvil will:
+1. Generate a commit message from your changes.
+2. Ask you to **Confirm**, **Edit**, or **Cancel**.
 
 **Outputs:**
 - Session created in `.vibeanvil/sessions/<id>/`

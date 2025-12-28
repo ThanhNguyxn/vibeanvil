@@ -46,6 +46,7 @@
 | 🔄 **Build Modes** | Manual, auto, iterate (test/lint/fix loop) |
 | 🧠 **BrainPack** | Dynamic repo harvesting into searchable knowledge base |
 | 🔌 **AI-Agnostic** | Works with Copilot, Cursor, Claude Code, any CLI agent |
+| 🌊 **Vibe Coding** | Smart Context (Repo Map) & Interactive Auto-Commit |
 | 🔐 **Privacy-First** | Anonymized source IDs, no external URLs stored |
 
 ---

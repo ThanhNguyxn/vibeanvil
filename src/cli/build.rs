@@ -160,11 +160,16 @@ async fn run_manual_build(args: &BuildArgs, session_id: &str, logger: &AuditLogg
         ManualBuildAction::Start => {
             // Update state to build in progress
             let mut state = workspace::load_state().await?;
-            if state.current_state == State::PlanCreated {
+            if state.current_state == State::PlanCreated || state.current_state == State::BuildDone
+            {
                 state.transition_to(State::BuildInProgress, "build start", session_id)?;
                 workspace::save_state(&state).await?;
                 logger
-                    .log_state_transition("build start", State::PlanCreated, State::BuildInProgress)
+                    .log_state_transition(
+                        "build start",
+                        state.current_state,
+                        State::BuildInProgress,
+                    )
                     .await?;
             }
 
