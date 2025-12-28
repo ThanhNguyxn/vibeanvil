@@ -7,6 +7,11 @@ use std::time::Duration;
 
 /// Create a new spinner with a message
 pub fn spinner(msg: &str) -> ProgressBar {
+    // In CI or non-interactive mode, return a hidden spinner to avoid log clutter/hangs
+    if std::env::var("CI").is_ok() || !console::user_attended() {
+        return ProgressBar::hidden();
+    }
+
     let pb = ProgressBar::new_spinner();
     pb.set_style(
         ProgressStyle::default_spinner()
