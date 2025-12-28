@@ -348,6 +348,17 @@ pub enum BrainCommands {
 
     /// Compact the brain pack (dedup JSONL, optimize SQLite)
     Compact,
+
+    /// Pack the current codebase into a single AI-friendly file
+    Pack {
+        /// Output file path (default: context.xml)
+        #[arg(short, long, default_value = "context.xml")]
+        output: String,
+
+        /// Output format (xml or markdown)
+        #[arg(short, long, default_value = "xml")]
+        format: String,
+    },
 }
 
 #[derive(Clone, ValueEnum)]

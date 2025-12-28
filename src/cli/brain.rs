@@ -22,6 +22,7 @@ pub async fn run(args: BrainArgs) -> Result<()> {
             limit,
         } => export(format, output, include_source_ids, limit).await,
         BrainCommands::Compact => compact().await,
+        BrainCommands::Pack { output, format } => pack_codebase(&output, &format).await,
     }
 }
 
@@ -601,6 +602,21 @@ async fn compact() -> Result<()> {
         println!("{}", "✅ Already compact!".green().bold());
     }
     println!();
+
+    Ok(())
+}
+
+async fn pack_codebase(output: &str, format: &str) -> Result<()> {
+    use crate::brain::pack::{pack_codebase as pack, PackFormat};
+
+    let root = std::env::current_dir()?;
+    let fmt: PackFormat = format.parse()?;
+
+    crate::cli::style::step("Context Pack");
+    let content = pack(&root, fmt)?;
+
+    std::fs::write(output, &content)?;
+    crate::cli::style::success(&format!("Packed to {}", output));
 
     Ok(())
 }
