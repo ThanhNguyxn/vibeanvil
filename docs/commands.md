@@ -115,6 +115,8 @@ vibeanvil plan [OPTIONS]
 |--------|-------------|
 | `-p, --provider <NAME>` | AI provider (default: claude-code) |
 
+> **Note:** `plan` automatically scans your codebase ("Smart Context") to provide the AI with a map of your project's structure.
+
 **Examples:**
 ```bash
 # Default provider
@@ -156,6 +158,7 @@ vibeanvil build <MODE> [OPTIONS]
 vibeanvil build manual start
 vibeanvil build manual evidence
 vibeanvil build manual complete
+# (Triggers Interactive Auto-Commit: Confirm/Edit/Cancel generated message)
 
 # Auto build with evidence
 vibeanvil build auto --evidence

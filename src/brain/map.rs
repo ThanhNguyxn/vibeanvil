@@ -46,7 +46,7 @@ impl RepositoryMap {
         let js_const_fn_re =
             Regex::new(r"^(export\s+)?const\s+(\w+)\s*=\s*(\(.*\)|async\s*\(.*\))\s*=>").unwrap();
 
-        let mut count = 0;
+
         for entry in walker.filter_entry(|e| !is_hidden(e)) {
             let entry = entry?;
             let path = entry.path();
@@ -68,7 +68,6 @@ impl RepositoryMap {
                         path: relative_path,
                         signatures,
                     });
-                    count += 1;
                     pb.set_message(format!(
                         "Scanning: {}",
                         path.file_name().unwrap_or_default().to_string_lossy()
