@@ -2,12 +2,30 @@
 
 use anyhow::Result;
 use colored::Colorize;
+use serde::Serialize;
 
 use crate::state::State;
 use crate::workspace;
 
-pub async fn run(verbose: bool) -> Result<()> {
+#[derive(Serialize)]
+struct StatusJson {
+    current_state: String,
+    tool_version: String,
+    spec_hash: Option<String>,
+}
+
+pub async fn run(verbose: bool, json: bool) -> Result<()> {
     let state_data = workspace::load_state().await?;
+
+    if json {
+        let output = StatusJson {
+            current_state: state_data.current_state.to_string(),
+            tool_version: state_data.tool_version.clone(),
+            spec_hash: state_data.spec_hash.clone(),
+        };
+        println!("{}", serde_json::to_string_pretty(&output)?);
+        return Ok(());
+    }
 
     // Print beautiful header
     println!();

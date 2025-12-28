@@ -53,7 +53,7 @@ async fn main() -> Result<()> {
         Commands::Ship { tag, message } => cli::ship::run(tag, message).await,
         Commands::Harvest(args) => cli::harvest::run(args).await,
         Commands::Brain(args) => cli::brain::run(args).await,
-        Commands::Status { verbose } => cli::status::run(verbose).await,
+        Commands::Status { verbose, json } => cli::status::run(verbose, json).await,
         Commands::Log { lines, json } => cli::log::run(lines, json).await,
         Commands::Update => cli::update::check_update().await,
         Commands::Upgrade => cli::update::upgrade().await,
