@@ -71,9 +71,9 @@ impl Default for BuildConfig {
 
 /// Manual build handler
 pub struct ManualBuild {
+    #[allow(dead_code)]
     session_id: String,
     evidence: EvidenceCollector,
-    started: bool,
 }
 
 impl ManualBuild {
@@ -83,16 +83,23 @@ impl ManualBuild {
         Ok(Self {
             session_id: session_id.to_string(),
             evidence,
-            started: false,
         })
+    }
+
+    /// Check if a build is in progress by reading state from disk
+    async fn is_build_in_progress() -> bool {
+        if let Ok(state) = crate::workspace::load_state().await {
+            state.current_state == crate::state::State::BuildInProgress
+        } else {
+            false
+        }
     }
 
     /// Start the manual build
     pub async fn start(&mut self) -> Result<()> {
-        if self.started {
-            anyhow::bail!("Build already started");
+        if Self::is_build_in_progress().await {
+            anyhow::bail!("Build already in progress. Run 'vibeanvil build manual complete' to finish.");
         }
-        self.started = true;
 
         // Capture initial git diff
         let _ = self.evidence.capture_git_diff().await;
@@ -103,7 +110,7 @@ impl ManualBuild {
 
     /// Capture evidence
     pub async fn capture_evidence(&self) -> Result<()> {
-        if !self.started {
+        if !Self::is_build_in_progress().await {
             anyhow::bail!("Build not started. Run 'vibeanvil build manual start' first.");
         }
 
@@ -115,8 +122,8 @@ impl ManualBuild {
 
     /// Complete the build
     pub async fn complete(&self) -> Result<BuildResult> {
-        if !self.started {
-            anyhow::bail!("Build not started");
+        if !Self::is_build_in_progress().await {
+            anyhow::bail!("Build not started. Run 'vibeanvil build manual start' first.");
         }
 
         // Capture final diff
