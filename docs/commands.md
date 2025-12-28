@@ -291,8 +291,12 @@ Output:
 
 #### `brain stats`
 ```bash
-vibeanvil brain stats
+vibeanvil brain stats [OPTIONS]
 ```
+
+| Option | Description |
+|--------|-------------|
+| `--json` | JSON output (machine-readable) |
 
 Output:
 ```
@@ -383,6 +387,7 @@ vibeanvil status [OPTIONS]
 | Option | Description |
 |--------|-------------|
 | `-v, --verbose` | Verbose output |
+| `--json` | JSON output (machine-readable) |
 
 ---
 
