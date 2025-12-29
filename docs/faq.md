@@ -247,7 +247,24 @@ Other ways to help:
 
 ---
 
-Still have questions? [Open an issue](https://github.com/ThanhNguyxn/vibeanvil/issues/new) and we'll help!
+## 🔒 Security
+
+### Is VibeAnvil secure?
+
+Yes! VibeAnvil includes built-in security hardening:
+
+- **Path Traversal Protection** - Blocks `../` attacks
+- **Filename Sanitization** - Validates all file operations
+- **Privacy-First** - Source IDs are anonymized (SHA-256)
+- **Secret Redaction** - Sensitive data auto-redacted from logs
+
+### Does VibeAnvil send my code anywhere?
+
+No. All operations are local unless you explicitly use the `harvest` command to download GitHub repos. Your code never leaves your machine.
+
+### Can I use VibeAnvil on private projects?
+
+Absolutely! VibeAnvil is designed for private, secure workflows. No telemetry, no cloud dependencies.
 
 ---
 
