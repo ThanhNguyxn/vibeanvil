@@ -61,5 +61,6 @@ async fn main() -> Result<()> {
         Commands::Doctor => cli::doctor::run().await,
         Commands::Wizard => cli::wizard::run().await,
         Commands::Providers => cli::providers::run().await,
+        Commands::Undo { dry_run } => cli::undo::run(dry_run).await,
     }
 }

@@ -334,6 +334,92 @@ impl BrainStorage {
         Ok(search_results)
     }
 
+    /// Search the brain using FTS5 with optional filters
+    pub fn search_filtered(
+        &self,
+        query: &str,
+        limit: usize,
+        record_type: Option<&str>,
+        language: Option<&str>,
+    ) -> Result<Vec<SearchResult>> {
+        let conn = Connection::open(&self.sqlite_path)?;
+
+        // Build dynamic WHERE clause for filters
+        let mut conditions = vec!["chunks_fts MATCH ?1".to_string()];
+        let mut param_idx = 2;
+
+        if record_type.is_some() {
+            conditions.push(format!("c.content_type = ?{}", param_idx));
+            param_idx += 1;
+        }
+        if language.is_some() {
+            conditions.push(format!("c.language = ?{}", param_idx));
+        }
+
+        let where_clause = conditions.join(" AND ");
+
+        let sql = format!(
+            "SELECT c.chunk_id, c.source_id, c.path, c.content_type,
+                    snippet(chunks_fts, 0, '→', '←', '...', 20) as snippet,
+                    bm25(chunks_fts) as score,
+                    c.tags
+            FROM chunks_fts
+            JOIN brain_chunks c ON chunks_fts.rowid = c.rowid
+            WHERE {}
+            ORDER BY score
+            LIMIT ?",
+            where_clause
+        );
+
+        let mut stmt = conn.prepare(&sql)?;
+
+        // Build params dynamically and collect results
+        let search_results: Vec<SearchResult> = match (record_type, language) {
+            (Some(t), Some(l)) => stmt
+                .query_map(params![query, t, l, limit as i64], |row| {
+                    Self::map_search_row(row)
+                })?
+                .filter_map(|r| r.ok())
+                .collect(),
+            (Some(t), None) => stmt
+                .query_map(params![query, t, limit as i64], |row| {
+                    Self::map_search_row(row)
+                })?
+                .filter_map(|r| r.ok())
+                .collect(),
+            (None, Some(l)) => stmt
+                .query_map(params![query, l, limit as i64], |row| {
+                    Self::map_search_row(row)
+                })?
+                .filter_map(|r| r.ok())
+                .collect(),
+            (None, None) => stmt
+                .query_map(params![query, limit as i64], |row| {
+                    Self::map_search_row(row)
+                })?
+                .filter_map(|r| r.ok())
+                .collect(),
+        };
+
+        Ok(search_results)
+    }
+
+    /// Map a row to SearchResult (helper for search methods)
+    fn map_search_row(row: &rusqlite::Row) -> rusqlite::Result<SearchResult> {
+        let tags_str: String = row.get(6)?;
+        let tags: Vec<String> = tags_str.split(',').map(|s| s.to_string()).collect();
+
+        Ok(SearchResult {
+            chunk_id: row.get(0)?,
+            source_id: row.get(1)?,
+            path: row.get(2)?,
+            content_type: row.get(3)?,
+            snippet: row.get(4)?,
+            score: row.get::<_, f64>(5)?.abs(),
+            tags,
+        })
+    }
+
     /// Get statistics
     pub async fn stats(&self) -> Result<BrainStats> {
         let mut stats = BrainStats::default();

@@ -14,7 +14,12 @@ pub async fn run(args: BrainArgs) -> Result<()> {
             verbose,
         } => ensure_core(refresh_core, verbose).await,
         BrainCommands::Stats { json } => show_stats(json).await,
-        BrainCommands::Search { query, limit } => search(&query, limit).await,
+        BrainCommands::Search {
+            query,
+            limit,
+            record_type,
+            language,
+        } => search(&query, limit, record_type.as_deref(), language.as_deref()).await,
         BrainCommands::Export {
             format,
             output,
@@ -166,19 +171,32 @@ async fn show_stats(json: bool) -> Result<()> {
     Ok(())
 }
 
-async fn search(query: &str, limit: usize) -> Result<()> {
+async fn search(
+    query: &str,
+    limit: usize,
+    record_type: Option<&str>,
+    language: Option<&str>,
+) -> Result<()> {
     let storage = BrainStorage::new().await?;
 
     println!();
+    let mut filter_str = String::new();
+    if let Some(t) = record_type {
+        filter_str.push_str(&format!(" [type:{}]", t));
+    }
+    if let Some(l) = language {
+        filter_str.push_str(&format!(" [lang:{}]", l));
+    }
     println!(
-        "{} {} {}",
+        "{} {} {}{}",
         "🔍".cyan(),
         "Searching for:".white().bold(),
-        query.cyan().bold()
+        query.cyan().bold(),
+        filter_str.dimmed()
     );
     println!();
 
-    let results = storage.search(query, limit)?;
+    let results = storage.search_filtered(query, limit, record_type, language)?;
 
     if results.is_empty() {
         println!("{}", "┌─────────────────────────────────────────┐".yellow());

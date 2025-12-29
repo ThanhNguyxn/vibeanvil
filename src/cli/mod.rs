@@ -20,6 +20,7 @@ pub mod snapshot;
 pub mod status;
 pub mod style;
 pub mod ui;
+pub mod undo;
 pub mod update;
 pub mod watch;
 pub mod wizard;
@@ -139,6 +140,13 @@ pub enum Commands {
 
     /// List available AI providers
     Providers,
+
+    /// Undo the last AI-made change (reverts last commit)
+    Undo {
+        /// Show what would be undone without actually undoing
+        #[arg(long)]
+        dry_run: bool,
+    },
 }
 
 #[derive(Clone, ValueEnum)]
@@ -333,6 +341,14 @@ pub enum BrainCommands {
         /// Maximum results
         #[arg(short = 'n', long, default_value = "10")]
         limit: usize,
+
+        /// Filter by record type (e.g., function, class, doc)
+        #[arg(short = 't', long)]
+        record_type: Option<String>,
+
+        /// Filter by language (e.g., rust, python, typescript)
+        #[arg(short = 'l', long)]
+        language: Option<String>,
     },
 
     /// Export the brain pack
