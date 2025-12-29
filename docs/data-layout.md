@@ -108,42 +108,42 @@ chunks_fts        # FTS5 virtual table for search
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                         USER WORKFLOW                                │
+│                         USER WORKFLOW                               │
 ├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
+│                                                                     │
 │   init → intake → blueprint → contract lock → build → review → ship │
 │     │       │         │            │           │         │       │  │
 │     ▼       ▼         ▼            ▼           ▼         ▼       ▼  │
 │  state   state    blueprint    contract    session   state   state  │
 │  .json   .json      .md         .lock      evidence  .json   .json  │
-│                                              │                       │
-│                                         audit.jsonl                  │
-│                                                                      │
+│                                              │                      │
+│                                         audit.jsonl                 │
+│                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────┐
-│                         BRAINPACK FLOW                               │
+│                         BRAINPACK FLOW                              │
 ├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│   brain ensure          harvest                                      │
-│        │                   │                                         │
-│        ▼                   ▼                                         │
-│   Core BrainPack     GitHub API                                      │
-│   (embedded)          (search)                                       │
-│        │                   │                                         │
-│        └─────────┬─────────┘                                         │
-│                  ▼                                                   │
-│           brainpack.jsonl                                            │
-│                  │                                                   │
-│                  ▼                                                   │
-│           brainpack.sqlite                                           │
-│             (FTS5)                                                   │
-│                  │                                                   │
-│        ┌─────────┼─────────┐                                         │
-│        ▼         ▼         ▼                                         │
-│   brain stats  brain    brain                                        │
-│              search    export                                        │
-│                                                                      │
+│                                                                     │
+│   brain ensure          harvest                                     │
+│        │                   │                                        │
+│        ▼                   ▼                                        │
+│   Core BrainPack     GitHub API                                     │
+│   (embedded)          (search)                                      │
+│        │                   │                                        │
+│        └─────────┬─────────┘                                        │
+│                  ▼                                                  │
+│           brainpack.jsonl                                           │
+│                  │                                                  │
+│                  ▼                                                  │
+│           brainpack.sqlite                                          │
+│             (FTS5)                                                  │
+│                  │                                                  │
+│        ┌─────────┼─────────┐                                        │
+│        ▼         ▼         ▼                                        │
+│   brain stats  brain    brain                                       │
+│              search    export                                       │
+│                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
