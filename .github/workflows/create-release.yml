@@ -56,7 +56,7 @@ jobs:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN_VIBEANVIL }}
         run: |
           gh pr create --title "Release v${{ inputs.version }}" --body "Automated release bump." --base main --head release/v${{ inputs.version }}
-          gh pr merge release/v${{ inputs.version }} --squash --admin --delete-branch
+          gh pr merge release/v${{ inputs.version }} --auto --squash --delete-branch
 
       - name: Create and push tag
         run: |
