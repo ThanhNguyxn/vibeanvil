@@ -109,6 +109,10 @@ pub enum Commands {
         /// Show verbose status with history
         #[arg(short, long)]
         verbose: bool,
+
+        /// Output as JSON (machine-readable)
+        #[arg(long)]
+        json: bool,
     },
 
     /// View audit log
@@ -315,7 +319,11 @@ pub enum BrainCommands {
     },
 
     /// Show brain pack statistics
-    Stats,
+    Stats {
+        /// Output as JSON (machine-readable)
+        #[arg(long)]
+        json: bool,
+    },
 
     /// Search the brain pack
     Search {

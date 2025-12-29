@@ -13,7 +13,7 @@ pub async fn run(args: BrainArgs) -> Result<()> {
             refresh_core,
             verbose,
         } => ensure_core(refresh_core, verbose).await,
-        BrainCommands::Stats => show_stats().await,
+        BrainCommands::Stats { json } => show_stats(json).await,
         BrainCommands::Search { query, limit } => search(&query, limit).await,
         BrainCommands::Export {
             format,
@@ -36,9 +36,24 @@ fn format_bytes(bytes: u64) -> String {
     }
 }
 
-async fn show_stats() -> Result<()> {
+async fn show_stats(json: bool) -> Result<()> {
     let storage = BrainStorage::new().await?;
     let stats = storage.stats().await?;
+
+    if json {
+        let output = serde_json::json!({
+            "total_sources": stats.total_sources,
+            "total_records": stats.total_records,
+            "total_chunks": stats.total_chunks,
+            "jsonl_size_bytes": stats.jsonl_size_bytes,
+            "sqlite_size_bytes": stats.sqlite_size_bytes,
+            "by_type": stats.by_type,
+            "by_language": stats.by_language,
+            "last_updated": stats.last_updated.map(|t| t.to_string()),
+        });
+        println!("{}", serde_json::to_string_pretty(&output)?);
+        return Ok(());
+    }
 
     println!();
     println!(

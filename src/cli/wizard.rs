@@ -137,7 +137,7 @@ async fn handle_action(action: WizardAction) -> Result<()> {
             }
         }
         WizardAction::Status => {
-            crate::cli::status::run(false).await?;
+            crate::cli::status::run(false, false).await?;
         }
         WizardAction::Doctor => {
             crate::cli::doctor::run().await?;
