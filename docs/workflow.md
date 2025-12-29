@@ -327,6 +327,19 @@ Congratulations! 🎉
 
 ---
 
+## 🔒 Security Features
+
+VibeAnvil includes built-in security hardening:
+
+- **Path Traversal Protection** - All file operations validated
+- **Filename Sanitization** - Unsafe characters blocked
+- **Privacy-First** - Source IDs anonymized (SHA-256)
+- **Secret Redaction** - Credentials auto-removed from logs
+
+See [Security Guide](SECURITY.md) for details.
+
+---
+
 ## 💖 Support VibeAnvil
 
 <p align="center">
