@@ -317,11 +317,22 @@ vibeanvil brain search <QUERY> [OPTIONS]
 | Option | Description |
 |--------|-------------|
 | `-n, --limit <N>` | Max results (default: 10) |
+| `-t, --record-type <TYPE>` | Filter by type (function, class, doc) |
+| `-l, --language <LANG>` | Filter by language (rust, python, js) |
 
 **Examples:**
 ```bash
+# Basic search
 vibeanvil brain search "authentication middleware"
-vibeanvil brain search "error handling" -n 20
+
+# Filter by language
+vibeanvil brain search "error" -l rust
+
+# Filter by type
+vibeanvil brain search "parse" -t function
+
+# Combined filters
+vibeanvil brain search "async" -l rust -t function -n 5
 ```
 
 #### `brain export`

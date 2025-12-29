@@ -193,6 +193,14 @@ Create a plan first:
 vibeanvil plan
 ```
 
+### Made a mistake? Undo it!
+
+If the last AI change was wrong, undo it:
+```bash
+vibeanvil undo --dry-run  # Preview first
+vibeanvil undo            # Revert
+```
+
 ### "Could not fetch checksums, skipping verification"
 
 This is **normal** if:
