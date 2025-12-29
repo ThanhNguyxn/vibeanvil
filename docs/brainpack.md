@@ -326,6 +326,25 @@ vibeanvil brain search "pattern" -n 50
 
 ---
 
+## 🎭 Prompt Templates
+
+VibeAnvil includes role-based prompt templates for AI interactions:
+
+| Template | Role | Use Case |
+|----------|------|----------|
+| `plan` | Planner | Create implementation plans |
+| `review` | Reviewer | Code review and feedback |
+| `commit` | Writer | Generate commit messages |
+| `architect` | Architect | System design and architecture |
+| `developer` | Developer | Implementation guidance |
+| `qa` | QA Engineer | Testing and bug finding |
+
+Templates are stored in `src/prompt/templates/` and support `{{variable}}` substitution.
+
+**Custom Templates:** Add `.md` files to `.vibeanvil/prompts/` to create your own.
+
+---
+
 ## 💖 Support VibeAnvil
 
 Love BrainPack? Support the project!
