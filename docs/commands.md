@@ -420,6 +420,31 @@ vibeanvil upgrade
 
 ---
 
+### `undo` - Undo Last AI Change
+
+Revert the last commit (typically an AI-made change).
+
+```bash
+vibeanvil undo [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--dry-run` | Show what would be undone without undoing |
+
+**Examples:**
+```bash
+# Preview what would be undone
+vibeanvil undo --dry-run
+
+# Actually undo the last commit
+vibeanvil undo
+```
+
+> **Note:** Changes are kept staged after undo. Run `git diff --cached` to review them.
+
+---
+
 ## 🔌 Provider Commands
 
 ### `providers` - List AI Providers

@@ -725,6 +725,10 @@ vibeanvil log -n 50
 
 # Check BrainPack health
 vibeanvil brain stats
+
+# Undo last AI change
+vibeanvil undo --dry-run  # Preview first
+vibeanvil undo            # Revert
 ```
 
 ---

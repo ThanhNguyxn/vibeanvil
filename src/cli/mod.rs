@@ -20,6 +20,7 @@ pub mod snapshot;
 pub mod status;
 pub mod style;
 pub mod ui;
+pub mod undo;
 pub mod update;
 pub mod watch;
 pub mod wizard;
@@ -139,6 +140,13 @@ pub enum Commands {
 
     /// List available AI providers
     Providers,
+
+    /// Undo the last AI-made change (reverts last commit)
+    Undo {
+        /// Show what would be undone without actually undoing
+        #[arg(long)]
+        dry_run: bool,
+    },
 }
 
 #[derive(Clone, ValueEnum)]
