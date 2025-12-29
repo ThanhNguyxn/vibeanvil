@@ -10,6 +10,10 @@ pub const TEMPLATES: &[(&str, &str)] = &[
     ("plan", include_str!("templates/plan.md")),
     ("review", include_str!("templates/review.md")),
     ("commit", include_str!("templates/commit.md")),
+    // Role-based templates (BMad Method inspired)
+    ("architect", include_str!("templates/architect.md")),
+    ("developer", include_str!("templates/developer.md")),
+    ("qa", include_str!("templates/qa.md")),
 ];
 
 /// Load a prompt template by name
