@@ -48,7 +48,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b release/v${{ inputs.version }}
           git add Cargo.toml
-          git commit -m "chore: bump version to ${{ inputs.version }}"
+          git commit -m "chore: bump version to ${{ inputs.version }} [skip ci]"
           git push origin release/v${{ inputs.version }}
 
       - name: Create and Merge Pull Request
