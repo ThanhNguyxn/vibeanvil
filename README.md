@@ -115,16 +115,19 @@ vibeanvil contract lock   # 🔒 "Contract LOCKED = License to Build"
 - Validation required before build permission
 
 ### 📊 State Machine
-```
-INIT → INTAKE → BLUEPRINT → CONTRACT_DRAFT → CONTRACT_LOCKED
-                                     ↓
-                               PLAN_CREATED
-                                     ↓
-                             BUILD_IN_PROGRESS → BUILD_DONE
-                                     ↓            ↓
-                            REVIEW_FAILED ← → REVIEW_PASSED
-                                                   ↓
-                                               SHIPPED
+```mermaid
+graph TD
+    A[INIT] --> B[INTAKE]
+    B --> C[BLUEPRINT]
+    C --> D[CONTRACT]
+    D -->|Lock| E[PLAN]
+    E --> F[BUILD]
+    F --> G{REVIEW}
+    G -->|Fail| F
+    G -->|Pass| H[SHIPPED]
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style H fill:#9f9,stroke:#333,stroke-width:2px
 ```
 
 ### 🛡️ Evidence Capture
