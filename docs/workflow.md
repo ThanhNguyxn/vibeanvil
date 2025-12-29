@@ -283,7 +283,7 @@ Loop that:
 
 ## 🤖 Choosing a Provider
 
-VibeAnvil supports multiple AI providers. See [PROVIDERS.md](PROVIDERS.md) for full details.
+VibeAnvil supports multiple AI providers. See [docs/providers.md](providers.md) for full details.
 
 | Provider | Best For |
 |----------|----------|
@@ -392,7 +392,7 @@ VibeAnvil includes built-in security hardening:
 - **Privacy-First** - Source IDs anonymized (SHA-256)
 - **Secret Redaction** - Credentials auto-removed from logs
 
-See [Security Guide](SECURITY.md) for details.
+See [Security Guide](security.md) for details.
 
 ---
 

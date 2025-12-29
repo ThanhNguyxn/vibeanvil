@@ -114,7 +114,7 @@ vibeanvil brain stats
 
 ### Can I delete harvested data?
 
-Yes, you can delete BrainPack data from your OS cache directory. See [DATA_LAYOUT.md](DATA_LAYOUT.md) for exact paths per platform.
+Yes, you can delete BrainPack data from your OS cache directory. See [docs/data-layout.md](data-layout.md) for exact paths per platform.
 
 Example (varies by OS):
 ```bash
@@ -134,7 +134,7 @@ Currently:
 - `command` - External CLI agents (Aider, etc.)
 - `patch` - Unified diff workflows
 
-See [PROVIDERS.md](PROVIDERS.md) for a full comparison.
+See [docs/providers.md](providers.md) for a full comparison.
 
 ### How does iterate mode work?
 

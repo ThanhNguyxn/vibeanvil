@@ -87,7 +87,20 @@ vibeanvil contract lock   # 🔒 "Contract LOCKED = License to Build"
 > ```
 > This refreshes your local DB with the new embedded content.
 
-📚 **Detailed guides:** [Getting Started](docs/getting-started.md) | [Workflow](docs/workflow.md) | [Commands](docs/commands.md) | [Providers](docs/PROVIDERS.md)
+## 📚 Documentation
+
+| Guide | Description |
+|-------|-------------|
+| [🚀 Getting Started](docs/getting-started.md) | Installation and first steps |
+| [📋 Workflow Guide](docs/workflow.md) | Detailed state machine and process |
+| [🔧 Commands Reference](docs/commands.md) | CLI command reference |
+| [🧠 BrainPack Guide](docs/brainpack.md) | Knowledge harvesting |
+| [🤖 AI Providers](docs/providers.md) | Setup for Copilot, Claude, etc. |
+| [📁 Data Layout](docs/data-layout.md) | Where data is stored |
+| [🔍 Data Sources](docs/data-sources.md) | Harvesting strategies |
+| [🎯 Harvest Presets](docs/harvest-presets.md) | Search presets |
+| [🔒 Security](docs/security.md) | Privacy and security features |
+| [❓ FAQ](docs/faq.md) | Common questions |
 
 ---
 
