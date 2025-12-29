@@ -31,3 +31,33 @@ let clean = sanitize_filename("unsafe<>name.txt"); // "unsafename.txt"
 - Source IDs are SHA-256 hashed (anonymized)
 - No external URLs stored in exports
 - Secrets auto-redacted from evidence logs
+
+---
+
+## 🔍 Secret Detection
+
+VibeAnvil includes a native secret scanner that detects:
+
+| Type | Examples |
+|------|----------|
+| AWS Keys | `AKIA...` access keys |
+| GitHub Tokens | `ghp_...`, `github_pat_...` |
+| API Keys | `api_key = ...` |
+| Passwords | `password = ...` |
+| Private Keys | `-----BEGIN PRIVATE KEY-----` |
+| JWTs | `eyJ...` tokens |
+| Database URLs | `postgres://user:pass@...` |
+
+**Developer API:**
+```rust
+use crate::security::secrets::{scan_text, redact_secrets, has_secrets};
+
+// Check for secrets
+if has_secrets(content) {
+    let matches = scan_text(content);
+    // Handle detected secrets
+}
+
+// Redact secrets before output
+let safe_content = redact_secrets(content);
+```

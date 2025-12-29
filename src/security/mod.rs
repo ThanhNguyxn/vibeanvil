@@ -1,6 +1,8 @@
 //! Path Security Module
 //! Provides path validation and sanitization to prevent traversal attacks.
 
+pub mod secrets;
+
 use anyhow::{Context, Result};
 use std::path::{Path, PathBuf};
 
