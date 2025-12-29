@@ -23,6 +23,7 @@ mod contract;
 mod evidence;
 mod prompt;
 mod provider;
+mod security;
 mod state;
 mod workspace;
 
