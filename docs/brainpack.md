@@ -326,22 +326,39 @@ vibeanvil brain search "pattern" -n 50
 
 ---
 
-## 🎭 Prompt Templates
+## 🎭 AI Prompt Templates
 
-VibeAnvil includes role-based prompt templates for AI interactions:
+Role-based prompts that **guide AI behavior** during tasks:
 
-| Template | Role | Use Case |
-|----------|------|----------|
-| `plan` | Planner | Create implementation plans |
-| `review` | Reviewer | Code review and feedback |
-| `commit` | Writer | Generate commit messages |
-| `architect` | Architect | System design and architecture |
+| Template | Role | Purpose |
+|----------|------|---------|
+| `plan` | Planner | Generate implementation plans |
+| `review` | Reviewer | Code review feedback |
+| `commit` | Writer | Commit message generation |
+| `architect` | Architect | System design analysis |
 | `developer` | Developer | Implementation guidance |
 | `qa` | QA Engineer | Testing and bug finding |
 
-Templates are stored in `src/prompt/templates/` and support `{{variable}}` substitution.
+Location: `src/prompt/templates/`
 
-**Custom Templates:** Add `.md` files to `.vibeanvil/prompts/` to create your own.
+---
+
+## 📋 Contract Templates
+
+Pre-built **project contracts** with requirements and acceptance criteria:
+
+| Template | Category | Description |
+|----------|----------|-------------|
+| `web-app` | Web | Standard web app with auth/CRUD |
+| `cli-tool` | CLI | Command-line tool with subcommands |
+| `api-service` | API | REST API with JWT auth |
+| `library` | Lib | Reusable library with docs |
+
+Location: `src/contract/templates.rs`
+
+**Key Difference:**
+- **Prompt Templates** = Tell AI *how to think* (roles)
+- **Contract Templates** = Define *what to build* (requirements)
 
 ---
 
