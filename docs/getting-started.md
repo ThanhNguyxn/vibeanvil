@@ -153,6 +153,31 @@ curl -fsSL https://raw.githubusercontent.com/ThanhNguyxn/vibeanvil/main/uninstal
 
 ---
 
+## 🆕 New Features
+
+### Undo Changes ↩️
+Made a mistake? Undo the last AI change:
+```bash
+vibeanvil undo --dry-run  # Preview first
+vibeanvil undo            # Revert
+```
+
+### Faceted Search 🔍
+Filter brain search by type or language:
+```bash
+vibeanvil brain search "error" -l rust
+vibeanvil brain search "parse" -t function
+```
+
+### Contract Templates 📋
+Use pre-built templates to start faster:
+- `web-app` - Web apps with auth/CRUD
+- `cli-tool` - Command-line tools
+- `api-service` - REST APIs with JWT
+- `library` - Reusable libraries
+
+---
+
 ## 📚 Next Steps
 
 - [📋 Workflow Guide](workflow.md) - Deep dive into each state

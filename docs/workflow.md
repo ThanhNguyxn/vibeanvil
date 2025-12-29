@@ -340,6 +340,40 @@ See [Security Guide](SECURITY.md) for details.
 
 ---
 
+## 🔬 Refinement Phase
+
+Before planning, clarify ambiguous requirements:
+
+**Built-in questions by category:**
+- **Scope** - MVP features, deadlines, deferrals
+- **Tech** - Language, integrations, libraries
+- **UX** - Users, platforms, accessibility
+- **Security** - Data protection, compliance, auth
+
+Location: `src/contract/refinement.rs`
+
+---
+
+## 📜 SLSA Provenance
+
+VibeAnvil generates SLSA-style provenance for supply chain security:
+
+```rust
+use crate::build::provenance::Provenance;
+
+let mut prov = Provenance::new(contract_hash, session_id);
+prov.add_dependency("file:///src/main.rs", sha256);
+prov.finish();
+```
+
+**Captures:**
+- Contract hash
+- Build start/end time
+- Session ID
+- Resolved dependencies with SHA-256
+
+---
+
 ## 💖 Support VibeAnvil
 
 <p align="center">
