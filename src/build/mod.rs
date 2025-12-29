@@ -1,6 +1,7 @@
 //! Build execution modes: manual, auto, iterate
 
 pub mod iterate;
+pub mod provenance;
 
 use anyhow::Result;
 use colored::*;

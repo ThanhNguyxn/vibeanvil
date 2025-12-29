@@ -1,6 +1,8 @@
 //! Contract validation, locking, and management
 
+pub mod refinement;
 pub mod schema;
+pub mod templates;
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
