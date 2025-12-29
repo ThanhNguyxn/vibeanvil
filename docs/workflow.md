@@ -6,15 +6,33 @@ Master the VibeAnvil workflow from idea to shipped product.
 
 ## 🔄 Workflow States
 
-```
-┌─────────┐    ┌───────────┐    ┌──────────┐    ┌───────────┐
-│  INIT   │ →  │  INTAKE   │ →  │BLUEPRINT │ →  │ CONTRACT  │
-└─────────┘    └───────────┘    └──────────┘    └───────────┘
-                                                      │
-                                                      ▼
-┌─────────┐    ┌───────────┐    ┌──────────┐    ┌───────────┐
-│ SHIPPED │ ←  │  REVIEW   │ ←  │  BUILD   │ ←  │   PLAN    │
-└─────────┘    └───────────┘    └──────────┘    └───────────┘
+```mermaid
+graph TD
+    %% Styles
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    classDef start fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,rx:5,ry:5;
+    classDef process fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,rx:5,ry:5;
+    classDef success fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,rx:5,ry:5;
+
+    %% Nodes
+    INIT(INIT):::start
+    INTAKE(INTAKE):::process
+    BLUEPRINT(BLUEPRINT):::process
+    CONTRACT(CONTRACT):::process
+    PLAN(PLAN):::process
+    BUILD(BUILD):::process
+    REVIEW(REVIEW):::process
+    SHIPPED(SHIPPED):::success
+
+    %% Edges
+    INIT --> INTAKE
+    INTAKE --> BLUEPRINT
+    BLUEPRINT --> CONTRACT
+    CONTRACT --> PLAN
+    PLAN --> BUILD
+    BUILD --> REVIEW
+    REVIEW -->|Pass| SHIPPED
+    REVIEW -->|Fail| BUILD
 ```
 
 ---

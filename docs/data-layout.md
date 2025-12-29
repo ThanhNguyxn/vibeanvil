@@ -106,45 +106,40 @@ chunks_fts        # FTS5 virtual table for search
 
 ## 🔄 Data Flow Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         USER WORKFLOW                               │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│   init → intake → blueprint → contract lock → build → review → ship │
-│     │       │         │            │           │         │       │  │
-│     ▼       ▼         ▼            ▼           ▼         ▼       ▼  │
-│  state   state    blueprint    contract    session   state   state  │
-│  .json   .json      .md         .lock      evidence  .json   .json  │
-│                                              │                      │
-│                                         audit.jsonl                 │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    %% Styles
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    classDef file fill:#fff9c4,stroke:#fbc02d,stroke-width:1px,rx:0,ry:0;
+    classDef cmd fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,rx:5,ry:5;
+    classDef db fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,rx:5,ry:5;
 
-┌─────────────────────────────────────────────────────────────────────┐
-│                         BRAINPACK FLOW                              │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│   brain ensure          harvest                                     │
-│        │                   │                                        │
-│        ▼                   ▼                                        │
-│   Core BrainPack     GitHub API                                     │
-│   (embedded)          (search)                                      │
-│        │                   │                                        │
-│        └─────────┬─────────┘                                        │
-│                  ▼                                                  │
-│           brainpack.jsonl                                           │
-│                  │                                                  │
-│                  ▼                                                  │
-│           brainpack.sqlite                                          │
-│             (FTS5)                                                  │
-│                  │                                                  │
-│        ┌─────────┼─────────┐                                        │
-│        ▼         ▼         ▼                                        │
-│   brain stats  brain    brain                                       │
-│              search    export                                       │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+    subgraph User_Workflow [User Workflow]
+        direction TB
+        INIT(init):::cmd -->|Creates| STATE[state.json]:::file
+        INTAKE(intake):::cmd -->|Updates| STATE
+        BLUEPRINT(blueprint):::cmd -->|Generates| BP_MD[blueprint.md]:::file
+        LOCK(contract lock):::cmd -->|Creates| LOCKFILE[contract.lock]:::file
+        BUILD(build):::cmd -->|Captures| EVIDENCE[session evidence]:::file
+        EVIDENCE -.-> AUDIT[audit.jsonl]:::file
+        REVIEW(review):::cmd -->|Updates| STATE
+        SHIP(ship):::cmd -->|Updates| STATE
+    end
+
+    subgraph BrainPack_Flow [BrainPack Flow]
+        direction TB
+        ENSURE(brain ensure):::cmd -->|Installs| CORE[Core BrainPack]:::file
+        HARVEST(harvest):::cmd -->|Queries| GITHUB[GitHub API]:::file
+        
+        CORE --> JSONL[brainpack.jsonl]:::db
+        GITHUB --> JSONL
+        
+        JSONL -->|Indexes| SQLITE[(brainpack.sqlite)]:::db
+        
+        SQLITE --> STATS(brain stats):::cmd
+        SQLITE --> SEARCH(brain search):::cmd
+        SQLITE --> EXPORT(brain export):::cmd
+    end
 ```
 
 ---
