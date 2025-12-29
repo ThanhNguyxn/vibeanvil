@@ -6,19 +6,15 @@ Master the VibeAnvil workflow from idea to shipped product.
 
 ## 🔄 Workflow States
 
-```mermaid
-graph LR
-    A[INIT] --> B[INTAKE]
-    B --> C[BLUEPRINT]
-    C --> D[CONTRACT]
-    D --> E[PLAN]
-    E --> F[BUILD]
-    F --> G{REVIEW}
-    G -->|Fail| F
-    G -->|Pass| H[SHIPPED]
-    
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style H fill:#9f9,stroke:#333,stroke-width:2px
+```
+┌─────────┐    ┌───────────┐    ┌──────────┐    ┌───────────┐
+│  INIT   │ →  │  INTAKE   │ →  │BLUEPRINT │ →  │ CONTRACT  │
+└─────────┘    └───────────┘    └──────────┘    └───────────┘
+                                                      │
+                                                      ▼
+┌─────────┐    ┌───────────┐    ┌──────────┐    ┌───────────┐
+│ SHIPPED │ ←  │  REVIEW   │ ←  │  BUILD   │ ←  │   PLAN    │
+└─────────┘    └───────────┘    └──────────┘    └───────────┘
 ```
 
 ---
