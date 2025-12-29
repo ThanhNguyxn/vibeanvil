@@ -49,6 +49,7 @@
 | 🌊 **Vibe Coding** | Smart Context (Repo Map) & Interactive Auto-Commit |
 | 📦 **Context Pack** | Export codebase as single AI-friendly file (XML/MD) |
 | 🔐 **Privacy-First** | Anonymized source IDs, no external URLs stored |
+| 🛡️ **Security Hardened** | Path traversal protection, filename sanitization |
 
 ---
 
