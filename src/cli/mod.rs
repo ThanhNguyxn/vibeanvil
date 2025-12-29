@@ -341,6 +341,14 @@ pub enum BrainCommands {
         /// Maximum results
         #[arg(short = 'n', long, default_value = "10")]
         limit: usize,
+
+        /// Filter by record type (e.g., function, class, doc)
+        #[arg(short = 't', long)]
+        record_type: Option<String>,
+
+        /// Filter by language (e.g., rust, python, typescript)
+        #[arg(short = 'l', long)]
+        language: Option<String>,
     },
 
     /// Export the brain pack

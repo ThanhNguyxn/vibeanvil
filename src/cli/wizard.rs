@@ -113,6 +113,8 @@ async fn handle_action(action: WizardAction) -> Result<()> {
                         command: crate::cli::BrainCommands::Search {
                             query: q,
                             limit: 10,
+                            record_type: None,
+                            language: None,
                         },
                     })
                     .await?;
