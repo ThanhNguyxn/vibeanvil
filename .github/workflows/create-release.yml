@@ -42,13 +42,21 @@ jobs:
           echo "Updated Cargo.toml to version ${{ inputs.version }}"
           grep '^version' Cargo.toml
 
-      - name: Commit and push to main
+      - name: Commit and push release branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b release/v${{ inputs.version }}
           git add Cargo.toml
           git commit -m "chore: bump version to ${{ inputs.version }}"
-          git push origin main
+          git push origin release/v${{ inputs.version }}
+
+      - name: Create and Merge Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN_VIBEANVIL }}
+        run: |
+          gh pr create --title "Release v${{ inputs.version }}" --body "Automated release bump." --base main --head release/v${{ inputs.version }}
+          gh pr merge release/v${{ inputs.version }} --squash --admin --delete-branch
 
       - name: Create and push tag
         run: |
