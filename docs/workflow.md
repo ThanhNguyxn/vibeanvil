@@ -430,6 +430,21 @@ prov.finish();
 
 ---
 
+---
+
+## 📍 Where Data Lives
+
+| Location | Path | Scope |
+|----------|------|-------|
+| Workspace | `.vibeanvil/` (in project) | Per-project |
+| BrainPack (Linux) | `~/.cache/vibeanvil/brainpack/` | User-level |
+| BrainPack (macOS) | `~/Library/Caches/vibeanvil/brainpack/` | User-level |
+| BrainPack (Windows) | `%LOCALAPPDATA%\vibeanvil\brainpack\` | User-level |
+
+See [docs/data-layout.md](data-layout.md) for complete details.
+
+---
+
 ## 💖 Support VibeAnvil
 
 <p align="center">
