@@ -106,45 +106,37 @@ chunks_fts        # FTS5 virtual table for search
 
 ## 🔄 Data Flow Diagram
 
+```mermaid
+graph TD
+    subgraph User_Workflow
+        direction TB
+        INIT[init] -->|Creates| STATE[state.json]
+        INTAKE[intake] -->|Updates| STATE
+        BLUEPRINT[blueprint] -->|Generates| BP_MD[blueprint.md]
+        LOCK[contract lock] -->|Creates| LOCKFILE[contract.lock]
+        BUILD[build] -->|Captures| EVIDENCE[session evidence]
+        EVIDENCE -.-> AUDIT[audit.jsonl]
+        REVIEW[review] -->|Updates| STATE
+        SHIP[ship] -->|Updates| STATE
+    end
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         USER WORKFLOW                                │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│   init → intake → blueprint → contract lock → build → review → ship │
-│     │       │         │            │           │         │       │  │
-│     ▼       ▼         ▼            ▼           ▼         ▼       ▼  │
-│  state   state    blueprint    contract    session   state   state  │
-│  .json   .json      .md         .lock      evidence  .json   .json  │
-│                                              │                       │
-│                                         audit.jsonl                  │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
 
-┌─────────────────────────────────────────────────────────────────────┐
-│                         BRAINPACK FLOW                               │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│   brain ensure          harvest                                      │
-│        │                   │                                         │
-│        ▼                   ▼                                         │
-│   Core BrainPack     GitHub API                                      │
-│   (embedded)          (search)                                       │
-│        │                   │                                         │
-│        └─────────┬─────────┘                                         │
-│                  ▼                                                   │
-│           brainpack.jsonl                                            │
-│                  │                                                   │
-│                  ▼                                                   │
-│           brainpack.sqlite                                           │
-│             (FTS5)                                                   │
-│                  │                                                   │
-│        ┌─────────┼─────────┐                                         │
-│        ▼         ▼         ▼                                         │
-│   brain stats  brain    brain                                        │
-│              search    export                                        │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph BrainPack_Flow
+        direction TB
+        ENSURE[brain ensure] -->|Installs| CORE[Core BrainPack]
+        HARVEST[harvest] -->|Queries| GITHUB[GitHub API]
+        
+        CORE --> JSONL[brainpack.jsonl]
+        GITHUB --> JSONL
+        
+        JSONL -->|Indexes| SQLITE[brainpack.sqlite]
+        
+        SQLITE --> STATS[brain stats]
+        SQLITE --> SEARCH[brain search]
+        SQLITE --> EXPORT[brain export]
+    end
 ```
 
 ---
