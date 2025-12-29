@@ -24,27 +24,20 @@ static PATTERNS: LazyLock<Vec<(&'static str, Regex)>> = LazyLock::new(|| {
         // AWS
         ("aws_access_key", Regex::new(r"AKIA[0-9A-Z]{16}").unwrap()),
         ("aws_secret_key", Regex::new(r#"(?i)aws[_\-]?secret[_\-]?access[_\-]?key['\"]?\s*[:=]\s*['\"]?([A-Za-z0-9/+=]{40})"#).unwrap()),
-        
         // GitHub
         ("github_token", Regex::new(r"gh[pousr]_[A-Za-z0-9_]{36,}").unwrap()),
         ("github_pat", Regex::new(r"github_pat_[A-Za-z0-9_]{22,}").unwrap()),
-        
         // Generic API Keys
         ("api_key", Regex::new(r#"(?i)(api[_\-]?key|apikey)['\"]?\s*[:=]\s*['\"]?([a-zA-Z0-9\-_]{20,})"#).unwrap()),
         ("secret_key", Regex::new(r#"(?i)(secret[_\-]?key|secretkey)['\"]?\s*[:=]\s*['\"]?([a-zA-Z0-9\-_]{20,})"#).unwrap()),
-        
         // Passwords
         ("password", Regex::new(r#"(?i)(password|passwd|pwd)['\"]?\s*[:=]\s*['\"]?([^\s'"]{8,})"#).unwrap()),
-        
         // Private Keys
         ("private_key", Regex::new(r"-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----").unwrap()),
-        
         // JWT
         ("jwt", Regex::new(r"eyJ[A-Za-z0-9\-_=]+\.eyJ[A-Za-z0-9\-_=]+\.[A-Za-z0-9\-_.+/=]+").unwrap()),
-        
         // Slack
         ("slack_token", Regex::new(r"xox[baprs]-[0-9]{10,13}-[0-9]{10,13}[a-zA-Z0-9-]*").unwrap()),
-        
         // Database URLs
         ("database_url", Regex::new(r#"(?i)(postgres|mysql|mongodb|redis)://[^\s'"]+:[^\s'"]+@[^\s'"]+"#).unwrap()),
     ]

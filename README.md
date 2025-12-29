@@ -50,6 +50,7 @@
 | 📦 **Context Pack** | Export codebase as single AI-friendly file (XML/MD) |
 | 🔐 **Privacy-First** | Anonymized source IDs, no external URLs stored |
 | 🛡️ **Security Hardened** | Path traversal protection, filename sanitization |
+| 🔍 **Secret Scanner** | Auto-detect AWS keys, GitHub tokens, passwords |
 | ↩️ **Undo Command** | Instantly revert last AI change with `vibeanvil undo` |
 
 ---
