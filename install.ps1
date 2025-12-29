@@ -7,12 +7,13 @@ $Repo = "ThanhNguyxn/vibeanvil"
 $InstallDir = "$HOME\.local\bin"
 $Version = "latest"
 
-# Colors
-$Blue = "`e[34m"
-$Green = "`e[32m"
-$Yellow = "`e[33m"
-$Red = "`e[31m"
-$Reset = "`e[0m"
+# Colors (using [char]27 for PowerShell 5 compatibility)
+$ESC = [char]27
+$Blue = "$ESC[34m"
+$Green = "$ESC[32m"
+$Yellow = "$ESC[33m"
+$Red = "$ESC[31m"
+$Reset = "$ESC[0m"
 
 function Write-InfoMessage($Message) { Write-Host "${Blue}→${Reset} $Message" }
 function Write-SuccessMessage($Message) { Write-Host "${Green}✓${Reset} $Message" }
