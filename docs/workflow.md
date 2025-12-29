@@ -23,26 +23,24 @@ Master the VibeAnvil workflow from idea to shipped product.
 
 **Purpose:** Set up the VibeAnvil workspace
 
+**Command:**
 ```bash
-vibeanvil init
+vibeanvil init [--force]
 ```
+
+**Prerequisites:** None
 
 **What happens:**
-- Creates `.vibeanvil/` directory
-- Initializes state machine
-- Sets up audit logging
-- Prepares evidence collection
+- Creates `.vibeanvil/` directory structure
+- Initializes `state.json` to `Init` state
+- Sets up audit logging in `.vibeanvil/logs/`
+- Prepares evidence collection in `.vibeanvil/sessions/`
+- Creates `.vibeanvil/.gitignore`
 
-**Files created:**
-```
-.vibeanvil/
-├── state.json           # Current state
-├── logs/
-│   └── audit.jsonl      # Audit log
-└── sessions/
-    └── <session_id>/
-        └── evidence/    # Evidence per session
-```
+**Outputs:**
+- `.vibeanvil/` directory
+- `.vibeanvil/state.json`
+- `.vibeanvil/logs/audit.jsonl`
 
 > **Note:** BrainPack data is stored in your OS cache directory. Run `vibeanvil brain stats` to see the location.
 
@@ -52,9 +50,17 @@ vibeanvil init
 
 **Purpose:** Capture requirements and project goals
 
+**Command:**
 ```bash
 vibeanvil intake -m "Your project requirements here"
 ```
+
+**Prerequisites:** State must be `Init`
+
+**What happens:**
+- Updates `state.json` to `IntakeCaptured`
+- Records requirements in state
+- Logs intake event to audit trail
 
 **Best practices:**
 
@@ -85,6 +91,7 @@ vibeanvil intake -m "Build an app"
 
 **Purpose:** Create a structured plan from intake
 
+**Command:**
 ```bash
 # Auto-generate from intake
 vibeanvil blueprint --auto
@@ -92,6 +99,16 @@ vibeanvil blueprint --auto
 # Or manually create
 vibeanvil blueprint
 ```
+
+**Prerequisites:** State must be `IntakeCaptured`
+
+**What happens:**
+- Updates `state.json` to `BlueprintGenerated`
+- Creates `blueprint.md` from intake requirements
+- Uses AI to structure the plan (if --auto)
+
+**Outputs:**
+- `blueprint.md` file
 
 **Blueprint structure:**
 ```markdown
@@ -121,6 +138,17 @@ vibeanvil blueprint
 ## 📜 State: CONTRACT
 
 **Purpose:** Lock down the specifications
+
+**Prerequisites:** State must be `BlueprintGenerated`
+
+**What happens:**
+- `create`: Generates `contract.json` from blueprint
+- `validate`: Checks contract schema and requirements
+- `lock`: Hashes contract, updates state to `ContractLocked`
+
+**Outputs:**
+- `contract.json` (The Source of Truth)
+- `state.json` updated with `spec_hash`
 
 ### Create Contract
 ```bash
@@ -158,12 +186,18 @@ vibeanvil plan --provider claude-code
 vibeanvil plan --provider human
 ```
 
+**Prerequisites:** State must be `ContractLocked`
+
 **What happens:**
 - 🧠 **Smart Context**: Scans your codebase to create a "Repository Map" (types, functions, signatures).
 - AI analyzes contract & repo map.
 - Generates step-by-step implementation.
 - Creates task breakdown.
 - Estimates complexity.
+- Updates `state.json` to `Planned`.
+
+**Outputs:**
+- `implementation_plan.md`
 
 **Output:**
 ```
@@ -182,6 +216,12 @@ vibeanvil plan --provider human
 ## 🔨 State: BUILD
 
 **Purpose:** Execute the implementation
+
+**Prerequisites:** State must be `Planned`
+
+**Outputs:**
+- Source code changes
+- `state.json` updated to `Built` (on complete)
 
 ### Manual Build
 ```bash
@@ -263,6 +303,15 @@ VibeAnvil supports multiple AI providers. See [PROVIDERS.md](PROVIDERS.md) for f
 vibeanvil review start
 ```
 
+**Prerequisites:** State must be `Built`
+
+**What happens:**
+- Updates state to `Reviewed` (initially)
+- Displays summary of changes and evidence
+
+**Outputs:**
+- Review status in `state.json`
+
 ### Check Changes
 Review the generated code, tests, and evidence.
 
@@ -287,11 +336,18 @@ On fail, you return to BUILD state to fix issues.
 vibeanvil ship --tag v1.0.0 -m "Initial release"
 ```
 
+**Prerequisites:** State must be `Reviewed` (passed)
+
 **What happens:**
-- Creates final snapshot
+- Creates final snapshot in `.vibeanvil/sessions/`
 - Generates ship manifest
 - Archives evidence
 - Writes audit entry
+- Updates state to `Shipped`
+
+**Outputs:**
+- `ship_manifest.json`
+- Final snapshot directory
 
 **Output:**
 ```
