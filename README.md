@@ -52,6 +52,7 @@
 | 🛡️ **Security Hardened** | Path traversal protection, filename sanitization |
 | 🔍 **Secret Scanner** | Auto-detect AWS keys, GitHub tokens, passwords |
 | ↩️ **Undo Command** | Instantly revert last AI change with `vibeanvil undo` |
+| 🛡️ **Guardrails** | Automated risk assessment (A/B/C) and approval gates |
 
 ---
 

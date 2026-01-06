@@ -37,10 +37,15 @@ Created in your project directory when you run `vibeanvil init`.
 ├── sessions/               # Build sessions
 │   └── <session-id>/       # Session directory
 │       ├── session.json    # Session metadata
-│       └── evidence/       # Captured evidence
-│           ├── diff.patch  # Git diffs
-│           ├── test.log    # Test output
-│           └── lint.log    # Lint output
+│       ├── evidence/       # Captured evidence
+│       │   ├── diff.patch  # Git diffs
+│       │   ├── test.log    # Test output
+│       │   └── lint.log    # Lint output
+│       └── capsules/       # Guardrails change capsules
+│           └── <capsule-id>/
+│               ├── meta.json   # Risk level, reasons, approval status
+│               ├── diff.patch  # Change diff
+│               └── approve.json # Approval token (optional)
 │
 └── cache/                  # Local cache
     └── ...                 # Temporary files
@@ -50,11 +55,12 @@ Created in your project directory when you run `vibeanvil init`.
 
 | File | Description |
 |------|-------------|
-| `state.json` | Tracks current workflow state (Init → Shipped) |
+| `state.json` | Tracks current workflow state (Init → Shipped) + guardrails config |
 | `contracts/contract.json` | Your project contract with requirements |
 | `contracts/contract.lock` | Locked contract - cannot be modified |
 | `logs/audit.jsonl` | JSONL log of all commands and events |
 | `sessions/<id>/evidence/` | Evidence captured during builds |
+| `sessions/<id>/capsules/` | Guardrails change capsules with diffs and approvals |
 
 ### What Gets Git-Ignored
 

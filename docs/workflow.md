@@ -297,6 +297,28 @@ Loop that:
 ✓ Build complete after 3 iterations
 ```
 
+### 🛡️ Guardrails (Change Gate)
+
+When Guardrails are enabled, each AI-generated change is analyzed and gated:
+
+| Risk Level | Action |
+|------------|--------|
+| **A** (Safe) | Auto-approved (docs, comments) |
+| **B** (Logic) | Requires approval (code changes) |
+| **C** (High-Impact) | Requires approval + impact analysis (API, deps, security) |
+
+**Enable guardrails** in `state.json`:
+```json
+{
+  "guardrails": {
+    "enabled": true,
+    "mode": "normal"
+  }
+}
+```
+
+See [docs/guardrails.md](guardrails.md) for configuration details.
+
 ---
 
 ## 🤖 Choosing a Provider

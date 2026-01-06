@@ -26,6 +26,7 @@ mod provider;
 mod security;
 mod state;
 mod workspace;
+mod guardrails;
 
 use cli::{Cli, Commands};
 
