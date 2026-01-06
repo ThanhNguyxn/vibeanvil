@@ -37,7 +37,8 @@ impl RiskClassifier {
             public_api_patterns: vec![
                 Regex::new(r"^\+\s*pub\s+(fn|struct|enum|trait|type|const|static)\s+").unwrap(),
                 Regex::new(r"^\-\s*pub\s+(fn|struct|enum|trait|type|const|static)\s+").unwrap(),
-                Regex::new(r"^\+\s*export\s+(default\s+)?(function|class|const|let|var)\s+").unwrap(),
+                Regex::new(r"^\+\s*export\s+(default\s+)?(function|class|const|let|var)\s+")
+                    .unwrap(),
                 Regex::new(r"^\+\s*module\.exports").unwrap(),
             ],
             security_patterns: vec![
@@ -150,7 +151,9 @@ impl RiskClassifier {
         let level_a_files = ["readme", "changelog", "license", "contributing", "authors"];
 
         if level_a_exts.contains(&ext.to_lowercase().as_str())
-            || level_a_files.iter().any(|f| filename.to_lowercase().starts_with(f))
+            || level_a_files
+                .iter()
+                .any(|f| filename.to_lowercase().starts_with(f))
         {
             reasons.push(format!("Documentation file: {}", filename));
             return (RiskLevel::A, reasons, false);
@@ -264,10 +267,14 @@ mod tests {
     #[test]
     fn test_classify_security_pattern() {
         let classifier = RiskClassifier::new();
-        let diff = "--- a/src/utils.rs\n+++ b/src/utils.rs\n@@ -1 +1 @@\n+let api_key = \"secret\";";
+        let diff =
+            "--- a/src/utils.rs\n+++ b/src/utils.rs\n@@ -1 +1 @@\n+let api_key = \"secret\";";
         let result = classifier.classify(diff);
         assert_eq!(result.risk, RiskLevel::C);
-        assert!(result.reasons.iter().any(|r| r.contains("Security-sensitive")));
+        assert!(result
+            .reasons
+            .iter()
+            .any(|r| r.contains("Security-sensitive")));
     }
 
     #[test]

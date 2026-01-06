@@ -4,12 +4,12 @@ use anyhow::Result;
 use std::process::Command;
 
 use super::{BuildConfig, BuildResult};
+use crate::audit::AuditLogger;
 use crate::evidence::EvidenceCollector;
 use crate::guardrails::capsule::{generate_capsule_id, Capsule, CapsuleMeta};
 use crate::guardrails::classifier::RiskClassifier;
 use crate::guardrails::gate::ApprovalGate;
 use crate::provider::{get_provider, Context};
-use crate::audit::AuditLogger;
 use crate::workspace;
 
 /// Iteration result
@@ -283,9 +283,7 @@ impl IterateBuild {
         }
 
         // Get current git diff (unstaged changes)
-        let diff_output = Command::new("git")
-            .args(["diff", "--no-color"])
-            .output()?;
+        let diff_output = Command::new("git").args(["diff", "--no-color"]).output()?;
 
         let diff = String::from_utf8_lossy(&diff_output.stdout).to_string();
         if diff.trim().is_empty() {

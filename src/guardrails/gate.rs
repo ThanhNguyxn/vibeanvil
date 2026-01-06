@@ -51,9 +51,7 @@ impl<'a> ApprovalGate<'a> {
 
         // Check if this level can auto-approve
         if !self.requires_approval(risk) {
-            capsule
-                .meta
-                .approve("system", ApprovalMethod::Auto);
+            capsule.meta.approve("system", ApprovalMethod::Auto);
             self.log_approval(capsule, "auto").await?;
             return Ok(true);
         }
@@ -149,7 +147,11 @@ impl<'a> ApprovalGate<'a> {
             println!("  {}", colored_line);
 
             if i == 29 && capsule.diff.lines().count() > 30 {
-                println!("  {} (showing 30/{} lines)", "...".dimmed(), capsule.diff.lines().count());
+                println!(
+                    "  {} (showing 30/{} lines)",
+                    "...".dimmed(),
+                    capsule.diff.lines().count()
+                );
             }
         }
         println!("  {}", "─".repeat(60).dimmed());
@@ -175,10 +177,7 @@ impl<'a> ApprovalGate<'a> {
         // Level C requires impact analysis
         if capsule.meta.risk == RiskLevel::C && self.config.require_impact_for_c {
             if capsule.meta.impact.is_none() {
-                println!(
-                    "  {} Level C requires impact analysis.",
-                    "⚠".yellow()
-                );
+                println!("  {} Level C requires impact analysis.", "⚠".yellow());
                 println!("  Please provide impact analysis:");
                 print!("  > ");
                 io::stdout().flush()?;
@@ -196,10 +195,7 @@ impl<'a> ApprovalGate<'a> {
 
         // Ask for approval
         println!();
-        print!(
-            "  {} Apply this change? [y/N]: ",
-            "→".cyan()
-        );
+        print!("  {} Apply this change? [y/N]: ", "→".cyan());
         io::stdout().flush()?;
 
         let mut input = String::new();
@@ -372,7 +368,10 @@ mod tests {
         // Should auto-approve without interaction
         let result = gate.process(&mut capsule).await.unwrap();
         assert!(result);
-        assert_eq!(capsule.meta.approval_status, crate::guardrails::capsule::ApprovalStatus::Approved);
+        assert_eq!(
+            capsule.meta.approval_status,
+            crate::guardrails::capsule::ApprovalStatus::Approved
+        );
     }
 
     #[tokio::test]
@@ -401,14 +400,20 @@ mod tests {
             denial_reason: None,
         };
         let token_json = serde_json::to_string(&token).unwrap();
-        tokio::fs::write(capsule_dir.join("approve.json"), token_json).await.unwrap();
+        tokio::fs::write(capsule_dir.join("approve.json"), token_json)
+            .await
+            .unwrap();
 
         // Should approve via token
         let result = gate.process(&mut capsule).await.unwrap();
         assert!(result);
-        assert_eq!(capsule.meta.approval_status, crate::guardrails::capsule::ApprovalStatus::Approved);
-        
+        assert_eq!(
+            capsule.meta.approval_status,
+            crate::guardrails::capsule::ApprovalStatus::Approved
+        );
+
         // Cleanup
-        let _ = tokio::fs::remove_dir_all(crate::guardrails::capsule::capsules_path(session_id)).await;
+        let _ =
+            tokio::fs::remove_dir_all(crate::guardrails::capsule::capsules_path(session_id)).await;
     }
 }

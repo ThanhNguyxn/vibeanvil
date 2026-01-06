@@ -186,8 +186,8 @@ impl Capsule {
         fs::create_dir_all(&path).await?;
 
         // Save meta.json
-        let meta_json = serde_json::to_string_pretty(&self.meta)
-            .context("Failed to serialize capsule meta")?;
+        let meta_json =
+            serde_json::to_string_pretty(&self.meta).context("Failed to serialize capsule meta")?;
         fs::write(path.join("meta.json"), meta_json).await?;
 
         // Save patch.diff
@@ -269,13 +269,8 @@ mod tests {
 
     #[test]
     fn test_capsule_approval() {
-        let mut meta = CapsuleMeta::new(
-            "test-123".to_string(),
-            RiskLevel::A,
-            vec![],
-            vec![],
-            false,
-        );
+        let mut meta =
+            CapsuleMeta::new("test-123".to_string(), RiskLevel::A, vec![], vec![], false);
 
         meta.approve("user", ApprovalMethod::Interactive);
 
