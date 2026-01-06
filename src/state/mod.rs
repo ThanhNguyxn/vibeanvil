@@ -135,6 +135,9 @@ pub struct StateData {
     pub updated_at: chrono::DateTime<chrono::Utc>,
     /// Timestamp of creation
     pub created_at: chrono::DateTime<chrono::Utc>,
+    /// Guardrails configuration
+    #[serde(default)]
+    pub guardrails: crate::guardrails::GuardrailsConfig,
 }
 
 impl Default for StateData {
@@ -149,6 +152,7 @@ impl Default for StateData {
             history: vec![],
             updated_at: now,
             created_at: now,
+            guardrails: crate::guardrails::GuardrailsConfig::default(),
         }
     }
 }
