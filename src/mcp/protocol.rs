@@ -273,10 +273,10 @@ pub enum Content {
     #[serde(rename = "text")]
     Text { text: String },
     #[serde(rename = "image")]
-    Image { 
-        data: String, 
+    Image {
+        data: String,
         #[serde(rename = "mimeType")]
-        mime_type: String 
+        mime_type: String,
     },
     #[serde(rename = "resource")]
     Resource { resource: EmbeddedResource },
@@ -284,7 +284,9 @@ pub enum Content {
 
 impl Content {
     pub fn text(s: &str) -> Self {
-        Content::Text { text: s.to_string() }
+        Content::Text {
+            text: s.to_string(),
+        }
     }
 }
 

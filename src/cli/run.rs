@@ -35,11 +35,7 @@ impl RunResult {
 }
 
 /// Run a command and capture output
-pub async fn run_command(
-    cmd: &str,
-    capture: bool,
-    share_with_ai: bool,
-) -> Result<RunResult> {
+pub async fn run_command(cmd: &str, capture: bool, share_with_ai: bool) -> Result<RunResult> {
     use crate::cli::style;
 
     style::step(&format!("Running: {}", cmd.cyan()));
@@ -220,8 +216,7 @@ pub async fn run_tests(test_cmd: Option<&str>, fix: bool) -> Result<RunResult> {
         style::step("Tests failed. Attempting auto-fix...");
 
         let state = workspace::load_state().await?;
-        let provider =
-            get_provider("claude-code").or_else(|_| get_provider("mock"))?;
+        let provider = get_provider("claude-code").or_else(|_| get_provider("mock"))?;
 
         let context = crate::provider::Context {
             working_dir: std::env::current_dir()?,
@@ -273,8 +268,7 @@ pub async fn run_lint(lint_cmd: Option<&str>, fix: bool) -> Result<RunResult> {
         style::step("Lint errors found. Attempting auto-fix...");
 
         let state = workspace::load_state().await?;
-        let provider =
-            get_provider("claude-code").or_else(|_| get_provider("mock"))?;
+        let provider = get_provider("claude-code").or_else(|_| get_provider("mock"))?;
 
         let context = crate::provider::Context {
             working_dir: std::env::current_dir()?,

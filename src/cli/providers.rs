@@ -198,7 +198,7 @@ async fn run_matrix() -> Result<()> {
     println!();
 
     let matrix = CapabilityMatrix::build_default();
-    
+
     // Show by tier
     for tier in 1..=4 {
         let tier_name = match tier {
@@ -210,11 +210,11 @@ async fn run_matrix() -> Result<()> {
         };
         println!("{}", tier_name.white().bold());
         println!();
-        
+
         let providers = matrix.by_tier(tier);
         for p in providers {
             let mut caps: Vec<String> = Vec::new();
-            
+
             // Show key capabilities
             use crate::provider::Capability;
             for cap in [
@@ -228,13 +228,13 @@ async fn run_matrix() -> Result<()> {
                     caps.push(format!("{}:{}", cap.short_code(), score));
                 }
             }
-            
+
             let caps_str = if caps.is_empty() {
                 "".to_string()
             } else {
                 format!("[{}]", caps.join(", "))
             };
-            
+
             let tags = p.tags.join(", ");
             println!(
                 "  {} {} {}",
@@ -275,16 +275,16 @@ async fn run_recommend(task: &str) -> Result<()> {
 
     let selector = ProviderSelector::new();
     let task_type = TaskType::infer(task);
-    
+
     println!("{}: {}", "Task".white().bold(), task.cyan());
     println!("{}: {:?}", "Detected Type".white().bold(), task_type);
     println!();
 
     let recommendations = selector.recommend(task, 5);
-    
+
     println!("{}", "Top Recommendations:".white().bold());
     println!();
-    
+
     for (i, rec) in recommendations.iter().enumerate() {
         let rank = match i {
             0 => "🥇",
@@ -292,11 +292,13 @@ async fn run_recommend(task: &str) -> Result<()> {
             2 => "🥉",
             _ => "  ",
         };
-        
+
         println!("{} {} (Tier {})", rank, rec.name.cyan().bold(), rec.tier);
         println!("   {}", rec.reason.dimmed());
-        
-        let caps: Vec<String> = rec.capabilities.iter()
+
+        let caps: Vec<String> = rec
+            .capabilities
+            .iter()
             .map(|(name, score)| format!("{}: {}/10", name, score))
             .collect();
         println!("   {}", caps.join(", ").dimmed());
@@ -308,7 +310,11 @@ async fn run_recommend(task: &str) -> Result<()> {
     println!(
         "{} {}",
         "Usage:".yellow(),
-        format!("vibeanvil build iterate --provider {}", recommendations[0].name).white()
+        format!(
+            "vibeanvil build iterate --provider {}",
+            recommendations[0].name
+        )
+        .white()
     );
     println!();
 
@@ -333,7 +339,7 @@ async fn run_compare(providers: &[String]) -> Result<()> {
     println!();
 
     let matrix = CapabilityMatrix::build_default();
-    
+
     use crate::provider::Capability;
     let key_caps = [
         Capability::CodeGeneration,

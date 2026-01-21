@@ -7,7 +7,7 @@ use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 
 use tracing::{debug, error, trace};
 
-use super::protocol::{JsonRpcRequest, JsonRpcResponse, JsonRpcNotification};
+use super::protocol::{JsonRpcNotification, JsonRpcRequest, JsonRpcResponse};
 
 /// STDIO Transport for MCP
 pub struct StdioTransport {
@@ -20,10 +20,7 @@ impl StdioTransport {
     }
 
     /// Run the transport, processing messages from stdin and sending to stdout
-    pub async fn run<F, Fut>(
-        &self,
-        mut handler: F,
-    ) -> anyhow::Result<()>
+    pub async fn run<F, Fut>(&self, mut handler: F) -> anyhow::Result<()>
     where
         F: FnMut(JsonRpcRequest) -> Fut,
         Fut: std::future::Future<Output = Option<JsonRpcResponse>>,
@@ -57,10 +54,8 @@ impl StdioTransport {
                 }
                 Err(e) => {
                     error!("Failed to parse JSON-RPC request: {}", e);
-                    let error_response = JsonRpcResponse::error(
-                        None,
-                        super::protocol::JsonRpcError::parse_error(),
-                    );
+                    let error_response =
+                        JsonRpcResponse::error(None, super::protocol::JsonRpcError::parse_error());
                     let response_json = serde_json::to_string(&error_response)?;
                     stdout.write_all(response_json.as_bytes()).await?;
                     stdout.write_all(b"\n").await?;
@@ -132,10 +127,8 @@ impl SyncStdioTransport {
                 }
                 Err(e) => {
                     error!("Failed to parse JSON-RPC request: {}", e);
-                    let error_response = JsonRpcResponse::error(
-                        None,
-                        super::protocol::JsonRpcError::parse_error(),
-                    );
+                    let error_response =
+                        JsonRpcResponse::error(None, super::protocol::JsonRpcError::parse_error());
                     let response_json = serde_json::to_string(&error_response)?;
                     writeln!(stdout, "{}", response_json)?;
                     stdout.flush()?;

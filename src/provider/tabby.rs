@@ -102,11 +102,7 @@ impl Provider for TabbyProvider {
         if !response.status().is_success() {
             let status = response.status();
             let error_text = response.text().await.unwrap_or_default();
-            return Err(anyhow!(
-                "Tabby API error ({}): {}",
-                status,
-                error_text
-            ));
+            return Err(anyhow!("Tabby API error ({}): {}", status, error_text));
         }
 
         let json: serde_json::Value = response

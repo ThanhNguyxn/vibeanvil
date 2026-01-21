@@ -86,13 +86,13 @@ pub fn get_provider(name: &str) -> Result<Box<dyn Provider>> {
     match name {
         // Claude providers
         "claude-code" | "claude" => Ok(Box::new(claude_code::ClaudeCodeProvider::new())),
-        
+
         // IDE AI assistants (with CLI)
         "cursor" => Ok(Box::new(cursor::CursorProvider::new())),
         "cline" => Ok(Box::new(cline::ClineProvider::new())),
         "continue" | "cn" => Ok(Box::new(continue_dev::ContinueProvider::new())),
         "cody" => Ok(Box::new(cody::CodyProvider::new())),
-        
+
         // IDE AI assistants (prompt-based, no CLI)
         "copilot" | "github-copilot" => Ok(Box::new(copilot::CopilotProvider::new())),
         "zed" | "zed-ai" => Ok(Box::new(zed::ZedProvider::new())),
@@ -101,57 +101,63 @@ pub fn get_provider(name: &str) -> Result<Box<dyn Provider>> {
         "jetbrains" | "intellij" | "idea" => Ok(Box::new(jetbrains::JetbrainsProvider::new())),
         "supermaven" => Ok(Box::new(supermaven::SupermavenProvider::new())),
         "gemini-assist" | "gemini-code" => Ok(Box::new(gemini::GeminiProvider::new())),
-        
+
         // Terminal AI agents
         "aider" => Ok(Box::new(aider::AiderProvider::new())),
         "opencode" | "crush" => Ok(Box::new(opencode::OpenCodeProvider::new())),
         "goose" => Ok(Box::new(goose::GooseProvider::new())),
-        
+
         // Cloud AI assistants
         "kiro" | "amazon-q" => Ok(Box::new(kiro::KiroProvider::new())),
-        
+
         // Self-hosted AI
         "tabby" => Ok(Box::new(tabby::TabbyProvider::new())),
-        
+
         // Local AI providers - Ollama with dynamic model selection
         "ollama" => Ok(Box::new(ollama::OllamaProvider::new())),
-        
+
         // Ollama model shortcuts (no version hardcoding)
         // General purpose
         s if s.starts_with("ollama/") => {
             let model = s.strip_prefix("ollama/").unwrap();
             Ok(Box::new(ollama::OllamaProvider::with_model(model)))
         }
-        
+
         // Tabby with specific model
         s if s.starts_with("tabby/") => {
             let model = s.strip_prefix("tabby/").unwrap();
             Ok(Box::new(tabby::TabbyProvider::with_model(model)))
         }
-        
+
         // Popular model shortcuts (Ollama)
         "llama" | "llama3" => Ok(Box::new(ollama::OllamaProvider::with_model("llama3.2"))),
         "codellama" => Ok(Box::new(ollama::OllamaProvider::with_model("codellama"))),
-        "deepseek" | "deepseek-coder" => Ok(Box::new(ollama::OllamaProvider::with_model("deepseek-coder-v2"))),
-        "qwen" | "qwen2" => Ok(Box::new(ollama::OllamaProvider::with_model("qwen2.5-coder"))),
+        "deepseek" | "deepseek-coder" => Ok(Box::new(ollama::OllamaProvider::with_model(
+            "deepseek-coder-v2",
+        ))),
+        "qwen" | "qwen2" => Ok(Box::new(ollama::OllamaProvider::with_model(
+            "qwen2.5-coder",
+        ))),
         "mistral" => Ok(Box::new(ollama::OllamaProvider::with_model("mistral"))),
         "mixtral" => Ok(Box::new(ollama::OllamaProvider::with_model("mixtral"))),
         "phi" | "phi3" => Ok(Box::new(ollama::OllamaProvider::with_model("phi3"))),
         "gemma" | "gemma2" => Ok(Box::new(ollama::OllamaProvider::with_model("gemma2"))),
-        "starcoder" | "starcoder2" => Ok(Box::new(ollama::OllamaProvider::with_model("starcoder2"))),
+        "starcoder" | "starcoder2" => {
+            Ok(Box::new(ollama::OllamaProvider::with_model("starcoder2")))
+        }
         "codegemma" => Ok(Box::new(ollama::OllamaProvider::with_model("codegemma"))),
         "wizardcoder" => Ok(Box::new(ollama::OllamaProvider::with_model("wizardcoder"))),
         "codestral" => Ok(Box::new(ollama::OllamaProvider::with_model("codestral"))),
         "granite-code" => Ok(Box::new(ollama::OllamaProvider::with_model("granite-code"))),
         "yi-coder" => Ok(Box::new(ollama::OllamaProvider::with_model("yi-coder"))),
         "stable-code" => Ok(Box::new(ollama::OllamaProvider::with_model("stable-code"))),
-        
+
         // Generic providers
         "human" => Ok(Box::new(human::HumanProvider::new())),
         "command" | "cmd" => Ok(Box::new(command::CommandProvider::new())),
         "patch" | "diff" => Ok(Box::new(patch::PatchProvider::new())),
         "mock" => Ok(Box::new(MockProvider)),
-        
+
         _ => Err(anyhow!(
             "Unknown provider: '{}'\n\n\
              Available providers:\n\n\

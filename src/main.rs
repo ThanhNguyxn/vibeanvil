@@ -29,7 +29,7 @@ mod security;
 mod state;
 mod workspace;
 
-use cli::{Cli, Commands, ChatModeArg};
+use cli::{ChatModeArg, Cli, Commands};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -82,20 +82,29 @@ async fn main() -> Result<()> {
                 }
                 Some("list") | None => cli::providers::ProviderSubcommand::List,
                 Some(other) => {
-                    eprintln!("Unknown subcommand: {}. Use list, matrix, recommend, or compare.", other);
+                    eprintln!(
+                        "Unknown subcommand: {}. Use list, matrix, recommend, or compare.",
+                        other
+                    );
                     std::process::exit(1);
                 }
             };
             cli::providers::run_subcommand(cmd).await
-        },
+        }
         Commands::Undo { dry_run } => cli::undo::run(dry_run).await,
 
         // New workflow commands
-        Commands::Constitution { guidelines, view, provider } => {
-            cli::constitution::run_constitution(&provider, guidelines.as_deref(), view).await
-        }
+        Commands::Constitution {
+            guidelines,
+            view,
+            provider,
+        } => cli::constitution::run_constitution(&provider, guidelines.as_deref(), view).await,
         Commands::Clarify { provider } => cli::clarify::run_clarify(&provider).await,
-        Commands::Tasks { provider, regenerate, done } => {
+        Commands::Tasks {
+            provider,
+            regenerate,
+            done,
+        } => {
             if let Some(task_id) = done {
                 cli::tasks::complete_task(&task_id).await
             } else {
@@ -103,20 +112,27 @@ async fn main() -> Result<()> {
             }
         }
         Commands::Analyze { provider } => cli::analyze::run_analyze(&provider).await,
-        Commands::Implement { provider, task, all, dry_run } => {
-            cli::implement::run_implement(&provider, task.as_deref(), all, dry_run).await
-        }
-        Commands::Run { command, capture, share } => {
-            cli::run::run_command(&command, capture, share).await.map(|_| ())
-        }
-        Commands::Test { cmd, fix } => {
-            cli::run::run_tests(cmd.as_deref(), fix).await.map(|_| ())
-        }
-        Commands::Lint { cmd, fix } => {
-            cli::run::run_lint(cmd.as_deref(), fix).await.map(|_| ())
-        }
+        Commands::Implement {
+            provider,
+            task,
+            all,
+            dry_run,
+        } => cli::implement::run_implement(&provider, task.as_deref(), all, dry_run).await,
+        Commands::Run {
+            command,
+            capture,
+            share,
+        } => cli::run::run_command(&command, capture, share)
+            .await
+            .map(|_| ()),
+        Commands::Test { cmd, fix } => cli::run::run_tests(cmd.as_deref(), fix).await.map(|_| ()),
+        Commands::Lint { cmd, fix } => cli::run::run_lint(cmd.as_deref(), fix).await.map(|_| ()),
         Commands::Map { max_tokens } => cli::repomap::run_map(max_tokens).await,
-        Commands::Chat { mode, message, provider } => {
+        Commands::Chat {
+            mode,
+            message,
+            provider,
+        } => {
             let chat_mode = match mode {
                 ChatModeArg::Ask => cli::mode::ChatMode::Ask,
                 ChatModeArg::Code => cli::mode::ChatMode::Code,

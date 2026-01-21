@@ -3,8 +3,8 @@
 //! Implements Streamable HTTP transport as per MCP specification 2025-06-18.
 //! Supports both standard HTTP POST/GET and Server-Sent Events (SSE) streaming.
 
-use std::sync::Arc;
 use anyhow::Result;
+use std::sync::Arc;
 use tracing::info;
 
 use super::protocol::*;
@@ -58,16 +58,19 @@ impl Default for HttpTransportState {
 }
 
 /// Start HTTP/SSE MCP server
-/// 
+///
 /// Uses axum for HTTP server with SSE support.
 /// Endpoint: POST/GET /mcp
 pub async fn start_http_server(config: HttpTransportConfig) -> Result<()> {
-    info!("Starting MCP HTTP Server on {}:{}", config.host, config.port);
-    
+    info!(
+        "Starting MCP HTTP Server on {}:{}",
+        config.host, config.port
+    );
+
     // Note: This is a placeholder implementation.
     // Full implementation requires axum dependency.
     // For now, we provide the structure and types.
-    
+
     println!("🌐 MCP HTTP Server");
     println!("   Endpoint: http://{}:{}/mcp", config.host, config.port);
     println!();
@@ -77,36 +80,34 @@ pub async fn start_http_server(config: HttpTransportConfig) -> Result<()> {
     println!();
     println!("   For remote/HTTP access, configure with:");
     println!("   vibeanvil mcp serve --http --port {}", config.port);
-    
+
     // Future: Full axum implementation
     // Currently most MCP clients (Claude Desktop, Cursor) use stdio
-    
+
     Ok(())
 }
 
 /// Format SSE message
 pub fn format_sse_message(event: &str, data: &str, id: Option<&str>) -> String {
     let mut msg = String::new();
-    
+
     if let Some(id) = id {
         msg.push_str(&format!("id: {}\n", id));
     }
-    
+
     msg.push_str(&format!("event: {}\n", event));
-    
+
     for line in data.lines() {
         msg.push_str(&format!("data: {}\n", line));
     }
-    
+
     msg.push_str("\n");
     msg
 }
 
 /// Parse incoming HTTP request body as JSON-RPC
 pub fn parse_jsonrpc_request(body: &str) -> Result<JsonRpcRequest, JsonRpcError> {
-    serde_json::from_str(body).map_err(|_| {
-        JsonRpcError::parse_error()
-    })
+    serde_json::from_str(body).map_err(|_| JsonRpcError::parse_error())
 }
 
 /// HTTP response for JSON-RPC
@@ -180,7 +181,8 @@ impl SessionManager {
     /// Create new session
     pub fn create_session(&mut self) -> String {
         let session_id = uuid::Uuid::new_v4().to_string();
-        self.sessions.insert(session_id.clone(), HttpTransportState::new());
+        self.sessions
+            .insert(session_id.clone(), HttpTransportState::new());
         session_id
     }
 

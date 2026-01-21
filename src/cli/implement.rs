@@ -21,9 +21,9 @@ pub async fn run_implement(
     style::header("Implement Tasks");
 
     // Load tasks
-    let mut task_list = load_tasks().await.map_err(|_| {
-        anyhow::anyhow!("No tasks found. Run 'vibeanvil tasks' first.")
-    })?;
+    let mut task_list = load_tasks()
+        .await
+        .map_err(|_| anyhow::anyhow!("No tasks found. Run 'vibeanvil tasks' first."))?;
 
     if task_list.tasks.is_empty() {
         style::warn("No tasks to implement.");
@@ -117,11 +117,7 @@ pub async fn run_implement(
         println!("\n{}", "─".repeat(60).dimmed());
         style::step(&format!("Task [{}]: {}", task.id, task.title));
 
-        let prompt = build_implement_prompt(
-            &task,
-            constitution.as_deref(),
-            contract.as_deref(),
-        );
+        let prompt = build_implement_prompt(&task, constitution.as_deref(), contract.as_deref());
 
         let pb = style::spinner("Implementing...");
         let response = provider_instance.execute(&prompt, &context).await?;
@@ -163,8 +159,7 @@ pub async fn run_implement(
         style::success("All tasks completed! 🎉");
         println!(
             "\n{}",
-            "Run 'vibeanvil review start' to review the implementation."
-                .yellow()
+            "Run 'vibeanvil review start' to review the implementation.".yellow()
         );
     } else {
         println!(

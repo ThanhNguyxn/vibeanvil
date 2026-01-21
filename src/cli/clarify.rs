@@ -19,7 +19,10 @@ pub async fn run_clarify(provider: &str) -> Result<()> {
     let state = workspace::load_state().await?;
 
     // Check if we have intake
-    if !state.current_state.is_at_least(crate::state::State::IntakeCaptured) {
+    if !state
+        .current_state
+        .is_at_least(crate::state::State::IntakeCaptured)
+    {
         anyhow::bail!("No intake captured yet. Run 'vibeanvil intake' first.");
     }
 
@@ -32,7 +35,9 @@ pub async fn run_clarify(provider: &str) -> Result<()> {
     };
 
     // Load contract if available
-    let contract_content = if state.current_state.is_at_least(crate::state::State::ContractDrafted)
+    let contract_content = if state
+        .current_state
+        .is_at_least(crate::state::State::ContractDrafted)
     {
         let contract_path = workspace::get_anvil_dir()?.join("contract.md");
         if contract_path.exists() {

@@ -37,7 +37,10 @@ pub async fn run_analyze(provider: &str) -> Result<()> {
     let state = workspace::load_state().await?;
 
     // Check minimum state
-    if !state.current_state.is_at_least(crate::state::State::IntakeCaptured) {
+    if !state
+        .current_state
+        .is_at_least(crate::state::State::IntakeCaptured)
+    {
         anyhow::bail!("No intake captured yet. Run 'vibeanvil intake' first.");
     }
 
@@ -104,10 +107,7 @@ pub async fn run_analyze(provider: &str) -> Result<()> {
     Ok(())
 }
 
-async fn load_artifact(
-    anvil_dir: &std::path::Path,
-    filename: &str,
-) -> Option<String> {
+async fn load_artifact(anvil_dir: &std::path::Path, filename: &str) -> Option<String> {
     let path = anvil_dir.join(filename);
     if path.exists() {
         tokio::fs::read_to_string(&path).await.ok()

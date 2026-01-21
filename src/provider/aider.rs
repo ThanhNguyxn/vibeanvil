@@ -158,9 +158,9 @@ impl AiderProvider {
             cmd.stdin(Stdio::piped());
         }
 
-        let mut child = cmd
-            .spawn()
-            .with_context(|| "Failed to spawn aider. Is it installed? Run: pip install aider-chat")?;
+        let mut child = cmd.spawn().with_context(|| {
+            "Failed to spawn aider. Is it installed? Run: pip install aider-chat"
+        })?;
 
         // For chat mode, write prompt to stdin
         if self.mode == AiderMode::Chat {

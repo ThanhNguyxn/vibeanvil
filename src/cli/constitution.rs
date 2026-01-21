@@ -50,8 +50,7 @@ pub async fn run_constitution(
         println!("{}", "Enter your project principles and guidelines.".cyan());
         println!(
             "{}",
-            "Focus on: code quality, testing, architecture, performance, security."
-                .dimmed()
+            "Focus on: code quality, testing, architecture, performance, security.".dimmed()
         );
         println!(
             "{}",
@@ -221,10 +220,7 @@ mod tests {
 
     #[test]
     fn test_build_constitution_prompt_with_intake() {
-        let prompt = build_constitution_prompt(
-            "Focus on code quality",
-            Some("Build a todo app"),
-        );
+        let prompt = build_constitution_prompt("Focus on code quality", Some("Build a todo app"));
         assert!(prompt.contains("Build a todo app"));
         assert!(prompt.contains("Project Context"));
     }

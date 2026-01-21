@@ -49,7 +49,9 @@ impl ResourceType {
     /// Get the description for this resource type
     pub fn description(&self) -> &'static str {
         match self {
-            ResourceType::Contract => "Project contract defining requirements and acceptance criteria",
+            ResourceType::Contract => {
+                "Project contract defining requirements and acceptance criteria"
+            }
             ResourceType::Plan => "Implementation plan with tasks and milestones",
             ResourceType::State => "Current workflow state (JSON)",
             ResourceType::Constitution => "Project AI constitution and guidelines",
@@ -129,7 +131,7 @@ impl ResourceRegistry {
 
         for resource_type in ResourceType::all() {
             let path = resource_type.file_path();
-            
+
             // Only include resources that exist
             if path.exists() {
                 resources.push(ResourceDefinition {
@@ -156,8 +158,8 @@ impl ResourceRegistry {
 
     /// Read a resource by URI
     pub async fn read_resource(uri: &str) -> Result<ResourceContents, String> {
-        let resource_type = ResourceType::from_uri(uri)
-            .ok_or_else(|| format!("Unknown resource URI: {}", uri))?;
+        let resource_type =
+            ResourceType::from_uri(uri).ok_or_else(|| format!("Unknown resource URI: {}", uri))?;
 
         let path = resource_type.file_path();
         debug!("Reading resource: {} from {:?}", uri, path);

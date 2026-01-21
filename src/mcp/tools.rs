@@ -4,10 +4,7 @@
 
 use serde_json::json;
 
-
-use super::protocol::{
-    CallToolParams, CallToolResult, ToolAnnotations, ToolDefinition,
-};
+use super::protocol::{CallToolParams, CallToolResult, ToolAnnotations, ToolDefinition};
 
 /// Registry of all available MCP tools
 pub struct ToolRegistry {
@@ -637,12 +634,17 @@ impl Default for ToolRegistry {
 /// Execute a VibeAnvil tool
 pub async fn execute_tool(params: CallToolParams) -> CallToolResult {
     use std::process::Command;
-    
+
     // Map MCP tool name to vibeanvil CLI command
     let (cmd, args) = match params.name.as_str() {
         "vibeanvil_init" => {
             let mut args = vec!["init".to_string()];
-            if params.arguments.get("force").and_then(|v| v.as_bool()).unwrap_or(false) {
+            if params
+                .arguments
+                .get("force")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false)
+            {
                 args.push("--force".to_string());
             }
             ("init", args)
@@ -650,13 +652,20 @@ pub async fn execute_tool(params: CallToolParams) -> CallToolResult {
         "vibeanvil_status" => {
             let mut args = vec!["status".to_string()];
             args.push("--json".to_string()); // Always JSON for MCP
-            if params.arguments.get("verbose").and_then(|v| v.as_bool()).unwrap_or(false) {
+            if params
+                .arguments
+                .get("verbose")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false)
+            {
                 args.push("--verbose".to_string());
             }
             ("status", args)
         }
         "vibeanvil_intake" => {
-            let message = params.arguments.get("message")
+            let message = params
+                .arguments
+                .get("message")
                 .and_then(|v| v.as_str())
                 .unwrap_or("");
             let args = vec!["intake".to_string(), message.to_string()];
@@ -684,7 +693,12 @@ pub async fn execute_tool(params: CallToolParams) -> CallToolResult {
         }
         "vibeanvil_tasks" => {
             let mut args = vec!["tasks".to_string()];
-            if params.arguments.get("regenerate").and_then(|v| v.as_bool()).unwrap_or(false) {
+            if params
+                .arguments
+                .get("regenerate")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false)
+            {
                 args.push("--regenerate".to_string());
             }
             if let Some(done) = params.arguments.get("done").and_then(|v| v.as_str()) {
@@ -703,10 +717,20 @@ pub async fn execute_tool(params: CallToolParams) -> CallToolResult {
                 args.push("--task".to_string());
                 args.push(task.to_string());
             }
-            if params.arguments.get("all").and_then(|v| v.as_bool()).unwrap_or(false) {
+            if params
+                .arguments
+                .get("all")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false)
+            {
                 args.push("--all".to_string());
             }
-            if params.arguments.get("dry_run").and_then(|v| v.as_bool()).unwrap_or(false) {
+            if params
+                .arguments
+                .get("dry_run")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false)
+            {
                 args.push("--dry-run".to_string());
             }
             if let Some(provider) = params.arguments.get("provider").and_then(|v| v.as_str()) {
@@ -739,7 +763,9 @@ pub async fn execute_tool(params: CallToolParams) -> CallToolResult {
             ("map", args)
         }
         "vibeanvil_brain_query" => {
-            let query = params.arguments.get("query")
+            let query = params
+                .arguments
+                .get("query")
                 .and_then(|v| v.as_str())
                 .unwrap_or("");
             let mut args = vec!["brain".to_string(), "query".to_string(), query.to_string()];
@@ -761,11 +787,18 @@ pub async fn execute_tool(params: CallToolParams) -> CallToolResult {
             ("harvest", args)
         }
         "vibeanvil_run" => {
-            let command = params.arguments.get("command")
+            let command = params
+                .arguments
+                .get("command")
                 .and_then(|v| v.as_str())
                 .unwrap_or("");
             let mut args = vec!["run".to_string(), command.to_string()];
-            if params.arguments.get("capture").and_then(|v| v.as_bool()).unwrap_or(true) {
+            if params
+                .arguments
+                .get("capture")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(true)
+            {
                 args.push("--capture".to_string());
             }
             ("run", args)
@@ -776,7 +809,12 @@ pub async fn execute_tool(params: CallToolParams) -> CallToolResult {
                 args.push("--cmd".to_string());
                 args.push(cmd.to_string());
             }
-            if params.arguments.get("fix").and_then(|v| v.as_bool()).unwrap_or(false) {
+            if params
+                .arguments
+                .get("fix")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false)
+            {
                 args.push("--fix".to_string());
             }
             ("test", args)
@@ -787,7 +825,12 @@ pub async fn execute_tool(params: CallToolParams) -> CallToolResult {
                 args.push("--cmd".to_string());
                 args.push(cmd.to_string());
             }
-            if params.arguments.get("fix").and_then(|v| v.as_bool()).unwrap_or(false) {
+            if params
+                .arguments
+                .get("fix")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false)
+            {
                 args.push("--fix".to_string());
             }
             ("lint", args)
@@ -802,19 +845,33 @@ pub async fn execute_tool(params: CallToolParams) -> CallToolResult {
         }
         "vibeanvil_undo" => {
             let mut args = vec!["undo".to_string()];
-            if params.arguments.get("dry_run").and_then(|v| v.as_bool()).unwrap_or(true) {
+            if params
+                .arguments
+                .get("dry_run")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(true)
+            {
                 args.push("--dry-run".to_string());
             }
             ("undo", args)
         }
         "vibeanvil_chat" => {
-            let mode = params.arguments.get("mode")
+            let mode = params
+                .arguments
+                .get("mode")
                 .and_then(|v| v.as_str())
                 .unwrap_or("ask");
-            let message = params.arguments.get("message")
+            let message = params
+                .arguments
+                .get("message")
                 .and_then(|v| v.as_str())
                 .unwrap_or("");
-            let mut args = vec!["chat".to_string(), "--mode".to_string(), mode.to_string(), message.to_string()];
+            let mut args = vec![
+                "chat".to_string(),
+                "--mode".to_string(),
+                mode.to_string(),
+                message.to_string(),
+            ];
             if let Some(provider) = params.arguments.get("provider").and_then(|v| v.as_str()) {
                 args.push("--provider".to_string());
                 args.push(provider.to_string());
@@ -895,7 +952,11 @@ mod tests {
     fn test_all_tools_have_descriptions() {
         let registry = ToolRegistry::new();
         for tool in registry.list_tools() {
-            assert!(tool.description.is_some(), "Tool {} missing description", tool.name);
+            assert!(
+                tool.description.is_some(),
+                "Tool {} missing description",
+                tool.name
+            );
         }
     }
 

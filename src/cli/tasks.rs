@@ -89,7 +89,10 @@ pub async fn run_tasks(provider: &str, regenerate: bool) -> Result<()> {
     let state = workspace::load_state().await?;
 
     // Check if we have a plan
-    if !state.current_state.is_at_least(crate::state::State::PlanCreated) {
+    if !state
+        .current_state
+        .is_at_least(crate::state::State::PlanCreated)
+    {
         anyhow::bail!("No implementation plan found. Run 'vibeanvil plan' first.");
     }
 
@@ -256,7 +259,10 @@ fn display_tasks(task_list: &TaskList) {
         );
 
         if !task.dependencies.is_empty() {
-            println!("    └─ depends on: {}", task.dependencies.join(", ").dimmed());
+            println!(
+                "    └─ depends on: {}",
+                task.dependencies.join(", ").dimmed()
+            );
         }
     }
 
@@ -401,7 +407,10 @@ fn generate_tasks_markdown(task_list: &TaskList) -> String {
         md.push_str(&format!("  - Effort: {}\n", task.effort));
 
         if !task.dependencies.is_empty() {
-            md.push_str(&format!("  - Dependencies: {}\n", task.dependencies.join(", ")));
+            md.push_str(&format!(
+                "  - Dependencies: {}\n",
+                task.dependencies.join(", ")
+            ));
         }
 
         if !task.files.is_empty() {
@@ -409,7 +418,10 @@ fn generate_tasks_markdown(task_list: &TaskList) -> String {
         }
 
         if !task.description.is_empty() {
-            md.push_str(&format!("  - {}\n", task.description.replace('\n', "\n    ")));
+            md.push_str(&format!(
+                "  - {}\n",
+                task.description.replace('\n', "\n    ")
+            ));
         }
 
         md.push('\n');

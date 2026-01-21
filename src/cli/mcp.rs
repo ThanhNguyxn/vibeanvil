@@ -55,10 +55,38 @@ async fn run_test() -> Result<()> {
     // Test 2: Capabilities
     println!("{}", "2. Capabilities:".yellow());
     let caps = McpServer::capabilities();
-    println!("   Tools: {}", if caps.tools.is_some() { "✓".green() } else { "✗".red() });
-    println!("   Resources: {}", if caps.resources.is_some() { "✓".green() } else { "○".dimmed() });
-    println!("   Prompts: {}", if caps.prompts.is_some() { "✓".green() } else { "○".dimmed() });
-    println!("   Logging: {}", if caps.logging.is_some() { "✓".green() } else { "○".dimmed() });
+    println!(
+        "   Tools: {}",
+        if caps.tools.is_some() {
+            "✓".green()
+        } else {
+            "✗".red()
+        }
+    );
+    println!(
+        "   Resources: {}",
+        if caps.resources.is_some() {
+            "✓".green()
+        } else {
+            "○".dimmed()
+        }
+    );
+    println!(
+        "   Prompts: {}",
+        if caps.prompts.is_some() {
+            "✓".green()
+        } else {
+            "○".dimmed()
+        }
+    );
+    println!(
+        "   Logging: {}",
+        if caps.logging.is_some() {
+            "✓".green()
+        } else {
+            "○".dimmed()
+        }
+    );
     println!();
 
     // Test 3: Tools
@@ -67,15 +95,19 @@ async fn run_test() -> Result<()> {
     let tools = registry.list_tools();
     println!("   Total: {} tools", tools.len().to_string().green());
     println!();
-    
+
     for tool in tools.iter().take(5) {
-        println!("   {} - {}", 
+        println!(
+            "   {} - {}",
             tool.name.cyan(),
             tool.description.as_deref().unwrap_or("").dimmed()
         );
     }
     if tools.len() > 5 {
-        println!("   {} more tools...", format!("...and {}", tools.len() - 5).dimmed());
+        println!(
+            "   {} more tools...",
+            format!("...and {}", tools.len() - 5).dimmed()
+        );
     }
     println!();
 
@@ -94,8 +126,11 @@ async fn run_test() -> Result<()> {
             }
         })),
     };
-    println!("   Request: {}", serde_json::to_string(&init_request)?.dimmed());
-    
+    println!(
+        "   Request: {}",
+        serde_json::to_string(&init_request)?.dimmed()
+    );
+
     // Create expected response
     let init_result = InitializeResult {
         protocol_version: MCP_PROTOCOL_VERSION.to_string(),
@@ -128,31 +163,68 @@ async fn run_test() -> Result<()> {
 
 /// Show MCP server info
 fn run_info() -> Result<()> {
-    use crate::mcp::tools::ToolRegistry;
     use crate::mcp::prompts::PromptRegistry;
     use crate::mcp::resources::ResourceType;
+    use crate::mcp::tools::ToolRegistry;
 
     println!("{}", "VibeAnvil MCP Server".cyan().bold());
     println!();
-    
+
     let info = McpServer::server_info();
     println!("{}: {}", "Name".yellow(), info.name);
-    println!("{}: {}", "Version".yellow(), info.version.unwrap_or_default());
-    println!("{}: {}", "Protocol".yellow(), crate::mcp::protocol::MCP_PROTOCOL_VERSION);
+    println!(
+        "{}: {}",
+        "Version".yellow(),
+        info.version.unwrap_or_default()
+    );
+    println!(
+        "{}: {}",
+        "Protocol".yellow(),
+        crate::mcp::protocol::MCP_PROTOCOL_VERSION
+    );
     println!();
-    
+
     println!("{}", "Capabilities:".yellow());
     let caps = McpServer::capabilities();
-    println!("  Tools: {}", if caps.tools.is_some() { "✓ Enabled".green() } else { "✗ Disabled".red() });
-    println!("  Resources: {}", if caps.resources.is_some() { "✓ Enabled".green() } else { "✗ Disabled".red() });
-    println!("  Prompts: {}", if caps.prompts.is_some() { "✓ Enabled".green() } else { "✗ Disabled".red() });
-    println!("  Logging: {}", if caps.logging.is_some() { "✓ Enabled".green() } else { "✗ Disabled".red() });
+    println!(
+        "  Tools: {}",
+        if caps.tools.is_some() {
+            "✓ Enabled".green()
+        } else {
+            "✗ Disabled".red()
+        }
+    );
+    println!(
+        "  Resources: {}",
+        if caps.resources.is_some() {
+            "✓ Enabled".green()
+        } else {
+            "✗ Disabled".red()
+        }
+    );
+    println!(
+        "  Prompts: {}",
+        if caps.prompts.is_some() {
+            "✓ Enabled".green()
+        } else {
+            "✗ Disabled".red()
+        }
+    );
+    println!(
+        "  Logging: {}",
+        if caps.logging.is_some() {
+            "✓ Enabled".green()
+        } else {
+            "✗ Disabled".red()
+        }
+    );
     println!();
 
     println!("{} (20):", "Tools".yellow());
     let registry = ToolRegistry::new();
     for tool in registry.list_tools() {
-        println!("  {} - {}", 
+        println!(
+            "  {} - {}",
             tool.name.cyan(),
             tool.description.as_deref().unwrap_or("").dimmed()
         );
@@ -161,16 +233,14 @@ fn run_info() -> Result<()> {
 
     println!("{} (8):", "Resources".yellow());
     for rt in ResourceType::all() {
-        println!("  {} - {}",
-            rt.uri().cyan(),
-            rt.description().dimmed()
-        );
+        println!("  {} - {}", rt.uri().cyan(), rt.description().dimmed());
     }
     println!();
 
     println!("{} (10):", "Prompts".yellow());
     for prompt in PromptRegistry::list_prompts() {
-        println!("  {} - {}",
+        println!(
+            "  {} - {}",
             prompt.name.cyan(),
             prompt.description.as_deref().unwrap_or("").dimmed()
         );
@@ -188,7 +258,7 @@ fn run_config() -> Result<()> {
     println!();
     println!("Add the following to your Claude Desktop config file:");
     println!();
-    
+
     #[cfg(target_os = "windows")]
     let config_path = r#"%APPDATA%\Claude\claude_desktop_config.json"#;
     #[cfg(target_os = "macos")]
@@ -219,7 +289,7 @@ fn run_config() -> Result<()> {
     println!();
     println!("For Cursor, add to .cursor/mcp.json in your project:");
     println!();
-    
+
     let cursor_config = serde_json::json!({
         "mcpServers": {
             "vibeanvil": {
@@ -228,7 +298,7 @@ fn run_config() -> Result<()> {
             }
         }
     });
-    
+
     println!("{}", serde_json::to_string_pretty(&cursor_config)?);
     println!();
 

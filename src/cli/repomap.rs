@@ -78,9 +78,7 @@ impl RepoMap {
                 total_lines += info.lines;
 
                 // Update language stats
-                let stats = language_stats
-                    .entry(info.language.clone())
-                    .or_default();
+                let stats = language_stats.entry(info.language.clone()).or_default();
                 stats.files += 1;
                 stats.lines += info.lines;
 
@@ -227,7 +225,11 @@ impl Tree {
 
         for (i, (name, tree)) in entries.iter().enumerate() {
             let is_last_entry = i == entries.len() - 1;
-            let connector = if is_last_entry { "└── " } else { "├── " };
+            let connector = if is_last_entry {
+                "└── "
+            } else {
+                "├── "
+            };
             let extension = if is_last_entry { "    " } else { "│   " };
 
             let display_name = if tree.is_file {
@@ -239,10 +241,9 @@ impl Tree {
             output.push_str(&format!("{}{}{}\n", prefix, connector, display_name));
 
             if !tree.children.is_empty() {
-                output.push_str(&tree.format_tree(
-                    &format!("{}{}", prefix, extension),
-                    is_last_entry,
-                ));
+                output.push_str(
+                    &tree.format_tree(&format!("{}{}", prefix, extension), is_last_entry),
+                );
             }
         }
 
@@ -258,11 +259,7 @@ async fn collect_source_files(root: &Path) -> Result<Vec<PathBuf>> {
 }
 
 #[async_recursion::async_recursion]
-async fn collect_files_recursive(
-    root: &Path,
-    dir: &Path,
-    files: &mut Vec<PathBuf>,
-) -> Result<()> {
+async fn collect_files_recursive(root: &Path, dir: &Path, files: &mut Vec<PathBuf>) -> Result<()> {
     let mut entries = fs::read_dir(dir).await?;
 
     while let Some(entry) = entries.next_entry().await? {
@@ -295,11 +292,11 @@ async fn collect_files_recursive(
 /// Check if a file is a source file
 fn is_source_file(path: &Path) -> bool {
     let extensions = [
-        "rs", "py", "js", "ts", "jsx", "tsx", "go", "java", "c", "cpp", "h", "hpp",
-        "rb", "php", "swift", "kt", "scala", "cs", "fs", "ml", "hs", "ex", "exs",
-        "lua", "r", "jl", "nim", "zig", "v", "d", "dart", "vue", "svelte", "sql",
-        "sh", "bash", "zsh", "ps1", "md", "yaml", "yml", "toml", "json", "xml",
-        "html", "css", "scss", "sass", "less", "graphql", "prisma", "proto",
+        "rs", "py", "js", "ts", "jsx", "tsx", "go", "java", "c", "cpp", "h", "hpp", "rb", "php",
+        "swift", "kt", "scala", "cs", "fs", "ml", "hs", "ex", "exs", "lua", "r", "jl", "nim",
+        "zig", "v", "d", "dart", "vue", "svelte", "sql", "sh", "bash", "zsh", "ps1", "md", "yaml",
+        "yml", "toml", "json", "xml", "html", "css", "scss", "sass", "less", "graphql", "prisma",
+        "proto",
     ];
 
     path.extension()

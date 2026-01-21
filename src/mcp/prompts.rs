@@ -80,7 +80,9 @@ impl PromptType {
                 },
                 PromptArgument {
                     name: "context".to_string(),
-                    description: Some("Additional context from contract or requirements".to_string()),
+                    description: Some(
+                        "Additional context from contract or requirements".to_string(),
+                    ),
                     required: false,
                 },
             ],
@@ -144,13 +146,11 @@ impl PromptType {
                     required: false,
                 },
             ],
-            PromptType::Intake => vec![
-                PromptArgument {
-                    name: "request".to_string(),
-                    description: Some("User's initial request or idea".to_string()),
-                    required: true,
-                },
-            ],
+            PromptType::Intake => vec![PromptArgument {
+                name: "request".to_string(),
+                description: Some("User's initial request or idea".to_string()),
+                required: true,
+            }],
             PromptType::Clarify => vec![
                 PromptArgument {
                     name: "requirements".to_string(),
@@ -245,8 +245,8 @@ impl PromptRegistry {
         name: &str,
         arguments: Option<serde_json::Value>,
     ) -> Result<GetPromptResult, String> {
-        let prompt_type = PromptType::from_name(name)
-            .ok_or_else(|| format!("Unknown prompt: {}", name))?;
+        let prompt_type =
+            PromptType::from_name(name).ok_or_else(|| format!("Unknown prompt: {}", name))?;
 
         let args: std::collections::HashMap<String, String> = arguments
             .and_then(|v| serde_json::from_value(v).ok())
@@ -274,37 +274,37 @@ impl PromptRegistry {
 
         match prompt_type {
             PromptType::Plan => {
-                let feature = args.get("feature")
+                let feature = args
+                    .get("feature")
                     .ok_or("Missing required argument: feature")?;
                 let context = args.get("context").map(|s| s.as_str()).unwrap_or("");
-                
+
                 if let Some(tpl) = template {
-                    Ok(Self::interpolate_template(&tpl, &[
-                        ("feature", feature),
-                        ("context", context),
-                    ]))
+                    Ok(Self::interpolate_template(
+                        &tpl,
+                        &[("feature", feature), ("context", context)],
+                    ))
                 } else {
-                    let context_str = if context.is_empty() { 
-                        String::new() 
-                    } else { 
-                        format!("Context:\n{}", context) 
+                    let context_str = if context.is_empty() {
+                        String::new()
+                    } else {
+                        format!("Context:\n{}", context)
                     };
                     Ok(format!(
                         "Create a detailed implementation plan for: {}\n\n{}",
-                        feature,
-                        context_str
+                        feature, context_str
                     ))
                 }
             }
             PromptType::Review => {
                 let files = args.get("files").map(|s| s.as_str()).unwrap_or("");
                 let diff = args.get("diff").map(|s| s.as_str()).unwrap_or("");
-                
+
                 if let Some(tpl) = template {
-                    Ok(Self::interpolate_template(&tpl, &[
-                        ("files", files),
-                        ("diff", diff),
-                    ]))
+                    Ok(Self::interpolate_template(
+                        &tpl,
+                        &[("files", files), ("diff", diff)],
+                    ))
                 } else {
                     Ok(format!(
                         "Review the following code changes:\n\nFiles: {}\n\nDiff:\n{}",
@@ -313,15 +313,16 @@ impl PromptRegistry {
                 }
             }
             PromptType::Architect => {
-                let requirements = args.get("requirements")
+                let requirements = args
+                    .get("requirements")
                     .ok_or("Missing required argument: requirements")?;
                 let constraints = args.get("constraints").map(|s| s.as_str()).unwrap_or("");
-                
+
                 if let Some(tpl) = template {
-                    Ok(Self::interpolate_template(&tpl, &[
-                        ("requirements", requirements),
-                        ("constraints", constraints),
-                    ]))
+                    Ok(Self::interpolate_template(
+                        &tpl,
+                        &[("requirements", requirements), ("constraints", constraints)],
+                    ))
                 } else {
                     Ok(format!(
                         "Design the architecture for:\n{}\n\nConstraints:\n{}",
@@ -330,15 +331,14 @@ impl PromptRegistry {
                 }
             }
             PromptType::Developer => {
-                let task = args.get("task")
-                    .ok_or("Missing required argument: task")?;
+                let task = args.get("task").ok_or("Missing required argument: task")?;
                 let files = args.get("files").map(|s| s.as_str()).unwrap_or("");
-                
+
                 if let Some(tpl) = template {
-                    Ok(Self::interpolate_template(&tpl, &[
-                        ("task", task),
-                        ("files", files),
-                    ]))
+                    Ok(Self::interpolate_template(
+                        &tpl,
+                        &[("task", task), ("files", files)],
+                    ))
                 } else {
                     Ok(format!(
                         "Implement the following task:\n{}\n\nTarget files: {}",
@@ -347,32 +347,31 @@ impl PromptRegistry {
                 }
             }
             PromptType::QA => {
-                let feature = args.get("feature")
+                let feature = args
+                    .get("feature")
                     .ok_or("Missing required argument: feature")?;
                 let test_type = args.get("type").map(|s| s.as_str()).unwrap_or("unit");
-                
+
                 if let Some(tpl) = template {
-                    Ok(Self::interpolate_template(&tpl, &[
-                        ("feature", feature),
-                        ("type", test_type),
-                    ]))
-                } else {
-                    Ok(format!(
-                        "Create {} tests for: {}",
-                        test_type, feature
+                    Ok(Self::interpolate_template(
+                        &tpl,
+                        &[("feature", feature), ("type", test_type)],
                     ))
+                } else {
+                    Ok(format!("Create {} tests for: {}", test_type, feature))
                 }
             }
             PromptType::Commit => {
-                let changes = args.get("changes")
+                let changes = args
+                    .get("changes")
                     .ok_or("Missing required argument: changes")?;
                 let commit_type = args.get("type").map(|s| s.as_str()).unwrap_or("feat");
-                
+
                 if let Some(tpl) = template {
-                    Ok(Self::interpolate_template(&tpl, &[
-                        ("changes", changes),
-                        ("type", commit_type),
-                    ]))
+                    Ok(Self::interpolate_template(
+                        &tpl,
+                        &[("changes", changes), ("type", commit_type)],
+                    ))
                 } else {
                     Ok(format!(
                         "Generate a conventional commit message (type: {}) for:\n{}",
@@ -381,60 +380,59 @@ impl PromptRegistry {
                 }
             }
             PromptType::Intake => {
-                let request = args.get("request")
+                let request = args
+                    .get("request")
                     .ok_or("Missing required argument: request")?;
-                
+
                 Ok(format!(
                     "Capture and structure the following user request into formal requirements:\n\n{}",
                     request
                 ))
             }
             PromptType::Clarify => {
-                let requirements = args.get("requirements")
+                let requirements = args
+                    .get("requirements")
                     .ok_or("Missing required argument: requirements")?;
                 let questions = args.get("questions").map(|s| s.as_str()).unwrap_or("");
-                
-                let questions_str = if questions.is_empty() { 
-                    String::new() 
-                } else { 
-                    format!("Focus on: {}", questions) 
+
+                let questions_str = if questions.is_empty() {
+                    String::new()
+                } else {
+                    format!("Focus on: {}", questions)
                 };
                 Ok(format!(
                     "Review these requirements and ask clarifying questions:\n\n{}\n\n{}",
-                    requirements,
-                    questions_str
+                    requirements, questions_str
                 ))
             }
             PromptType::Implement => {
-                let task = args.get("task")
-                    .ok_or("Missing required argument: task")?;
+                let task = args.get("task").ok_or("Missing required argument: task")?;
                 let plan = args.get("plan").map(|s| s.as_str()).unwrap_or("");
-                
-                let plan_str = if plan.is_empty() { 
-                    String::new() 
-                } else { 
-                    format!("Based on plan:\n{}", plan) 
+
+                let plan_str = if plan.is_empty() {
+                    String::new()
+                } else {
+                    format!("Based on plan:\n{}", plan)
                 };
                 Ok(format!(
                     "Implement the following task:\n\n{}\n\n{}",
-                    task,
-                    plan_str
+                    task, plan_str
                 ))
             }
             PromptType::Debug => {
-                let issue = args.get("issue")
+                let issue = args
+                    .get("issue")
                     .ok_or("Missing required argument: issue")?;
                 let error = args.get("error").map(|s| s.as_str()).unwrap_or("");
-                
-                let error_str = if error.is_empty() { 
-                    String::new() 
-                } else { 
-                    format!("Error:\n{}", error) 
+
+                let error_str = if error.is_empty() {
+                    String::new()
+                } else {
+                    format!("Error:\n{}", error)
                 };
                 Ok(format!(
                     "Debug and fix the following issue:\n\n{}\n\n{}",
-                    issue,
-                    error_str
+                    issue, error_str
                 ))
             }
         }
@@ -482,12 +480,9 @@ mod tests {
     fn test_get_prompt_plan() {
         let mut args = std::collections::HashMap::new();
         args.insert("feature".to_string(), "user authentication".to_string());
-        
-        let result = PromptRegistry::get_prompt(
-            "plan",
-            Some(serde_json::to_value(args).unwrap()),
-        );
-        
+
+        let result = PromptRegistry::get_prompt("plan", Some(serde_json::to_value(args).unwrap()));
+
         assert!(result.is_ok());
         let prompt = result.unwrap();
         assert!(prompt.messages.len() == 1);

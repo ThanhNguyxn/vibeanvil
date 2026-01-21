@@ -6,7 +6,7 @@ use std::sync::Arc;
 use tracing::{debug, info};
 
 use super::protocol::*;
-use super::tools::{ToolRegistry, execute_tool};
+use super::tools::{execute_tool, ToolRegistry};
 use super::transport::StdioTransport;
 
 /// VibeAnvil MCP Server
@@ -27,21 +27,26 @@ impl McpServer {
 
     /// Run the MCP server with STDIO transport
     pub async fn run(&mut self) -> anyhow::Result<()> {
-        info!("Starting VibeAnvil MCP Server v{}", env!("CARGO_PKG_VERSION"));
-        
+        info!(
+            "Starting VibeAnvil MCP Server v{}",
+            env!("CARGO_PKG_VERSION")
+        );
+
         let transport = StdioTransport::new();
         let tool_registry = Arc::clone(&self.tool_registry);
         let mut initialized = false;
 
-        transport.run(move |request| {
-            let tool_registry = Arc::clone(&tool_registry);
-            let _initialized_ref = initialized;
-            
-            async move {
-                let response = handle_request(request, &tool_registry, &mut initialized).await;
-                response
-            }
-        }).await
+        transport
+            .run(move |request| {
+                let tool_registry = Arc::clone(&tool_registry);
+                let _initialized_ref = initialized;
+
+                async move {
+                    let response = handle_request(request, &tool_registry, &mut initialized).await;
+                    response
+                }
+            })
+            .await
     }
 
     /// Get server info
@@ -56,8 +61,8 @@ impl McpServer {
     pub fn capabilities() -> ServerCapabilities {
         ServerCapabilities {
             tools: Some(ToolsCapability { list_changed: true }),
-            resources: Some(ResourcesCapability { 
-                subscribe: false, 
+            resources: Some(ResourcesCapability {
+                subscribe: false,
                 list_changed: true,
             }),
             prompts: Some(PromptsCapability { list_changed: true }),
@@ -182,32 +187,27 @@ fn handle_notification(method: &str, _params: Option<&serde_json::Value>) {
 }
 
 /// Handle initialize request
-fn handle_initialize(
-    params: Option<serde_json::Value>,
-    initialized: &mut bool,
-) -> JsonRpcResponse {
+fn handle_initialize(params: Option<serde_json::Value>, initialized: &mut bool) -> JsonRpcResponse {
     let init_params: InitializeParams = match params {
         Some(p) => match serde_json::from_value(p) {
             Ok(params) => params,
             Err(e) => {
-                return JsonRpcResponse::error(
-                    None,
-                    JsonRpcError::invalid_params(&e.to_string()),
-                );
+                return JsonRpcResponse::error(None, JsonRpcError::invalid_params(&e.to_string()));
             }
         },
         None => {
-            return JsonRpcResponse::error(
-                None,
-                JsonRpcError::invalid_params("Missing params"),
-            );
+            return JsonRpcResponse::error(None, JsonRpcError::invalid_params("Missing params"));
         }
     };
 
     info!(
         "Initializing with client: {} v{}",
         init_params.client_info.name,
-        init_params.client_info.version.as_deref().unwrap_or("unknown")
+        init_params
+            .client_info
+            .version
+            .as_deref()
+            .unwrap_or("unknown")
     );
 
     *initialized = true;
@@ -242,22 +242,16 @@ async fn handle_tools_call(params: Option<serde_json::Value>) -> JsonRpcResponse
         Some(p) => match serde_json::from_value(p) {
             Ok(params) => params,
             Err(e) => {
-                return JsonRpcResponse::error(
-                    None,
-                    JsonRpcError::invalid_params(&e.to_string()),
-                );
+                return JsonRpcResponse::error(None, JsonRpcError::invalid_params(&e.to_string()));
             }
         },
         None => {
-            return JsonRpcResponse::error(
-                None,
-                JsonRpcError::invalid_params("Missing params"),
-            );
+            return JsonRpcResponse::error(None, JsonRpcError::invalid_params("Missing params"));
         }
     };
 
     info!("Calling tool: {}", call_params.name);
-    
+
     let result = execute_tool(call_params).await;
     JsonRpcResponse::success(None, serde_json::to_value(result).unwrap())
 }
@@ -265,7 +259,7 @@ async fn handle_tools_call(params: Option<serde_json::Value>) -> JsonRpcResponse
 /// Handle resources/list request
 async fn handle_resources_list() -> JsonRpcResponse {
     use super::resources::ResourceRegistry;
-    
+
     let resources = ResourceRegistry::list_resources().await;
     let result = ResourcesListResult {
         resources,
@@ -276,23 +270,17 @@ async fn handle_resources_list() -> JsonRpcResponse {
 
 /// Handle resources/read request
 async fn handle_resources_read(params: Option<serde_json::Value>) -> JsonRpcResponse {
-    use super::resources::{ResourceRegistry, ResourceReadParams, ResourceReadResult};
-    
+    use super::resources::{ResourceReadParams, ResourceReadResult, ResourceRegistry};
+
     let read_params: ResourceReadParams = match params {
         Some(p) => match serde_json::from_value(p) {
             Ok(params) => params,
             Err(e) => {
-                return JsonRpcResponse::error(
-                    None,
-                    JsonRpcError::invalid_params(&e.to_string()),
-                );
+                return JsonRpcResponse::error(None, JsonRpcError::invalid_params(&e.to_string()));
             }
         },
         None => {
-            return JsonRpcResponse::error(
-                None,
-                JsonRpcError::invalid_params("Missing params"),
-            );
+            return JsonRpcResponse::error(None, JsonRpcError::invalid_params("Missing params"));
         }
     };
 
@@ -303,17 +291,14 @@ async fn handle_resources_read(params: Option<serde_json::Value>) -> JsonRpcResp
             };
             JsonRpcResponse::success(None, serde_json::to_value(result).unwrap())
         }
-        Err(e) => JsonRpcResponse::error(
-            None,
-            JsonRpcError::internal_error(&e),
-        ),
+        Err(e) => JsonRpcResponse::error(None, JsonRpcError::internal_error(&e)),
     }
 }
 
 /// Handle prompts/list request
 fn handle_prompts_list() -> JsonRpcResponse {
     use super::prompts::PromptRegistry;
-    
+
     let result = PromptsListResult {
         prompts: PromptRegistry::list_prompts(),
         next_cursor: None,
@@ -323,32 +308,23 @@ fn handle_prompts_list() -> JsonRpcResponse {
 
 /// Handle prompts/get request
 fn handle_prompts_get(params: Option<serde_json::Value>) -> JsonRpcResponse {
-    use super::prompts::{PromptRegistry, PromptGetParams};
-    
+    use super::prompts::{PromptGetParams, PromptRegistry};
+
     let get_params: PromptGetParams = match params {
         Some(p) => match serde_json::from_value(p) {
             Ok(params) => params,
             Err(e) => {
-                return JsonRpcResponse::error(
-                    None,
-                    JsonRpcError::invalid_params(&e.to_string()),
-                );
+                return JsonRpcResponse::error(None, JsonRpcError::invalid_params(&e.to_string()));
             }
         },
         None => {
-            return JsonRpcResponse::error(
-                None,
-                JsonRpcError::invalid_params("Missing params"),
-            );
+            return JsonRpcResponse::error(None, JsonRpcError::invalid_params("Missing params"));
         }
     };
 
     match PromptRegistry::get_prompt(&get_params.name, get_params.arguments) {
         Ok(result) => JsonRpcResponse::success(None, serde_json::to_value(result).unwrap()),
-        Err(e) => JsonRpcResponse::error(
-            None,
-            JsonRpcError::invalid_params(&e),
-        ),
+        Err(e) => JsonRpcResponse::error(None, JsonRpcError::invalid_params(&e)),
     }
 }
 
@@ -405,9 +381,8 @@ mod tests {
         let registry = ToolRegistry::new();
         let response = handle_tools_list(&registry);
         assert!(response.result.is_some());
-        
-        let result: ToolsListResult = 
-            serde_json::from_value(response.result.unwrap()).unwrap();
+
+        let result: ToolsListResult = serde_json::from_value(response.result.unwrap()).unwrap();
         assert!(!result.tools.is_empty());
     }
 
@@ -421,10 +396,10 @@ mod tests {
                 "version": "1.0.0"
             }
         });
-        
+
         let mut initialized = false;
         let response = handle_initialize(Some(params), &mut initialized);
-        
+
         assert!(response.result.is_some());
         assert!(initialized);
     }
@@ -433,9 +408,8 @@ mod tests {
     async fn test_handle_resources_list() {
         let response = handle_resources_list().await;
         assert!(response.result.is_some());
-        
-        let result: ResourcesListResult = 
-            serde_json::from_value(response.result.unwrap()).unwrap();
+
+        let result: ResourcesListResult = serde_json::from_value(response.result.unwrap()).unwrap();
         // Resources may be empty if no workspace initialized
         assert!(result.resources.is_empty() || !result.resources.is_empty());
     }
@@ -444,9 +418,8 @@ mod tests {
     fn test_handle_prompts_list() {
         let response = handle_prompts_list();
         assert!(response.result.is_some());
-        
-        let result: PromptsListResult = 
-            serde_json::from_value(response.result.unwrap()).unwrap();
+
+        let result: PromptsListResult = serde_json::from_value(response.result.unwrap()).unwrap();
         assert!(!result.prompts.is_empty());
     }
 }

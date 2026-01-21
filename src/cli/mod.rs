@@ -167,7 +167,6 @@ pub enum Commands {
     },
 
     // ============ NEW WORKFLOW COMMANDS (Spec-Kit & Aider inspired) ============
-
     /// Set project principles and governance guidelines
     Constitution {
         /// Guidelines to incorporate (interactive if not provided)

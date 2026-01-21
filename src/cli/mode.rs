@@ -249,7 +249,10 @@ mod tests {
     fn test_chat_mode_from_str() {
         assert_eq!("ask".parse::<ChatMode>().unwrap(), ChatMode::Ask);
         assert_eq!("code".parse::<ChatMode>().unwrap(), ChatMode::Code);
-        assert_eq!("architect".parse::<ChatMode>().unwrap(), ChatMode::Architect);
+        assert_eq!(
+            "architect".parse::<ChatMode>().unwrap(),
+            ChatMode::Architect
+        );
         assert_eq!("help".parse::<ChatMode>().unwrap(), ChatMode::Help);
         assert!("invalid".parse::<ChatMode>().is_err());
     }
