@@ -149,8 +149,15 @@ pub enum Commands {
     /// Interactive wizard menu
     Wizard,
 
-    /// List available AI providers
-    Providers,
+    /// List available AI providers and capability matrix
+    Providers {
+        /// Subcommand: list, matrix, recommend, compare
+        #[arg(value_name = "SUBCOMMAND")]
+        subcommand: Option<String>,
+        /// Additional arguments (task description or provider names)
+        #[arg(trailing_var_arg = true)]
+        args: Vec<String>,
+    },
 
     /// Undo the last AI-made change (reverts last commit)
     Undo {

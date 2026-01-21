@@ -1,6 +1,7 @@
 //! Provider plugins for AI coding assistants
 
 pub mod aider;
+pub mod capability;
 pub mod claude_code;
 pub mod cline;
 pub mod cody;
@@ -17,11 +18,15 @@ pub mod ollama;
 pub mod opencode;
 pub mod patch;
 pub mod safety;
+pub mod selector;
 pub mod supermaven;
 pub mod tabby;
 pub mod trae;
 pub mod windsurf;
 pub mod zed;
+
+pub use capability::{Capability, CapabilityMatrix};
+pub use selector::{ProviderSelector, TaskType};
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;

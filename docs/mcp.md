@@ -217,6 +217,26 @@ The MCP server:
 - Does not expose filesystem directly
 - Logs all operations to audit trail
 
+## HTTP/SSE Transport (Experimental)
+
+The MCP server also supports HTTP transport with Server-Sent Events (SSE) for remote access:
+
+```bash
+# Start HTTP server on port 3000
+vibeanvil mcp serve --http --port 3000
+```
+
+Endpoints:
+- `POST /mcp` - Send JSON-RPC requests
+- `GET /mcp` - SSE stream for notifications
+
+Headers:
+- `Content-Type: application/json` (requests)
+- `Content-Type: text/event-stream` (SSE responses)
+- `Mcp-Session-Id: <uuid>` (session management)
+
+**Note:** Most AI tools (Claude Desktop, Cursor) use STDIO transport. HTTP is mainly for custom integrations.
+
 ## Development
 
 To run the MCP server in development:

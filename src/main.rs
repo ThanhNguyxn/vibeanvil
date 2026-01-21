@@ -62,7 +62,32 @@ async fn main() -> Result<()> {
         Commands::Upgrade => cli::update::upgrade().await,
         Commands::Doctor => cli::doctor::run().await,
         Commands::Wizard => cli::wizard::run().await,
-        Commands::Providers => cli::providers::run().await,
+        Commands::Providers { subcommand, args } => {
+            let cmd = match subcommand.as_deref() {
+                Some("matrix") => cli::providers::ProviderSubcommand::Matrix,
+                Some("recommend") => {
+                    let task = args.join(" ");
+                    if task.is_empty() {
+                        eprintln!("Usage: vibeanvil providers recommend \"<task description>\"");
+                        std::process::exit(1);
+                    }
+                    cli::providers::ProviderSubcommand::Recommend(task)
+                }
+                Some("compare") => {
+                    if args.is_empty() {
+                        eprintln!("Usage: vibeanvil providers compare <provider1> <provider2> ...");
+                        std::process::exit(1);
+                    }
+                    cli::providers::ProviderSubcommand::Compare(args)
+                }
+                Some("list") | None => cli::providers::ProviderSubcommand::List,
+                Some(other) => {
+                    eprintln!("Unknown subcommand: {}. Use list, matrix, recommend, or compare.", other);
+                    std::process::exit(1);
+                }
+            };
+            cli::providers::run_subcommand(cmd).await
+        },
         Commands::Undo { dry_run } => cli::undo::run(dry_run).await,
 
         // New workflow commands

@@ -46,6 +46,7 @@
 //! Start MCP server: `vibeanvil mcp serve`
 //! Test with inspector: `vibeanvil mcp test`
 
+pub mod http_transport;
 pub mod prompts;
 pub mod protocol;
 pub mod resources;
@@ -53,6 +54,4 @@ pub mod server;
 pub mod tools;
 pub mod transport;
 
-pub use prompts::PromptRegistry;
-pub use resources::ResourceRegistry;
 pub use server::McpServer;
