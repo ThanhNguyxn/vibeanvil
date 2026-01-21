@@ -150,3 +150,13 @@ pub async fn ensure_cache() -> Result<PathBuf> {
     fs::create_dir_all(&path).await?;
     Ok(path)
 }
+
+/// Get the anvil directory (.vibeanvil) - alias for workspace_path
+/// This is the main directory where all project artifacts are stored
+pub fn get_anvil_dir() -> Result<PathBuf> {
+    let path = workspace_path();
+    if !path.exists() {
+        anyhow::bail!("Workspace not initialized. Run 'vibeanvil init' first.");
+    }
+    Ok(path)
+}

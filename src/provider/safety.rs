@@ -335,6 +335,11 @@ pub fn get_patch_max_bytes() -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Mutex;
+
+    // Lock for tests that modify environment variables
+    // This prevents race conditions when tests run in parallel
+    static ENV_LOCK: Mutex<()> = Mutex::new(());
 
     // ------------------------------------------------------------------------
     // Redaction Tests
@@ -529,6 +534,7 @@ mod tests {
 
     #[test]
     fn test_timeout_env_var_new_name() {
+        let _guard = ENV_LOCK.lock().unwrap();
         std::env::set_var("VIBEANVIL_PROVIDER_TIMEOUT_SECS", "120");
         std::env::remove_var("VIBEANVIL_PROVIDER_TIMEOUT");
         assert_eq!(get_timeout_secs(), 120);
@@ -537,6 +543,7 @@ mod tests {
 
     #[test]
     fn test_timeout_env_var_legacy_fallback() {
+        let _guard = ENV_LOCK.lock().unwrap();
         std::env::remove_var("VIBEANVIL_PROVIDER_TIMEOUT_SECS");
         std::env::set_var("VIBEANVIL_PROVIDER_TIMEOUT", "300");
         assert_eq!(get_timeout_secs(), 300);
@@ -545,6 +552,7 @@ mod tests {
 
     #[test]
     fn test_timeout_env_var_new_takes_precedence() {
+        let _guard = ENV_LOCK.lock().unwrap();
         std::env::set_var("VIBEANVIL_PROVIDER_TIMEOUT_SECS", "60");
         std::env::set_var("VIBEANVIL_PROVIDER_TIMEOUT", "999");
         assert_eq!(get_timeout_secs(), 60);
@@ -554,6 +562,7 @@ mod tests {
 
     #[test]
     fn test_timeout_env_var_default() {
+        let _guard = ENV_LOCK.lock().unwrap();
         std::env::remove_var("VIBEANVIL_PROVIDER_TIMEOUT_SECS");
         std::env::remove_var("VIBEANVIL_PROVIDER_TIMEOUT");
         assert_eq!(get_timeout_secs(), DEFAULT_TIMEOUT_SECS);

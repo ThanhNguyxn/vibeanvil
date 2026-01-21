@@ -53,6 +53,11 @@
 | 🔍 **Secret Scanner** | Auto-detect AWS keys, GitHub tokens, passwords |
 | ↩️ **Undo Command** | Instantly revert last AI change with `vibeanvil undo` |
 | 🛡️ **Guardrails** | Automated risk assessment (A/B/C) and approval gates |
+| 🆕 **Chat Modes** | Ask, Code, Architect, Help modes (Aider-style) |
+| 🆕 **Spec-Driven** | Constitution, Clarify, Tasks, Analyze, Implement |
+| 🆕 **Repo Map** | Codebase mapping for AI context |
+| 🆕 **Auto-Fix** | Test and lint with automatic fixing |
+| 🆕 **MCP Server** | Integrate with Claude Desktop, Cursor, VS Code |
 
 ---
 
@@ -97,6 +102,7 @@ vibeanvil contract lock   # 🔒 "Contract LOCKED = License to Build"
 | [🔧 Commands Reference](docs/commands.md) | CLI command reference |
 | [🧠 BrainPack Guide](docs/brainpack.md) | Knowledge harvesting |
 | [🤖 AI Providers](docs/providers.md) | Setup for Copilot, Claude, etc. |
+| [🔌 MCP Server](docs/mcp.md) | Claude Desktop, Cursor, VS Code integration |
 | [📁 Data Layout](docs/data-layout.md) | Where data is stored |
 | [🔍 Data Sources](docs/data-sources.md) | Harvesting strategies |
 | [🎯 Harvest Presets](docs/harvest-presets.md) | Search presets |
@@ -317,12 +323,50 @@ vibeanvil build iterate \
 
 ## 🤖 AI Providers
 
-VibeAnvil works with **any AI coding assistant**. See [docs/PROVIDERS.md](docs/PROVIDERS.md) for details.
+VibeAnvil works with **any AI coding assistant**. See [docs/providers.md](docs/providers.md) for details.
 
 ```bash
 # List available providers
 vibeanvil providers
 ```
+
+### 🔌 MCP Server Integration (NEW!)
+
+VibeAnvil includes a built-in MCP (Model Context Protocol) server for seamless integration with AI tools:
+
+```bash
+# Test the MCP server
+vibeanvil mcp test
+
+# Get configuration for Claude Desktop, Cursor, VS Code
+vibeanvil mcp config
+```
+
+**Claude Desktop** - Add to `claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "vibeanvil": {
+      "command": "vibeanvil",
+      "args": ["mcp", "serve"]
+    }
+  }
+}
+```
+
+**Cursor** - Add to `.cursor/mcp.json`:
+```json
+{
+  "mcpServers": {
+    "vibeanvil": {
+      "command": "vibeanvil",
+      "args": ["mcp", "serve"]
+    }
+  }
+}
+```
+
+See [docs/mcp.md](docs/mcp.md) for full documentation.
 
 ### Using with GitHub Copilot / Cursor
 ```bash
