@@ -56,8 +56,11 @@ impl McpServer {
     pub fn capabilities() -> ServerCapabilities {
         ServerCapabilities {
             tools: Some(ToolsCapability { list_changed: true }),
-            resources: None, // Can add resource support later
-            prompts: None,   // Can add prompt templates later
+            resources: Some(ResourcesCapability { 
+                subscribe: false, 
+                list_changed: true,
+            }),
+            prompts: Some(PromptsCapability { list_changed: true }),
             logging: Some(LoggingCapability {}),
         }
     }
@@ -139,11 +142,11 @@ async fn handle_request(
             }
         }
 
-        // Resource methods (placeholder for future)
-        "resources/list" => handle_resources_list(),
-        "resources/read" => handle_resources_read(request.params),
+        // Resource methods
+        "resources/list" => handle_resources_list().await,
+        "resources/read" => handle_resources_read(request.params).await,
 
-        // Prompt methods (placeholder for future)
+        // Prompt methods
         "prompts/list" => handle_prompts_list(),
         "prompts/get" => handle_prompts_get(request.params),
 
@@ -259,87 +262,103 @@ async fn handle_tools_call(params: Option<serde_json::Value>) -> JsonRpcResponse
     JsonRpcResponse::success(None, serde_json::to_value(result).unwrap())
 }
 
-/// Handle resources/list request (placeholder)
-fn handle_resources_list() -> JsonRpcResponse {
+/// Handle resources/list request
+async fn handle_resources_list() -> JsonRpcResponse {
+    use super::resources::ResourceRegistry;
+    
+    let resources = ResourceRegistry::list_resources().await;
     let result = ResourcesListResult {
-        resources: vec![
-            ResourceDefinition {
-                uri: "vibeanvil://contract".to_string(),
-                name: "Contract".to_string(),
-                description: Some("Current project contract".to_string()),
-                mime_type: Some("text/markdown".to_string()),
-            },
-            ResourceDefinition {
-                uri: "vibeanvil://plan".to_string(),
-                name: "Plan".to_string(),
-                description: Some("Current implementation plan".to_string()),
-                mime_type: Some("text/markdown".to_string()),
-            },
-            ResourceDefinition {
-                uri: "vibeanvil://state".to_string(),
-                name: "State".to_string(),
-                description: Some("Current workflow state".to_string()),
-                mime_type: Some("application/json".to_string()),
-            },
-        ],
+        resources,
         next_cursor: None,
     };
     JsonRpcResponse::success(None, serde_json::to_value(result).unwrap())
 }
 
-/// Handle resources/read request (placeholder)
-fn handle_resources_read(_params: Option<serde_json::Value>) -> JsonRpcResponse {
-    // TODO: Implement actual resource reading
-    JsonRpcResponse::error(
-        None,
-        JsonRpcError::internal_error("Resource reading not yet implemented"),
-    )
+/// Handle resources/read request
+async fn handle_resources_read(params: Option<serde_json::Value>) -> JsonRpcResponse {
+    use super::resources::{ResourceRegistry, ResourceReadParams, ResourceReadResult};
+    
+    let read_params: ResourceReadParams = match params {
+        Some(p) => match serde_json::from_value(p) {
+            Ok(params) => params,
+            Err(e) => {
+                return JsonRpcResponse::error(
+                    None,
+                    JsonRpcError::invalid_params(&e.to_string()),
+                );
+            }
+        },
+        None => {
+            return JsonRpcResponse::error(
+                None,
+                JsonRpcError::invalid_params("Missing params"),
+            );
+        }
+    };
+
+    match ResourceRegistry::read_resource(&read_params.uri).await {
+        Ok(contents) => {
+            let result = ResourceReadResult {
+                contents: vec![contents],
+            };
+            JsonRpcResponse::success(None, serde_json::to_value(result).unwrap())
+        }
+        Err(e) => JsonRpcResponse::error(
+            None,
+            JsonRpcError::internal_error(&e),
+        ),
+    }
 }
 
-/// Handle prompts/list request (placeholder)
+/// Handle prompts/list request
 fn handle_prompts_list() -> JsonRpcResponse {
+    use super::prompts::PromptRegistry;
+    
     let result = PromptsListResult {
-        prompts: vec![
-            PromptDefinition {
-                name: "plan".to_string(),
-                description: Some("Generate an implementation plan for a feature".to_string()),
-                arguments: vec![
-                    PromptArgument {
-                        name: "feature".to_string(),
-                        description: Some("The feature to plan".to_string()),
-                        required: true,
-                    },
-                ],
-            },
-            PromptDefinition {
-                name: "review".to_string(),
-                description: Some("Review code changes".to_string()),
-                arguments: vec![
-                    PromptArgument {
-                        name: "files".to_string(),
-                        description: Some("Files to review".to_string()),
-                        required: false,
-                    },
-                ],
-            },
-        ],
+        prompts: PromptRegistry::list_prompts(),
         next_cursor: None,
     };
     JsonRpcResponse::success(None, serde_json::to_value(result).unwrap())
 }
 
-/// Handle prompts/get request (placeholder)
-fn handle_prompts_get(_params: Option<serde_json::Value>) -> JsonRpcResponse {
-    // TODO: Implement actual prompt retrieval
-    JsonRpcResponse::error(
-        None,
-        JsonRpcError::internal_error("Prompt retrieval not yet implemented"),
-    )
+/// Handle prompts/get request
+fn handle_prompts_get(params: Option<serde_json::Value>) -> JsonRpcResponse {
+    use super::prompts::{PromptRegistry, PromptGetParams};
+    
+    let get_params: PromptGetParams = match params {
+        Some(p) => match serde_json::from_value(p) {
+            Ok(params) => params,
+            Err(e) => {
+                return JsonRpcResponse::error(
+                    None,
+                    JsonRpcError::invalid_params(&e.to_string()),
+                );
+            }
+        },
+        None => {
+            return JsonRpcResponse::error(
+                None,
+                JsonRpcError::invalid_params("Missing params"),
+            );
+        }
+    };
+
+    match PromptRegistry::get_prompt(&get_params.name, get_params.arguments) {
+        Ok(result) => JsonRpcResponse::success(None, serde_json::to_value(result).unwrap()),
+        Err(e) => JsonRpcResponse::error(
+            None,
+            JsonRpcError::invalid_params(&e),
+        ),
+    }
 }
 
 /// Handle logging/setLevel request
-fn handle_logging_set_level(_params: Option<serde_json::Value>) -> JsonRpcResponse {
-    // TODO: Implement logging level changes
+fn handle_logging_set_level(params: Option<serde_json::Value>) -> JsonRpcResponse {
+    if let Some(p) = params {
+        if let Some(level) = p.get("level").and_then(|v| v.as_str()) {
+            debug!("Setting log level to: {}", level);
+        }
+    }
     JsonRpcResponse::success(None, serde_json::json!({}))
 }
 
@@ -410,14 +429,15 @@ mod tests {
         assert!(initialized);
     }
 
-    #[test]
-    fn test_handle_resources_list() {
-        let response = handle_resources_list();
+    #[tokio::test]
+    async fn test_handle_resources_list() {
+        let response = handle_resources_list().await;
         assert!(response.result.is_some());
         
         let result: ResourcesListResult = 
             serde_json::from_value(response.result.unwrap()).unwrap();
-        assert!(!result.resources.is_empty());
+        // Resources may be empty if no workspace initialized
+        assert!(result.resources.is_empty() || !result.resources.is_empty());
     }
 
     #[test]

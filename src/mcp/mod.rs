@@ -8,6 +8,12 @@
 //! MCP uses JSON-RPC 2.0 over STDIO transport to communicate between AI tools and VibeAnvil.
 //! The server exposes VibeAnvil commands as MCP tools that can be called by AI assistants.
 //!
+//! ## Capabilities
+//!
+//! - **Tools** - 20 VibeAnvil commands exposed as MCP tools
+//! - **Resources** - Project artifacts (contract, plan, state) as readable resources
+//! - **Prompts** - Workflow prompt templates (plan, review, implement, etc.)
+//!
 //! ## Supported Tools
 //!
 //! - `intake` - Capture user requirements
@@ -20,14 +26,33 @@
 //! - `repomap` - Get codebase structure
 //! - `analyze` - Cross-artifact consistency check
 //!
+//! ## Resources
+//!
+//! - `vibeanvil://contract` - Project contract
+//! - `vibeanvil://plan` - Implementation plan
+//! - `vibeanvil://state` - Workflow state (JSON)
+//! - `vibeanvil://constitution` - AI guidelines
+//!
+//! ## Prompts
+//!
+//! - `plan` - Generate implementation plan
+//! - `review` - Code review
+//! - `architect` - Architecture design
+//! - `developer` - Implementation
+//! - `commit` - Commit message
+//!
 //! ## Usage
 //!
 //! Start MCP server: `vibeanvil mcp serve`
 //! Test with inspector: `vibeanvil mcp test`
 
+pub mod prompts;
 pub mod protocol;
+pub mod resources;
 pub mod server;
 pub mod tools;
 pub mod transport;
 
+pub use prompts::PromptRegistry;
+pub use resources::ResourceRegistry;
 pub use server::McpServer;

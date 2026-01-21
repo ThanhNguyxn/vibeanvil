@@ -151,7 +151,43 @@ Once configured, you can ask your AI assistant to:
 - **Protocol Version**: 2025-06-18
 - **Transport**: STDIO (stdin/stdout)
 - **Message Format**: JSON-RPC 2.0
-- **Capabilities**: Tools, Logging
+- **Capabilities**: Tools, Resources, Prompts, Logging
+
+## MCP Resources
+
+The MCP server exposes project artifacts as readable resources:
+
+| Resource URI | Description |
+|--------------|-------------|
+| `vibeanvil://contract` | Project contract defining requirements |
+| `vibeanvil://plan` | Implementation plan with tasks |
+| `vibeanvil://state` | Current workflow state (JSON) |
+| `vibeanvil://constitution` | AI guidelines and rules |
+| `vibeanvil://blueprint` | Technical architecture |
+| `vibeanvil://intake` | Captured user requirements |
+| `vibeanvil://repomap` | Repository structure map |
+| `vibeanvil://tasks` | Task breakdown and progress |
+
+AI assistants can read these resources to get context about your project.
+
+## MCP Prompts
+
+The MCP server provides workflow prompt templates:
+
+| Prompt | Arguments | Description |
+|--------|-----------|-------------|
+| `plan` | `feature`, `context` | Generate implementation plan |
+| `review` | `files`, `diff` | Code review |
+| `architect` | `requirements`, `constraints` | Architecture design |
+| `developer` | `task`, `files` | Implementation |
+| `qa` | `feature`, `type` | Test planning |
+| `commit` | `changes`, `type` | Git commit message |
+| `intake` | `request` | Capture requirements |
+| `clarify` | `requirements`, `questions` | Ask clarifying questions |
+| `implement` | `task`, `plan` | AI implementation |
+| `debug` | `issue`, `error` | Debug and fix issues |
+
+Example: AI can use the `plan` prompt with your feature description to generate a structured implementation plan.
 
 ## Troubleshooting
 

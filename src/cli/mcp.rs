@@ -129,6 +129,8 @@ async fn run_test() -> Result<()> {
 /// Show MCP server info
 fn run_info() -> Result<()> {
     use crate::mcp::tools::ToolRegistry;
+    use crate::mcp::prompts::PromptRegistry;
+    use crate::mcp::resources::ResourceType;
 
     println!("{}", "VibeAnvil MCP Server".cyan().bold());
     println!();
@@ -141,18 +143,36 @@ fn run_info() -> Result<()> {
     
     println!("{}", "Capabilities:".yellow());
     let caps = McpServer::capabilities();
-    println!("  Tools: {}", if caps.tools.is_some() { "Enabled" } else { "Disabled" });
-    println!("  Resources: {}", if caps.resources.is_some() { "Enabled" } else { "Disabled" });
-    println!("  Prompts: {}", if caps.prompts.is_some() { "Enabled" } else { "Disabled" });
-    println!("  Logging: {}", if caps.logging.is_some() { "Enabled" } else { "Disabled" });
+    println!("  Tools: {}", if caps.tools.is_some() { "✓ Enabled".green() } else { "✗ Disabled".red() });
+    println!("  Resources: {}", if caps.resources.is_some() { "✓ Enabled".green() } else { "✗ Disabled".red() });
+    println!("  Prompts: {}", if caps.prompts.is_some() { "✓ Enabled".green() } else { "✗ Disabled".red() });
+    println!("  Logging: {}", if caps.logging.is_some() { "✓ Enabled".green() } else { "✗ Disabled".red() });
     println!();
 
-    println!("{}", "Tools:".yellow());
+    println!("{} (20):", "Tools".yellow());
     let registry = ToolRegistry::new();
     for tool in registry.list_tools() {
         println!("  {} - {}", 
             tool.name.cyan(),
             tool.description.as_deref().unwrap_or("").dimmed()
+        );
+    }
+    println!();
+
+    println!("{} (8):", "Resources".yellow());
+    for rt in ResourceType::all() {
+        println!("  {} - {}",
+            rt.uri().cyan(),
+            rt.description().dimmed()
+        );
+    }
+    println!();
+
+    println!("{} (10):", "Prompts".yellow());
+    for prompt in PromptRegistry::list_prompts() {
+        println!("  {} - {}",
+            prompt.name.cyan(),
+            prompt.description.as_deref().unwrap_or("").dimmed()
         );
     }
 
