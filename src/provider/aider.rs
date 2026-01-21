@@ -24,20 +24,15 @@ use super::safety::{get_timeout_secs, redact_secrets, truncate_output, MAX_OUTPU
 use super::{Context, Provider, ProviderResponse};
 
 /// Aider execution mode
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum AiderMode {
     /// Interactive chat mode
     Chat,
     /// Single message mode (--message)
+    #[default]
     Message,
     /// Watch mode for file-based instructions
     Watch,
-}
-
-impl Default for AiderMode {
-    fn default() -> Self {
-        Self::Message
-    }
 }
 
 /// Aider provider for AI pair programming

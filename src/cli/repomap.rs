@@ -121,7 +121,7 @@ impl RepoMap {
         for file in &self.files {
             tree.add_path(&file.path);
         }
-        output.push_str(&tree.to_string());
+        output.push_str(&tree.render());
         output.push_str("```\n\n");
 
         // Key symbols (if we have room)
@@ -173,7 +173,7 @@ impl RepoMap {
         for file in &self.files {
             tree.add_path(&file.path);
         }
-        println!("{}", tree.to_string());
+        println!("{}", tree.render());
 
         println!(
             "\n{} {} files, {} lines",
@@ -214,7 +214,7 @@ impl Tree {
         }
     }
 
-    fn to_string(&self) -> String {
+    fn render(&self) -> String {
         self.format_tree("", true)
     }
 
@@ -259,7 +259,7 @@ async fn collect_source_files(root: &Path) -> Result<Vec<PathBuf>> {
 }
 
 #[async_recursion::async_recursion]
-async fn collect_files_recursive(root: &Path, dir: &Path, files: &mut Vec<PathBuf>) -> Result<()> {
+async fn collect_files_recursive(_root: &Path, dir: &Path, files: &mut Vec<PathBuf>) -> Result<()> {
     let mut entries = fs::read_dir(dir).await?;
 
     while let Some(entry) = entries.next_entry().await? {
@@ -280,7 +280,7 @@ async fn collect_files_recursive(root: &Path, dir: &Path, files: &mut Vec<PathBu
         }
 
         if path.is_dir() {
-            collect_files_recursive(root, &path, files).await?;
+            collect_files_recursive(_root, &path, files).await?;
         } else if is_source_file(&path) {
             files.push(path);
         }
@@ -746,7 +746,7 @@ mod tests {
         tree.add_path("src/lib.rs");
         tree.add_path("tests/test.rs");
 
-        let output = tree.to_string();
+        let output = tree.render();
         assert!(output.contains("src/"));
         assert!(output.contains("main.rs"));
     }

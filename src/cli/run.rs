@@ -343,13 +343,12 @@ fn detect_lint_command() -> Result<String> {
     }
 
     // Check for package.json with eslint
-    if cwd.join("package.json").exists() {
-        if cwd.join(".eslintrc").exists()
+    if cwd.join("package.json").exists()
+        && (cwd.join(".eslintrc").exists()
             || cwd.join(".eslintrc.js").exists()
-            || cwd.join(".eslintrc.json").exists()
-        {
-            return Ok("npm run lint".to_string());
-        }
+            || cwd.join(".eslintrc.json").exists())
+    {
+        return Ok("npm run lint".to_string());
     }
 
     // Check for Python

@@ -26,20 +26,15 @@ use super::safety::{get_timeout_secs, redact_secrets, truncate_output, MAX_OUTPU
 use super::{Context, Provider, ProviderResponse};
 
 /// OpenCode execution mode
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum OpenCodeMode {
     /// Interactive TUI mode
     Interactive,
     /// Non-interactive prompt mode (--prompt)
+    #[default]
     Prompt,
     /// Execute custom command
     Command,
-}
-
-impl Default for OpenCodeMode {
-    fn default() -> Self {
-        Self::Prompt
-    }
 }
 
 /// OpenCode/Crush provider for terminal AI coding

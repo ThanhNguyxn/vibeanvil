@@ -152,13 +152,13 @@ mod tests {
 
     #[test]
     fn test_stdio_transport_creation() {
-        let transport = StdioTransport::new();
-        assert!(true); // Just verify it compiles
+        let _transport = StdioTransport::new();
+        // Verify it compiles and creates successfully
     }
 
     #[test]
     fn test_sync_stdio_transport_creation() {
-        let transport = SyncStdioTransport::new();
-        assert!(true);
+        let _transport = SyncStdioTransport::new();
+        // Verify it compiles and creates successfully
     }
 }

@@ -150,7 +150,6 @@ impl Provider for TabbyProvider {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
 
     fn cleanup_env() {
         std::env::remove_var("TABBY_HOST");

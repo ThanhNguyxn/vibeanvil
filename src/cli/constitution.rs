@@ -62,10 +62,8 @@ pub async fn run_constitution(
         loop {
             let mut line = String::new();
             std::io::stdin().read_line(&mut line)?;
-            if line.trim().is_empty() {
-                if input.ends_with('\n') {
-                    break;
-                }
+            if line.trim().is_empty() && input.ends_with('\n') {
+                break;
             }
             input.push_str(&line);
         }

@@ -430,6 +430,20 @@ fn generate_tasks_markdown(task_list: &TaskList) -> String {
     md
 }
 
+impl Default for Task {
+    fn default() -> Self {
+        Self {
+            id: String::new(),
+            title: String::new(),
+            description: String::new(),
+            effort: "medium".to_string(),
+            dependencies: vec![],
+            files: vec![],
+            completed: false,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -495,19 +509,5 @@ Implement the core functionality.
         assert!(task_list.complete_task("1"));
         assert_eq!(task_list.completed_count, 1);
         assert!(task_list.tasks[0].completed);
-    }
-}
-
-impl Default for Task {
-    fn default() -> Self {
-        Self {
-            id: String::new(),
-            title: String::new(),
-            description: String::new(),
-            effort: "medium".to_string(),
-            dependencies: vec![],
-            files: vec![],
-            completed: false,
-        }
     }
 }

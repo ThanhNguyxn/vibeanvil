@@ -101,7 +101,7 @@ pub fn format_sse_message(event: &str, data: &str, id: Option<&str>) -> String {
         msg.push_str(&format!("data: {}\n", line));
     }
 
-    msg.push_str("\n");
+    msg.push('\n');
     msg
 }
 

@@ -6,9 +6,10 @@ use colored::Colorize;
 use crate::provider::{get_provider, list_providers, CapabilityMatrix, ProviderSelector, TaskType};
 
 /// Provider subcommand
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub enum ProviderSubcommand {
     /// List available providers
+    #[default]
     List,
     /// Show capability matrix
     Matrix,
@@ -16,12 +17,6 @@ pub enum ProviderSubcommand {
     Recommend(String),
     /// Compare providers
     Compare(Vec<String>),
-}
-
-impl Default for ProviderSubcommand {
-    fn default() -> Self {
-        Self::List
-    }
 }
 
 pub async fn run() -> Result<()> {

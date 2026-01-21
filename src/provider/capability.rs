@@ -714,14 +714,14 @@ impl CapabilityMatrix {
         for cap in &caps {
             output.push_str(&format!("{} | ", cap.short_code()));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         // Separator
         output.push_str("|---------|------|");
         for _ in &caps {
-            output.push_str("----|");
+            output.push_str("----|")
         }
-        output.push_str("\n");
+        output.push('\n');
 
         // Rows
         for provider in providers {
@@ -739,11 +739,11 @@ impl CapabilityMatrix {
                 };
                 output.push_str(&format!("{} | ", symbol));
             }
-            output.push_str("\n");
+            output.push('\n');
         }
 
         // Legend
-        output.push_str("\n");
+        output.push('\n');
         output.push_str(
             "Legend: ● = Excellent (9-10), ◐ = Good (6-8), ○ = Limited (1-5), · = None\n",
         );
