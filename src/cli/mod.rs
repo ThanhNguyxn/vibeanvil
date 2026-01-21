@@ -2,28 +2,39 @@
 
 use clap::{Parser, Subcommand, ValueEnum};
 
+pub mod analyze;
 pub mod blueprint;
 pub mod brain;
 pub mod build;
+pub mod clarify;
+pub mod constitution;
 pub mod contract;
 pub mod doctor;
 pub mod harvest;
+pub mod implement;
 pub mod init;
 pub mod intake;
 pub mod log;
+pub mod mcp;
+pub mod mode;
 pub mod plan;
 pub mod progress;
 pub mod providers;
+pub mod repomap;
 pub mod review;
+pub mod run;
 pub mod ship;
 pub mod snapshot;
 pub mod status;
 pub mod style;
+pub mod tasks;
 pub mod ui;
 pub mod undo;
 pub mod update;
 pub mod watch;
 pub mod wizard;
+
+pub use mcp::McpAction;
 
 /// VibeAnvil - Contract-first vibe coding with evidence, audit, and repo-brain harvesting
 #[derive(Parser)]
@@ -138,8 +149,15 @@ pub enum Commands {
     /// Interactive wizard menu
     Wizard,
 
-    /// List available AI providers
-    Providers,
+    /// List available AI providers and capability matrix
+    Providers {
+        /// Subcommand: list, matrix, recommend, compare
+        #[arg(value_name = "SUBCOMMAND")]
+        subcommand: Option<String>,
+        /// Additional arguments (task description or provider names)
+        #[arg(trailing_var_arg = true)]
+        args: Vec<String>,
+    },
 
     /// Undo the last AI-made change (reverts last commit)
     Undo {
@@ -147,6 +165,133 @@ pub enum Commands {
         #[arg(long)]
         dry_run: bool,
     },
+
+    // ============ NEW WORKFLOW COMMANDS (Spec-Kit & Aider inspired) ============
+    /// Set project principles and governance guidelines
+    Constitution {
+        /// Guidelines to incorporate (interactive if not provided)
+        #[arg(short, long)]
+        guidelines: Option<String>,
+        /// View current constitution only
+        #[arg(long)]
+        view: bool,
+        /// Provider to use
+        #[arg(short, long, default_value = "claude-code")]
+        provider: String,
+    },
+
+    /// Clarify requirements with interactive Q&A
+    Clarify {
+        /// Provider to use
+        #[arg(short, long, default_value = "claude-code")]
+        provider: String,
+    },
+
+    /// Generate actionable tasks from implementation plan
+    Tasks {
+        /// Provider to use
+        #[arg(short, long, default_value = "claude-code")]
+        provider: String,
+        /// Regenerate tasks even if they exist
+        #[arg(long)]
+        regenerate: bool,
+        /// Mark a task as done
+        #[arg(long)]
+        done: Option<String>,
+    },
+
+    /// Analyze artifacts for consistency and coverage
+    Analyze {
+        /// Provider to use
+        #[arg(short, long, default_value = "claude-code")]
+        provider: String,
+    },
+
+    /// Execute tasks to implement the plan
+    Implement {
+        /// Provider to use
+        #[arg(short, long, default_value = "claude-code")]
+        provider: String,
+        /// Specific task ID to implement
+        #[arg(long)]
+        task: Option<String>,
+        /// Implement all remaining tasks
+        #[arg(long)]
+        all: bool,
+        /// Show what would be done without doing it
+        #[arg(long)]
+        dry_run: bool,
+    },
+
+    /// Run a command and optionally share output with AI
+    Run {
+        /// Command to run
+        command: String,
+        /// Capture output as evidence
+        #[arg(long)]
+        capture: bool,
+        /// Share output with AI for analysis
+        #[arg(long)]
+        share: bool,
+    },
+
+    /// Run tests with optional auto-fix
+    Test {
+        /// Custom test command
+        #[arg(long)]
+        cmd: Option<String>,
+        /// Auto-fix failing tests
+        #[arg(long)]
+        fix: bool,
+    },
+
+    /// Run linter with optional auto-fix
+    Lint {
+        /// Custom lint command
+        #[arg(long)]
+        cmd: Option<String>,
+        /// Auto-fix lint errors
+        #[arg(long)]
+        fix: bool,
+    },
+
+    /// Generate a repository map for AI context
+    Map {
+        /// Maximum tokens for context output
+        #[arg(long)]
+        max_tokens: Option<usize>,
+    },
+
+    /// Chat with AI in different modes (ask/code/architect/help)
+    Chat {
+        /// Chat mode
+        #[arg(value_enum, default_value = "code")]
+        mode: ChatModeArg,
+        /// Message to send
+        message: String,
+        /// Provider to use
+        #[arg(short, long, default_value = "claude-code")]
+        provider: String,
+    },
+
+    /// MCP (Model Context Protocol) server for AI tool integration
+    Mcp {
+        #[command(subcommand)]
+        action: McpAction,
+    },
+}
+
+/// Chat mode argument
+#[derive(Clone, ValueEnum)]
+pub enum ChatModeArg {
+    /// Ask questions without making changes
+    Ask,
+    /// Make code changes
+    Code,
+    /// High-level architecture proposals
+    Architect,
+    /// Get help with VibeAnvil
+    Help,
 }
 
 #[derive(Clone, ValueEnum)]

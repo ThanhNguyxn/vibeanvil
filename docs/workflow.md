@@ -472,6 +472,207 @@ prov.finish();
 
 ---
 
+## 🆕 Enhanced Workflow Commands (v0.5.0)
+
+VibeAnvil now includes advanced workflow features inspired by Aider and GitHub's Spec-Kit:
+
+### 🏛️ Constitution - Establish Project Principles
+
+Set up governing principles that guide all development:
+
+```bash
+# Create constitution interactively
+vibeanvil constitution
+
+# With specific guidelines
+vibeanvil constitution --guidelines "Focus on code quality, 100% test coverage, TDD approach"
+
+# View existing constitution
+vibeanvil constitution --view
+```
+
+**What it creates:** `.vibeanvil/constitution.md` with principles for:
+- Code quality standards
+- Testing requirements
+- Architecture guidelines
+- Security requirements
+- Review standards
+
+---
+
+### ❓ Clarify - Interactive Q&A
+
+Identify gaps in requirements before planning:
+
+```bash
+vibeanvil clarify --provider claude-code
+```
+
+**What it does:**
+- Analyzes your intake and contract
+- Generates clarifying questions
+- Identifies ambiguous requirements
+- Saves questions to `.vibeanvil/clarify.md`
+
+---
+
+### 📋 Tasks - Break Down the Plan
+
+Convert implementation plan into actionable tasks:
+
+```bash
+# Generate tasks
+vibeanvil tasks --provider claude-code
+
+# Regenerate tasks
+vibeanvil tasks --regenerate
+
+# Mark a task as done
+vibeanvil tasks --done 1.2
+```
+
+**Task format:**
+```
+[○] [1] Setup project [small]
+    └─ depends on: none
+[○] [2] Implement core [large]
+    └─ depends on: 1
+[✓] [3] Add tests [medium]
+    └─ depends on: 2
+```
+
+---
+
+### 🔍 Analyze - Cross-Artifact Consistency
+
+Check all artifacts for consistency and coverage:
+
+```bash
+vibeanvil analyze --provider claude-code
+```
+
+**What it checks:**
+- Intake ↔ Contract alignment
+- Contract ↔ Plan coverage
+- Plan ↔ Tasks mapping
+- Missing edge cases
+- Risk assessment
+- Overall readiness score (0-100)
+
+---
+
+### ⚡ Implement - Execute Tasks
+
+Automatically implement tasks from the task list:
+
+```bash
+# Implement next task
+vibeanvil implement --provider claude-code
+
+# Implement specific task
+vibeanvil implement --task 1.2
+
+# Implement all remaining tasks
+vibeanvil implement --all
+
+# Dry run (see what would be done)
+vibeanvil implement --dry-run
+```
+
+---
+
+### 🖥️ Run - Execute Commands
+
+Run commands and optionally share output with AI:
+
+```bash
+# Run a command
+vibeanvil run "npm test"
+
+# Capture output as evidence
+vibeanvil run "cargo build" --capture
+
+# Share output with AI for analysis (useful for errors)
+vibeanvil run "cargo test" --share
+```
+
+---
+
+### 🧪 Test - Run Tests with Auto-Fix
+
+```bash
+# Auto-detect and run tests
+vibeanvil test
+
+# Custom test command
+vibeanvil test --cmd "pytest -v"
+
+# Auto-fix failing tests
+vibeanvil test --fix
+```
+
+---
+
+### 🔍 Lint - Run Linter with Auto-Fix
+
+```bash
+# Auto-detect and run lint
+vibeanvil lint
+
+# Custom lint command
+vibeanvil lint --cmd "eslint ."
+
+# Auto-fix lint errors
+vibeanvil lint --fix
+```
+
+---
+
+### 🗺️ Map - Repository Map
+
+Generate a codebase map for AI context:
+
+```bash
+vibeanvil map
+
+# With token limit
+vibeanvil map --max-tokens 4000
+```
+
+**Outputs:**
+- `.vibeanvil/repomap.json` - Full structured map
+- `.vibeanvil/repomap.md` - Compact context for AI
+
+---
+
+### 💬 Chat - Multi-Mode Conversations
+
+Chat with AI in different modes (inspired by Aider):
+
+```bash
+# Ask questions without making changes
+vibeanvil chat ask "What does this function do?"
+
+# Make code changes (default)
+vibeanvil chat code "Add error handling to this function"
+
+# High-level architecture proposals
+vibeanvil chat architect "How should I structure the auth module?"
+
+# Get help with VibeAnvil
+vibeanvil chat help "How do I use guardrails?"
+```
+
+**Chat Modes:**
+| Mode | Purpose |
+|------|---------|
+| `ask` | Discuss code without changes |
+| `code` | Make code changes |
+| `architect` | High-level design proposals |
+| `help` | VibeAnvil usage help |
+
+---
+
 ## 📍 Where Data Lives
 
 | Location | Path | Scope |

@@ -1,0 +1,211 @@
+//! Cline provider - AI coding assistant with CLI support
+//!
+//! Cline is an autonomous AI coding agent available as VS Code extension
+//! and CLI tool. It can perform file operations, run commands, and more.
+//!
+//! Installation:
+//! ```bash
+//! npm install -g cline
+//! ```
+//!
+//! Configuration:
+//! - `ANTHROPIC_API_KEY`: For Claude models
+//! - `OPENAI_API_KEY`: For OpenAI models
+//! - `CLINE_MODEL`: Model to use (optional)
+//! - `CLINE_EXTRA_ARGS`: Additional CLI arguments
+
+use super::{Context, Provider, ProviderResponse};
+use anyhow::{anyhow, Result};
+use async_trait::async_trait;
+use std::process::Command;
+use std::time::Duration;
+
+/// Cline AI coding assistant provider
+pub struct ClineProvider {
+    command: String,
+    timeout: Duration,
+}
+
+impl Default for ClineProvider {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl ClineProvider {
+    /// Create a new Cline provider
+    pub fn new() -> Self {
+        let timeout_secs = std::env::var("CLINE_TIMEOUT_SECS")
+            .ok()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(600);
+
+        Self {
+            command: std::env::var("CLINE_COMMAND").unwrap_or_else(|_| "cline".to_string()),
+            timeout: Duration::from_secs(timeout_secs),
+        }
+    }
+
+    fn build_command(&self, prompt: &str, context: &Context) -> Command {
+        let mut cmd = Command::new(&self.command);
+
+        // Set working directory
+        cmd.current_dir(&context.working_dir);
+
+        // Pass prompt as argument (Cline accepts prompts via stdin or args)
+        cmd.arg("--prompt").arg(prompt);
+
+        // Add model if specified
+        if let Ok(model) = std::env::var("CLINE_MODEL") {
+            cmd.arg("--model").arg(model);
+        }
+
+        // Auto-approve for automation
+        cmd.arg("--yes");
+
+        // Add extra arguments
+        if let Ok(extra_args) = std::env::var("CLINE_EXTRA_ARGS") {
+            for arg in extra_args.split_whitespace() {
+                cmd.arg(arg);
+            }
+        }
+
+        cmd
+    }
+}
+
+#[async_trait]
+impl Provider for ClineProvider {
+    async fn execute(&self, prompt: &str, context: &Context) -> Result<ProviderResponse> {
+        let mut cmd = self.build_command(prompt, context);
+
+        // Execute with timeout
+        let output = tokio::time::timeout(self.timeout, async {
+            tokio::task::spawn_blocking(move || cmd.output())
+                .await
+                .map_err(|e| anyhow!("Task join error: {}", e))?
+                .map_err(|e| anyhow!("Failed to execute cline: {}", e))
+        })
+        .await
+        .map_err(|_| anyhow!("Cline timed out after {:?}", self.timeout))??;
+
+        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+
+        let success = output.status.success();
+        let errors = if stderr.is_empty() {
+            vec![]
+        } else {
+            vec![stderr.clone()]
+        };
+
+        // Parse modified files from output
+        let files_modified = parse_modified_files(&stdout);
+
+        Ok(ProviderResponse {
+            success,
+            output: if success { stdout } else { stderr },
+            errors,
+            warnings: vec![],
+            files_modified,
+        })
+    }
+
+    async fn generate_commit_message(&self, diff: &str, context: &Context) -> Result<String> {
+        let prompt = format!(
+            "Generate a concise git commit message for this diff. \
+             Return ONLY the commit message, no explanation:\n\n{}",
+            diff
+        );
+        let response = self.execute(&prompt, context).await?;
+        Ok(response.output.trim().to_string())
+    }
+
+    fn name(&self) -> &str {
+        "cline"
+    }
+
+    fn is_available(&self) -> bool {
+        which::which(&self.command).is_ok()
+    }
+}
+
+/// Parse modified files from Cline output
+fn parse_modified_files(output: &str) -> Vec<String> {
+    let mut files = Vec::new();
+    for line in output.lines() {
+        // Look for file operation patterns
+        if let Some(path) = line.strip_prefix("✓ Created ") {
+            files.push(path.trim().to_string());
+        } else if let Some(path) = line.strip_prefix("✓ Modified ") {
+            files.push(path.trim().to_string());
+        } else if let Some(path) = line.strip_prefix("Created: ") {
+            files.push(path.trim().to_string());
+        } else if let Some(path) = line.strip_prefix("Modified: ") {
+            files.push(path.trim().to_string());
+        }
+    }
+    files
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn cleanup_env() {
+        std::env::remove_var("CLINE_COMMAND");
+        std::env::remove_var("CLINE_MODEL");
+        std::env::remove_var("CLINE_EXTRA_ARGS");
+        std::env::remove_var("CLINE_TIMEOUT_SECS");
+    }
+
+    #[test]
+    fn test_cline_provider_new() {
+        cleanup_env();
+        let provider = ClineProvider::new();
+        assert_eq!(provider.command, "cline");
+        assert_eq!(provider.timeout, Duration::from_secs(600));
+    }
+
+    #[test]
+    fn test_cline_provider_name() {
+        cleanup_env();
+        let provider = ClineProvider::new();
+        assert_eq!(provider.name(), "cline");
+    }
+
+    #[test]
+    fn test_cline_build_command() {
+        cleanup_env();
+        let provider = ClineProvider::new();
+        let context = Context {
+            working_dir: PathBuf::from("/test"),
+            session_id: "test-session".to_string(),
+            contract_hash: None,
+        };
+
+        let cmd = provider.build_command("test prompt", &context);
+        let args: Vec<_> = cmd.get_args().collect();
+
+        assert!(args.contains(&std::ffi::OsStr::new("--prompt")));
+        assert!(args.contains(&std::ffi::OsStr::new("test prompt")));
+        assert!(args.contains(&std::ffi::OsStr::new("--yes")));
+    }
+
+    #[test]
+    fn test_parse_modified_files() {
+        let output = r#"
+Starting task...
+✓ Created src/main.rs
+✓ Modified src/lib.rs
+Created: tests/test.rs
+Modified: README.md
+Done.
+"#;
+        let files = parse_modified_files(output);
+        assert_eq!(files.len(), 4);
+        assert!(files.contains(&"src/main.rs".to_string()));
+        assert!(files.contains(&"src/lib.rs".to_string()));
+    }
+}

@@ -6,24 +6,64 @@ VibeAnvil is **AI-agnostic** — you can use it with any AI coding assistant. Th
 
 | Provider | Best For | Requirements |
 |----------|----------|--------------|
-| `human` | GitHub Copilot, Cursor, VS Code Chat | None (always available) |
-| `claude-code` | Claude Code CLI automation | `@anthropic-ai/claude-code` installed |
-| `command` | Any CLI agent (Aider, etc.) | Command available + env vars set |
-| `patch` | Diff-based workflows, API LLMs | `git` installed |
+| **IDE AI (with CLI)** | | |
+| `cursor` | Cursor AI automation | Cursor CLI installed |
+| `cline` | Cline autonomous agent | `npm install -g cline` |
+| `continue` | Continue dev headless | `npm i -g @continuedev/cli` |
+| `cody` | Sourcegraph Cody | `npm i -g @sourcegraph/cody` |
+| **IDE AI (prompt-based)** | | |
+| `copilot` | GitHub Copilot | None (generates prompt) |
+| `zed` | Zed AI assistant | None (generates prompt) |
+| `windsurf` | Codeium Windsurf | None (generates prompt) |
+| `trae` | ByteDance Trae | None (generates prompt) |
+| `jetbrains` | JetBrains AI | None (generates prompt) |
+| `supermaven` | Supermaven | None (generates prompt) |
+| `gemini-assist` | Google Gemini Code Assist | None (generates prompt) |
+| **Terminal Agents** | | |
+| `claude-code` | Claude Code CLI | `@anthropic-ai/claude-code` |
+| `aider` | AI pair programming | `pip install aider-chat` |
+| `opencode` | Terminal TUI | `go install crush` |
+| `goose` | Block's AI agent | `brew install --cask block-goose` |
+| **Cloud AI** | | |
+| `kiro` | AWS Kiro (Amazon Q) | `kiro-cli` installed |
+| **Self-Hosted AI** | | |
+| `tabby` | Tabby ML server | Tabby server running |
+| `tabby/<model>` | Tabby with model | e.g., `tabby/StarCoder-7B` |
+| `ollama` | Local LLM (default) | Ollama installed + running |
+| `ollama/<model>` | Any Ollama model | e.g., `ollama/llama3.2` |
+| **Model Shortcuts** | | |
+| `llama`, `codellama`, `deepseek`... | Popular Ollama models | Ollama + model pulled |
+| **Generic** | | |
+| `human` | Generic IDE prompt | None (always available) |
+| `command` | Any CLI agent | Command + env vars |
+| `patch` | Diff-based workflows | `git` installed |
 | `mock` | Testing | None |
 
 ## Which Provider Should I Use?
 
 | If you use... | Choose | Why |
 |---------------|--------|-----|
-| **GitHub Copilot** | `human` | Copilot works in your IDE; copy the generated prompt, apply suggestions manually |
-| **Cursor / Windsurf** | `human` | AI-assisted editing in IDE; paste prompt, let AI suggest, you approve |
-| **Claude CLI** | `claude-code` | Direct automation; Claude executes plan and reports back |
-| **Aider / Shell Agent** | `command` | Runs any CLI command; agent handles the implementation |
-| **API + Custom Script** | `patch` | Generate diffs via API, validate and apply with git |
-| **Testing VibeAnvil** | `mock` | No external dependencies; useful for CI/CD testing |
+| **GitHub Copilot** | `copilot` | Optimized prompt for Copilot Chat |
+| **Cursor** | `cursor` | CLI automation with headless mode |
+| **Zed** | `zed` | Prompt for Zed's built-in AI |
+| **Windsurf** | `windsurf` | Prompt for Cascade mode |
+| **Trae** | `trae` | Prompt for SOLO autonomous mode |
+| **JetBrains IDE** | `jetbrains` | IntelliJ, PyCharm, WebStorm AI |
+| **VS Code + Cline** | `cline` | Full autonomous agent |
+| **Continue** | `continue` | Headless automation |
+| **Sourcegraph Cody** | `cody` | Codebase context awareness |
+| **Supermaven** | `supermaven` | Fast 1M token context |
+| **Gemini Code Assist** | `gemini-assist` | Google's AI assistant |
+| **Claude CLI** | `claude-code` | Direct CLI automation |
+| **Aider** | `aider` | Best OSS terminal agent |
+| **Goose** | `goose` | Block's autonomous agent |
+| **AWS Kiro** | `kiro` | Enterprise AWS-backed |
+| **Self-hosted Tabby** | `tabby` | Zero cloud dependency |
+| **Local Models** | `ollama` | Privacy-first, zero API cost |
+| **Other CLI Agent** | `command` | Runs any CLI command |
+| **API + Custom Script** | `patch` | Generate and apply diffs |
 
-> **Tip:** Not sure? Start with `human`. It works everywhere and teaches you the workflow.
+> **Tip:** Not sure? Start with `copilot` for GitHub Copilot or `human` for a generic prompt.
 
 ## List Available Providers
 
@@ -69,12 +109,137 @@ vibeanvil plan
 vibeanvil build iterate --provider human
 
 # 4. Open the generated prompt file (shown in output)
-# 5. Paste content into Copilot/Cursor/VS Code Chat
+# 5. Paste content into your IDE assistant
 # 6. Apply the AI's suggestions in your IDE
 
 # 7. Capture evidence and complete
 vibeanvil build manual evidence
 vibeanvil build manual complete
+```
+
+---
+
+## GitHub Copilot Provider
+
+**Best for:** GitHub Copilot Chat in VS Code, JetBrains, or Neovim.
+
+### Usage
+
+```bash
+vibeanvil build iterate --provider copilot
+```
+
+### Workflow
+
+1. Command generates `copilot_prompt.md` in your session directory
+2. Open GitHub Copilot Chat in your IDE
+3. Paste the prompt content
+4. Apply suggested changes
+5. Run `vibeanvil build manual evidence`
+
+---
+
+## Zed AI Provider
+
+**Best for:** Zed editor's built-in AI assistant.
+
+### Usage
+
+```bash
+vibeanvil build iterate --provider zed
+```
+
+### Workflow
+
+1. Command generates `zed_prompt.md`
+2. Open Zed, press `Cmd+Enter` (Mac) or `Ctrl+Enter` (Linux)
+3. Paste the prompt, use `/file` to add context
+4. Apply changes
+
+---
+
+## Windsurf Provider
+
+**Best for:** Codeium's Windsurf IDE with Cascade mode.
+
+### Usage
+
+```bash
+vibeanvil build iterate --provider windsurf
+```
+
+### Features
+
+- **Cascade** (`Cmd+I`): Autonomous coding mode
+- **Flow** (`Cmd+L`): Inline editing
+- Use `@file`, `@folder`, `@docs` for context
+
+---
+
+## Trae Provider
+
+**Best for:** ByteDance's Trae IDE with SOLO mode.
+
+### Usage
+
+```bash
+vibeanvil build iterate --provider trae
+```
+
+### Features
+
+- **SOLO mode**: Autonomous planning, coding, debugging
+- **Builder mode**: Step-by-step guidance
+- **Chat mode**: Quick questions
+
+---
+
+## JetBrains AI Provider
+
+**Best for:** JetBrains IDEs (IntelliJ, PyCharm, WebStorm, etc.)
+
+### Usage
+
+```bash
+vibeanvil build iterate --provider jetbrains
+# Aliases: intellij, idea
+```
+
+### Features
+
+- Press `Alt+Enter` on code for AI suggestions
+- AI Chat panel for conversations
+- Commands: `/explain`, `/refactor`, `/tests`
+
+---
+
+## Supermaven Provider
+
+**Best for:** Supermaven's fast AI completions with 1M token context.
+
+### Usage
+
+```bash
+vibeanvil build iterate --provider supermaven
+```
+
+### Features
+
+- 1M token context window
+- Fast inline completions
+- Works with VS Code, JetBrains, Neovim
+
+---
+
+## Gemini Code Assist Provider
+
+**Best for:** Google's Gemini Code Assist in VS Code/JetBrains.
+
+### Usage
+
+```bash
+vibeanvil build iterate --provider gemini-assist
+# Alias: gemini-code
 ```
 
 ---
@@ -95,6 +260,207 @@ npm install -g @anthropic-ai/claude-code
 vibeanvil build iterate --provider claude-code
 vibeanvil build auto --provider claude-code
 ```
+
+---
+
+## Aider Provider
+
+**Best for:** AI pair programming with automatic git integration.
+
+### Requirements
+
+```bash
+pip install aider-chat
+# or
+pipx install aider-chat
+```
+
+### Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ANTHROPIC_API_KEY` | - | For Claude models (recommended) |
+| `OPENAI_API_KEY` | - | For OpenAI models |
+| `AIDER_MODEL` | claude-3-sonnet | Model to use |
+| `AIDER_AUTO_COMMITS` | true | Enable git auto-commits |
+| `AIDER_EXTRA_ARGS` | - | Additional CLI arguments |
+
+### Usage
+
+```bash
+vibeanvil build iterate --provider aider
+```
+
+### Features
+
+- **RepoMap**: Automatic codebase understanding
+- **Auto-commit**: Git commits with AI-generated messages
+- **Watch mode**: Monitor files for AI instruction comments
+- **Voice input**: Speak your coding requests
+- **100+ language support**
+
+### Local Model Support
+
+```bash
+# Use with Ollama
+export AIDER_MODEL=ollama/llama3.2
+
+# Use with local endpoint
+export AIDER_MODEL=openai/local-model
+export OPENAI_API_BASE=http://localhost:8080/v1
+```
+
+---
+
+## Ollama Provider
+
+**Best for:** Local LLM inference with zero API cost.
+
+### Requirements
+
+```bash
+# Install Ollama from https://ollama.com
+# macOS:
+brew install ollama
+
+# Start the server
+ollama serve
+
+# Pull any model you want to use
+ollama pull llama3.2
+ollama pull codellama
+ollama pull deepseek-coder-v2
+```
+
+### Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `OLLAMA_HOST` | http://localhost:11434 | Ollama server URL |
+| `OLLAMA_MODEL` | llama3.2 | Default model |
+| `OLLAMA_CONTEXT_SIZE` | 8192 | Context window size |
+| `OLLAMA_TEMPERATURE` | 0.7 | Sampling temperature |
+
+### Usage
+
+```bash
+# Default model (uses OLLAMA_MODEL or llama3.2)
+vibeanvil build iterate --provider ollama
+
+# Use ANY Ollama model with dynamic syntax
+vibeanvil build iterate --provider ollama/codellama
+vibeanvil build iterate --provider ollama/deepseek-coder-v2
+vibeanvil build iterate --provider ollama/qwen2.5-coder:14b
+vibeanvil build iterate --provider ollama/llama3.2:70b
+
+# Or use convenient shortcuts (no version hardcoding!)
+vibeanvil build iterate --provider codellama
+vibeanvil build iterate --provider deepseek
+vibeanvil build iterate --provider qwen
+```
+
+### Model Shortcuts
+
+For convenience, these shortcuts map to popular models:
+
+| Shortcut | Model | Best For |
+|----------|-------|----------|
+| `llama` | llama3.2 | General purpose |
+| `codellama` | codellama | Code generation |
+| `deepseek` | deepseek-coder-v2 | Code + reasoning |
+| `qwen` | qwen2.5-coder | Code generation |
+| `mistral` | mistral | General purpose |
+| `mixtral` | mixtral | Large context |
+| `phi` | phi3 | Fast & small |
+| `gemma` | gemma2 | Google's model |
+| `starcoder` | starcoder2 | Code completion |
+| `codegemma` | codegemma | Code-focused Gemma |
+| `wizardcoder` | wizardcoder | Coding assistant |
+| `codestral` | codestral | Mistral's code model |
+| `granite-code` | granite-code | IBM's code model |
+| `yi-coder` | yi-coder | 01.AI's code model |
+| `stable-code` | stable-code | Stability AI code |
+
+> **Flexible versioning:** Shortcuts use base model names without hardcoded versions.
+> Ollama will use the default tag (usually `:latest`). For specific sizes/versions:
+> ```bash
+> # Use any version you want
+> vibeanvil build iterate --provider ollama/llama3.3:70b
+> vibeanvil build iterate --provider ollama/qwen3:32b
+> vibeanvil build iterate --provider ollama/deepseek-r1:8b
+> 
+> # Future models work automatically!
+> vibeanvil build iterate --provider ollama/llama4
+> vibeanvil build iterate --provider ollama/gpt-5-local  # hypothetical
+> ```
+
+### Recommended Models for Coding
+
+**Best coding models (as of 2024-2025):**
+
+```bash
+# Top tier - best quality
+ollama pull deepseek-coder-v2:16b
+ollama pull qwen2.5-coder:14b
+ollama pull codellama:34b
+
+# Mid tier - good balance
+ollama pull deepseek-coder-v2
+ollama pull qwen2.5-coder:7b
+ollama pull codegemma:7b
+
+# Lightweight - fast
+ollama pull deepseek-coder:1.3b
+ollama pull qwen2.5-coder:1.5b
+ollama pull phi3
+```
+
+### Features
+
+- **100+ models** available
+- **OpenAI-compatible API**
+- **Zero cost** per token
+- **Full privacy** - data never leaves your machine
+- **Offline capable**
+
+---
+
+## OpenCode/Crush Provider
+
+**Best for:** Terminal AI with beautiful TUI and auto-compact.
+
+> Note: OpenCode has been archived. Use Crush (successor).
+
+### Requirements
+
+```bash
+go install github.com/ryboe/crush@latest
+```
+
+### Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ANTHROPIC_API_KEY` | - | For Claude models |
+| `OPENAI_API_KEY` | - | For OpenAI models |
+| `OPENCODE_MODEL` | claude-sonnet-4 | Model to use |
+| `OPENCODE_EXTRA_ARGS` | - | Additional CLI arguments |
+
+### Usage
+
+```bash
+vibeanvil build iterate --provider opencode
+# or
+vibeanvil build iterate --provider crush
+```
+
+### Features
+
+- **TUI** with Bubble Tea
+- **Auto-compact** at 95% context limit
+- **MCP integration** for tools
+- **LSP support** for code intelligence
+- **Session persistence**
 
 ---
 
@@ -278,3 +644,227 @@ Both `human` and `patch` providers include safety instructions in generated prom
 - Do not modify files outside the repo
 - Run tests after changes
 
+---
+
+## New Providers (IDE AI Assistants)
+
+### Cursor Provider
+
+**Best for:** Automating Cursor AI editor.
+
+#### Requirements
+
+Download Cursor from https://cursor.com. CLI is included.
+
+#### Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CURSOR_MODEL` | - | Model to use |
+| `CURSOR_EXTRA_ARGS` | - | Additional CLI arguments |
+| `CURSOR_TIMEOUT_SECS` | 600 | Timeout in seconds |
+
+#### Usage
+
+```bash
+vibeanvil build iterate --provider cursor
+```
+
+---
+
+### Cline Provider
+
+**Best for:** Autonomous AI coding with file operations and browser automation.
+
+#### Requirements
+
+```bash
+npm install -g cline
+```
+
+#### Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ANTHROPIC_API_KEY` | - | For Claude models |
+| `OPENAI_API_KEY` | - | For OpenAI models |
+| `CLINE_MODEL` | - | Model to use |
+| `CLINE_EXTRA_ARGS` | - | Additional CLI arguments |
+
+#### Usage
+
+```bash
+vibeanvil build iterate --provider cline
+```
+
+---
+
+### Continue Provider
+
+**Best for:** Continue with headless automation mode.
+
+#### Requirements
+
+```bash
+npm i -g @continuedev/cli
+```
+
+#### Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CONTINUE_MODEL` | - | Model to use |
+| `CONTINUE_EXTRA_ARGS` | - | Additional CLI arguments |
+
+#### Usage
+
+```bash
+vibeanvil build iterate --provider continue
+# or alias
+vibeanvil build iterate --provider cn
+```
+
+---
+
+### Cody Provider
+
+**Best for:** Sourcegraph's AI with excellent codebase context.
+
+#### Requirements
+
+```bash
+npm install -g @sourcegraph/cody
+cody auth login --web
+```
+
+#### Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SRC_ENDPOINT` | sourcegraph.com | Sourcegraph endpoint |
+| `SRC_ACCESS_TOKEN` | - | Access token |
+| `CODY_MODEL` | - | Model to use |
+| `CODY_CONTEXT_REPO` | - | Repository for context |
+
+#### Usage
+
+```bash
+vibeanvil build iterate --provider cody
+```
+
+---
+
+## New Providers (Terminal Agents)
+
+### Goose Provider
+
+**Best for:** Block's autonomous AI agent with MCP support.
+
+#### Requirements
+
+```bash
+# macOS
+brew install --cask block-goose
+
+# Other platforms: https://github.com/block/goose
+```
+
+#### Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GOOSE_MODEL` | - | Model to use |
+| `GOOSE_PROVIDER` | - | AI provider (openai, anthropic, etc.) |
+| `GOOSE_EXTRA_ARGS` | - | Additional CLI arguments |
+
+#### Usage
+
+```bash
+vibeanvil build iterate --provider goose
+```
+
+---
+
+## New Providers (Cloud AI)
+
+### Kiro Provider (AWS)
+
+**Best for:** AWS-backed enterprise AI assistant.
+
+#### Requirements
+
+```bash
+# macOS/Linux
+curl -fsSL https://cli.kiro.dev/install | bash
+
+# Login
+kiro-cli login
+```
+
+#### Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `KIRO_EXTRA_ARGS` | - | Additional CLI arguments |
+
+#### Usage
+
+```bash
+vibeanvil build iterate --provider kiro
+# or alias
+vibeanvil build iterate --provider amazon-q
+```
+
+---
+
+## New Providers (Self-Hosted)
+
+### Tabby Provider
+
+**Best for:** Self-hosted AI on consumer GPUs.
+
+#### Requirements
+
+```bash
+# Docker with GPU
+docker run -it --gpus all -p 8080:8080 -v $HOME/.tabby:/data \
+  tabbyml/tabby serve --model StarCoder-1B --device cuda
+```
+
+#### Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TABBY_HOST` | http://localhost:8080 | Tabby server URL |
+| `TABBY_MODEL` | - | Chat model |
+| `TABBY_API_KEY` | - | API key (if auth enabled) |
+
+#### Usage
+
+```bash
+# Default model
+vibeanvil build iterate --provider tabby
+
+# Specific model
+vibeanvil build iterate --provider tabby/StarCoder-7B
+```
+
+---
+
+## IDE-Only Tools (Use Human Provider)
+
+Some AI tools don't have CLI/API access and must be used with the `human` provider:
+
+| Tool | Type | Why Human Provider? |
+|------|------|---------------------|
+| **Windsurf** | Codeium IDE | IDE-only, no CLI |
+| **Trae** | ByteDance IDE | IDE-only, no CLI |
+| **Zed AI** | Zed Editor | Built-in, no external API |
+| **Supermaven** | Extensions | VS Code/JetBrains only |
+| **Gemini Code Assist** | Extensions | IDE extensions only |
+
+For these tools:
+```bash
+# Generate prompt, paste into your IDE
+vibeanvil build iterate --provider human
+```

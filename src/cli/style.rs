@@ -48,3 +48,11 @@ pub fn info(msg: &str) {
 pub fn step(msg: &str) {
     println!("\n{} {}", "➤".bold().cyan(), msg.bold());
 }
+
+/// Print a section header with a decorative line
+pub fn header(title: &str) {
+    let line = "═".repeat(50);
+    println!("\n{}", line.cyan());
+    println!("{}", title.cyan().bold());
+    println!("{}\n", line.cyan());
+}
