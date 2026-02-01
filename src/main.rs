@@ -62,6 +62,7 @@ async fn main() -> Result<()> {
         Commands::Upgrade => cli::update::upgrade().await,
         Commands::Doctor => cli::doctor::run().await,
         Commands::Wizard => cli::wizard::run().await,
+        Commands::Prompt { kind } => cli::prompt::run(kind).await,
         Commands::Providers { subcommand, args } => {
             let cmd = match subcommand.as_deref() {
                 Some("matrix") => cli::providers::ProviderSubcommand::Matrix,

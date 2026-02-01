@@ -1,9 +1,11 @@
 //! Plan command handler
 
 use anyhow::Result;
+use std::collections::HashMap;
 use tokio::fs;
 
 use crate::audit::{generate_session_id, AuditLogger};
+use crate::prompt;
 use crate::provider::{get_provider, Context};
 use crate::state::State;
 use crate::workspace;
@@ -63,11 +65,7 @@ pub async fn run(provider_name: String) -> Result<()> {
         };
 
         let map_markdown = repo_map.to_markdown();
-        let prompt = format!(
-            "Based on this contract and the current codebase structure, create a detailed implementation plan.\n\nCONTRACT:\n{}\n\nCODEBASE STRUCTURE:\n{}",
-            contract,
-            map_markdown
-        );
+        let prompt = build_plan_prompt(&contract, &map_markdown);
 
         println!("{}", "🤖 Generating plan with AI...".cyan());
         let response = provider.execute(&prompt, &context).await?;
@@ -152,4 +150,18 @@ fn generate_template_plan(contract: &str) -> String {
         chrono::Utc::now().to_rfc3339(),
         contract
     )
+}
+
+fn build_plan_prompt(contract: &str, context: &str) -> String {
+    let mut vars = HashMap::new();
+    vars.insert("contract", contract);
+    vars.insert("context", context);
+
+    match prompt::load_template("plan") {
+        Ok(template) => prompt::render(&template, &vars),
+        Err(_) => format!(
+            "Based on this contract and the current codebase structure, create a detailed implementation plan.\n\nCONTRACT:\n{}\n\nCODEBASE STRUCTURE:\n{}",
+            contract, context
+        ),
+    }
 }

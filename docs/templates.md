@@ -16,10 +16,12 @@ VibeAnvil has **two types** of templates with different purposes:
 | `architect` | Architect | System design analysis |
 | `developer` | Developer | Implementation guidance |
 | `qa` | QA | Testing and bug finding |
+| `install-vibeanvil` | Installer | LLM paste-in prompt for VibeAnvil |
 
 **Location:** `src/prompt/templates/`
 
 **Usage:** Loaded internally by VibeAnvil commands.
+Use `vibeanvil prompt install` to print the installer prompt.
 
 **Custom Templates:** Add `.md` files to `.vibeanvil/prompts/`
 

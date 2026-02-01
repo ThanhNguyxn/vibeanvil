@@ -14,6 +14,10 @@ pub const TEMPLATES: &[(&str, &str)] = &[
     ("architect", include_str!("templates/architect.md")),
     ("developer", include_str!("templates/developer.md")),
     ("qa", include_str!("templates/qa.md")),
+    (
+        "install-vibeanvil",
+        include_str!("templates/install-vibeanvil.md"),
+    ),
 ];
 
 /// Load a prompt template by name

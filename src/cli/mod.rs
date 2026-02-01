@@ -19,6 +19,7 @@ pub mod mcp;
 pub mod mode;
 pub mod plan;
 pub mod progress;
+pub mod prompt;
 pub mod providers;
 pub mod repomap;
 pub mod review;
@@ -148,6 +149,13 @@ pub enum Commands {
 
     /// Interactive wizard menu
     Wizard,
+
+    /// Print install or usage prompts
+    Prompt {
+        /// Which prompt to print
+        #[arg(value_enum)]
+        kind: PromptKind,
+    },
 
     /// List available AI providers and capability matrix
     Providers {
@@ -316,6 +324,13 @@ pub enum ReviewAction {
     Fail,
     /// Show review status
     Status,
+}
+
+#[derive(Clone, ValueEnum)]
+pub enum PromptKind {
+    /// Installer prompt for LLM paste-in setup
+    #[value(name = "install")]
+    Install,
 }
 
 #[derive(clap::Args)]

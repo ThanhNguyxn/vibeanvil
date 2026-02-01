@@ -9,6 +9,7 @@ Complete reference for all VibeAnvil CLI commands.
 - [Core Workflow Commands](#-core-workflow-commands)
 - [Brain Commands](#-brain-commands)
 - [Utility Commands](#-utility-commands)
+- [Prompt Commands](#-prompt-commands)
 - [Provider Commands](#-provider-commands)
 - [Global Options](#-global-options)
 
@@ -453,6 +454,26 @@ vibeanvil undo
 ```
 
 > **Note:** Changes are kept staged after undo. Run `git diff --cached` to review them.
+
+---
+
+## 🧩 Prompt Commands
+
+### `prompt` - Print Install/Usage Prompts
+
+```bash
+vibeanvil prompt <KIND>
+```
+
+| Kind | Description |
+|------|-------------|
+| `install` | Print the LLM paste-in installer prompt |
+
+**Examples:**
+```bash
+# Print installer prompt for VibeAnvil
+vibeanvil prompt install
+```
 
 ---
 

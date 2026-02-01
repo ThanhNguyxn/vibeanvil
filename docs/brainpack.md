@@ -21,6 +21,7 @@ BrainPack is VibeAnvil's **privacy-first knowledge harvesting** system. It:
 ### Option 1: Install Core BrainPack (Recommended)
 
 VibeAnvil ships with a **Core BrainPack** containing owner-authored templates for contracts, plans, evidence patterns, and more.
+It also includes Vibecode workflow prompts and agent/command template schemas to bootstrap prompt packs.
 
 ```bash
 # Install Core BrainPack (one-time, idempotent)
