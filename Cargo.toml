@@ -71,7 +71,7 @@ notify-debouncer-mini = "0.7.0"
 
 [dev-dependencies]
 assert_cmd = "2.1"
-predicates = "3.0"
+predicates = "3.1"
 tempfile = "3.25"
 
 [profile.release]
