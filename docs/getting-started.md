@@ -166,7 +166,7 @@ vibeanvil undo            # Revert
 Filter brain search by type or language:
 ```bash
 vibeanvil brain search "error" -l rust
-vibeanvil brain search "parse" -t function
+vibeanvil brain search "parse" -t code
 ```
 
 ### Contract Templates 📋

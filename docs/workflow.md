@@ -472,7 +472,7 @@ prov.finish();
 
 ---
 
-## 🆕 Enhanced Workflow Commands (v0.5.0)
+## 🆕 Enhanced Workflow Commands
 
 VibeAnvil now includes advanced workflow features inspired by Aider and GitHub's Spec-Kit:
 
