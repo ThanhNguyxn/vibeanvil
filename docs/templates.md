@@ -52,6 +52,48 @@ Examples:
 
 **Custom Templates:** Add `.md` files to `.vibeanvil/prompts/` to override or extend the built-in templates.
 
+### Variable Filters
+
+Placeholders support **case conversion filters** using the `{{variable|filter}}` syntax:
+
+| Filter | Input | Output |
+|--------|-------|--------|
+| `camel` | `hello world` | `helloWorld` |
+| `pascal` | `hello world` | `HelloWorld` |
+| `kebab` | `hello world` | `hello-world` |
+| `snake` | `hello world` | `hello_world` |
+| `upper` | `hello world` | `HELLO WORLD` |
+| `lower` | `Hello World` | `hello world` |
+| `title` | `hello world` | `Hello World` |
+
+Word splitting handles spaces, underscores, hyphens, and camelCase boundaries.
+
+**Examples:**
+```bash
+# Generate a component name in PascalCase
+vibeanvil prompt developer --render --var name="user profile" 
+# {{name|pascal}} → "UserProfile"
+
+# Generate a kebab-case file name
+vibeanvil prompt developer --render --var name="user profile"
+# {{name|kebab}} → "user-profile"
+```
+
+Unknown filters leave the value unchanged and print a warning to stderr.
+
+### Enhanced Template Listing
+
+`vibeanvil prompt --list` shows descriptions and required variables:
+
+```
+architect  - System design analysis, blueprinting, and architectural decision records. [context, tech_stack]
+developer  - Implementation guidance, code generation, and adherence to best practices. [context, tech_stack]
+qa         - Testing strategies, edge case detection, and bug finding.              [context]
+...
+```
+
+Descriptions are extracted from the template's `# Mission` header (fallback: `# Role`), truncated to 80 characters.
+
 ---
 
 ## 📦 Contract Templates

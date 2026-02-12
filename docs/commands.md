@@ -518,6 +518,18 @@ Options:
 | `migrate` | Print the migration planning prompt |
 | `refactor` | Print the safe refactoring prompt |
 
+**Variable Filters:** Placeholders support case conversion with `{{var|filter}}`:
+
+| Filter | Example Output |
+|--------|----------------|
+| `camel` | `helloWorld` |
+| `pascal` | `HelloWorld` |
+| `kebab` | `hello-world` |
+| `snake` | `hello_world` |
+| `upper` | `HELLO WORLD` |
+| `lower` | `hello world` |
+| `title` | `Hello World` |
+
 **Examples:**
 ```bash
 # Print installer prompt for VibeAnvil
@@ -526,11 +538,15 @@ vibeanvil prompt install
 # Print security audit prompt
 vibeanvil prompt security
 
-# List all templates
+# List all templates (shows descriptions + required variables)
 vibeanvil prompt --list
 
 # Render a template with variables
 vibeanvil prompt vision --render --var description="Build a SaaS dashboard" --var tech_stack="nextjs"
+
+# Use case filters in templates
+vibeanvil prompt developer --render --var name="user profile"
+# {{name|pascal}} → "UserProfile", {{name|kebab}} → "user-profile"
 ```
 
 ---
