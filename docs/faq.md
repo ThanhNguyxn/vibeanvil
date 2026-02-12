@@ -112,6 +112,41 @@ You can check with:
 vibeanvil brain stats
 ```
 
+### How do I install the Core BrainPack?
+
+The Core BrainPack ships embedded in VibeAnvil. Install it with:
+```bash
+vibeanvil brain ensure
+```
+
+After upgrading VibeAnvil, refresh the Core BrainPack:
+```bash
+vibeanvil brain ensure --refresh-core
+```
+
+### How do I optimize my BrainPack database?
+
+Over time, your database may contain duplicate chunks. Compact it with:
+```bash
+vibeanvil brain compact
+```
+
+This deduplicates JSONL data and optimizes the SQLite index.
+
+### How do I export my codebase as context for AI?
+
+Use `brain pack` to export your project as a single AI-friendly file:
+```bash
+# Export as XML (default)
+vibeanvil brain pack
+
+# Export as Markdown
+vibeanvil brain pack --format md
+
+# Include specific patterns only
+vibeanvil brain pack --include "src/**/*.rs"
+```
+
 ### Can I delete harvested data?
 
 Yes, you can delete BrainPack data from your OS cache directory. See [docs/data-layout.md](data-layout.md) for exact paths per platform.
@@ -128,13 +163,16 @@ vibeanvil brain stats
 
 ### What providers are supported?
 
-Currently:
-- `human` - IDE assistants (Copilot, Cursor, VS Code Chat)
-- `claude-code` - Claude Code CLI automation
-- `command` - External CLI agents (Aider, etc.)
-- `patch` - Unified diff workflows
+VibeAnvil supports 20+ providers across several categories:
 
-See [docs/providers.md](providers.md) for a full comparison.
+- **IDE AI (CLI):** `cursor`, `cline`, `continue`, `cody`
+- **IDE AI (prompt-based):** `copilot`, `zed`, `windsurf`, `trae`, `jetbrains`, `supermaven`, `gemini-assist`
+- **Terminal agents:** `claude-code`, `aider`, `opencode`, `goose`
+- **Cloud AI:** `kiro` (AWS)
+- **Self-hosted:** `tabby`, `ollama` (with 15+ model shortcuts)
+- **Generic:** `human`, `command`, `patch`, `mock`
+
+See [providers.md](providers.md) for full comparison and setup instructions.
 
 ### How does iterate mode work?
 
@@ -150,12 +188,24 @@ It continues until:
 
 ### Can I use my own test/lint commands?
 
-Currently, VibeAnvil uses standard tooling for your project:
+**Yes!** Use the `--cmd` flag to run any test or lint command:
+
+```bash
+# Custom test command
+vibeanvil test --cmd "pytest -v"
+
+# Custom lint command
+vibeanvil lint --cmd "eslint ."
+
+# With auto-fix
+vibeanvil test --cmd "cargo test" --fix
+vibeanvil lint --cmd "cargo clippy" --fix
+```
+
+Without `--cmd`, VibeAnvil auto-detects standard tooling for your project:
 - Rust: `cargo test`, `cargo clippy`
 - Node: `npm test`, `npm run lint`
 - Python: `pytest`, `flake8`
-
-Custom commands coming in a future version.
 
 ### What does `--evidence` capture?
 
@@ -166,6 +216,65 @@ Custom commands coming in a future version.
 - Timestamps
 
 All stored in `.vibeanvil/sessions/<id>/evidence/`
+
+---
+
+## 🤖 AI & Prompt Templates
+
+### What prompt templates are available?
+
+VibeAnvil includes 13 built-in prompt templates for different roles:
+
+```bash
+# List all templates
+vibeanvil prompt --list
+
+# Print a specific template
+vibeanvil prompt developer
+vibeanvil prompt security
+vibeanvil prompt architect
+```
+
+Available kinds: `install`, `architect`, `developer`, `qa`, `plan`, `review`, `commit`, `debug`, `xray`, `vision`, `security`, `migrate`, `refactor`.
+
+### Can I render templates with variables?
+
+**Yes!** Use `--render` with `--var`:
+```bash
+vibeanvil prompt vision --render --var description="Build a SaaS dashboard" --var tech_stack="nextjs"
+```
+
+### What are chat modes?
+
+VibeAnvil supports Aider-style chat modes for quick AI interactions:
+
+```bash
+vibeanvil chat ask "How does the state machine work?"
+vibeanvil chat code "Add a new field to the user model"
+vibeanvil chat architect "Should we use Redis for caching?"
+```
+
+Modes: `ask` (questions), `code` (implementation), `architect` (design decisions), `help` (usage help).
+
+---
+
+## 🔧 Utilities
+
+### How do I check system health?
+
+Run the built-in doctor to verify your environment:
+```bash
+vibeanvil doctor
+```
+
+This checks for required tools (git, etc.), permissions, and configuration.
+
+### Is there an interactive mode?
+
+**Yes!** The wizard provides a guided menu for common workflows:
+```bash
+vibeanvil wizard
+```
 
 ---
 

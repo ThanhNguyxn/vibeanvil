@@ -34,6 +34,7 @@ pub async fn init_workspace(force: bool) -> Result<()> {
         ws.join("sessions"),
         ws.join("contracts"),
         ws.join("blueprints"),
+        ws.join("prompts"),
         ws.join("cache"),
     ];
 

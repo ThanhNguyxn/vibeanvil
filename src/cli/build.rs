@@ -2,12 +2,15 @@
 
 use anyhow::Result;
 use colored::Colorize;
+use std::collections::HashMap;
+use std::path::Path;
 
 use crate::audit::{generate_session_id, AuditLogger};
 use crate::build::iterate::IterateBuild;
 use crate::build::{AutoBuild, BuildConfig, BuildMode, ManualBuild};
 use crate::cli::progress::BuildProgress;
 use crate::cli::{BuildArgs, ManualBuildAction};
+use crate::prompt;
 use crate::state::State;
 use crate::workspace;
 
@@ -221,13 +224,15 @@ async fn run_auto_build(config: BuildConfig, session_id: &str, logger: &AuditLog
 
     let build = AutoBuild::new(config, session_id);
 
-    // Read plan for context
+    // Read plan and contract for context
     let plan_path = workspace::workspace_path().join("plan.md");
     let plan = tokio::fs::read_to_string(&plan_path)
         .await
         .unwrap_or_default();
+    let contract = load_contract().await;
+    let repo_context = build_repo_context();
 
-    let prompt = format!("Implement the following plan:\n\n{}", plan);
+    let prompt = build_developer_prompt(&plan, &contract, &repo_context);
     let result = build.execute(&prompt).await?;
 
     // Update state to build done
@@ -283,13 +288,15 @@ async fn run_iterate_build(
 
     let build = IterateBuild::new(config.clone(), session_id).await?;
 
-    // Read plan for context
+    // Read plan and contract for context
     let plan_path = workspace::workspace_path().join("plan.md");
     let plan = tokio::fs::read_to_string(&plan_path)
         .await
         .unwrap_or_default();
+    let contract = load_contract().await;
+    let repo_context = build_repo_context();
 
-    let prompt = format!("Implement the following plan:\n\n{}", plan);
+    let prompt = build_developer_prompt(&plan, &contract, &repo_context);
     let result = build.execute(&prompt).await?;
 
     // Update state to build done
@@ -323,4 +330,34 @@ async fn run_iterate_build(
     println!("Next: vibeanvil review start");
 
     Ok(())
+}
+
+async fn load_contract() -> String {
+    let contract_path = workspace::contracts_path().join("contract.json");
+    tokio::fs::read_to_string(&contract_path)
+        .await
+        .unwrap_or_default()
+}
+
+fn build_repo_context() -> String {
+    let mut repo_map = crate::brain::map::RepositoryMap::new();
+    let workspace_path = workspace::workspace_path();
+    let root = workspace_path.parent().unwrap_or(Path::new("."));
+    if repo_map.scan(root).is_ok() {
+        repo_map.to_markdown()
+    } else {
+        String::new()
+    }
+}
+
+fn build_developer_prompt(plan: &str, contract: &str, context: &str) -> String {
+    let mut vars = HashMap::new();
+    vars.insert("task", plan);
+    vars.insert("contract", contract);
+    vars.insert("context", context);
+
+    match prompt::load_template("developer") {
+        Ok(template) => prompt::render(&template, &vars),
+        Err(_) => format!("Implement the following plan:\n\n{}", plan),
+    }
 }

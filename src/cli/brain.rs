@@ -19,7 +19,19 @@ pub async fn run(args: BrainArgs) -> Result<()> {
             limit,
             record_type,
             language,
-        } => search(&query, limit, record_type.as_deref(), language.as_deref()).await,
+            tags,
+            source,
+        } => {
+            search(
+                &query,
+                limit,
+                record_type.as_deref(),
+                language.as_deref(),
+                &tags,
+                source.as_deref(),
+            )
+            .await
+        }
         BrainCommands::Export {
             format,
             output,
@@ -176,6 +188,8 @@ async fn search(
     limit: usize,
     record_type: Option<&str>,
     language: Option<&str>,
+    tags: &[String],
+    source_id: Option<&str>,
 ) -> Result<()> {
     let storage = BrainStorage::new().await?;
 
@@ -187,6 +201,12 @@ async fn search(
     if let Some(l) = language {
         filter_str.push_str(&format!(" [lang:{}]", l));
     }
+    if !tags.is_empty() {
+        filter_str.push_str(&format!(" [tags:{}]", tags.join(",")));
+    }
+    if let Some(source) = source_id {
+        filter_str.push_str(&format!(" [source:{}]", source));
+    }
     println!(
         "{} {} {}{}",
         "🔍".cyan(),
@@ -196,7 +216,7 @@ async fn search(
     );
     println!();
 
-    let results = storage.search_filtered(query, limit, record_type, language)?;
+    let results = storage.search_filtered(query, limit, record_type, language, tags, source_id)?;
 
     if results.is_empty() {
         println!("{}", "┌─────────────────────────────────────────┐".yellow());

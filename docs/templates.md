@@ -4,24 +4,95 @@ VibeAnvil has **two types** of templates with different purposes:
 
 ---
 
-## 🎭 AI Prompt Templates
+## 🎭 AI Prompt Templates (Vibecode)
 
-**Purpose:** Guide AI behavior during tasks.
+**Purpose:** Guide AI behavior during tasks using the Vibecode partnership model.
 
-| Template | Role | What It Does |
+| Template | Role | Key Features |
 |----------|------|--------------|
-| `plan` | Planner | Break down work into tasks |
-| `review` | Reviewer | Provide code feedback |
-| `commit` | Writer | Generate commit messages |
-| `architect` | Architect | System design analysis |
-| `developer` | Developer | Implementation guidance |
-| `qa` | QA | Testing and bug finding |
+| `architect` | Architect | System design analysis, blueprinting, and architectural decision records. |
+| `developer` | Developer | Implementation guidance, code generation, and adherence to best practices. |
+| `qa` | QA Engineer | Testing strategies, edge case detection, and bug finding. |
+| `plan` | Planner | Breaking down requirements into actionable implementation plans and task lists. |
+| `review` | Reviewer | Code review feedback, quality assessment, and security checks. |
+| `commit` | Writer | Generating atomic, descriptive commit messages based on changes. |
+| `install-vibeanvil` | Installer | Guided installation and setup prompt for new users to paste into an LLM. |
+| `debug` | Debugger | Systematic bug investigation with hypothesis-driven root cause analysis. |
+| `xray` | Analyst | Deep codebase health assessment covering architecture, dependencies, and tech debt. |
+| `vision` | Architect | Project initialization with type detection, wireframes, and tech stack recommendations. |
+| `security` | Security Engineer | Security audit with OWASP mapping, vulnerability taxonomy, and severity-ranked findings. |
+| `migrate` | Migration Architect | Zero-downtime migration planning with rollback strategies and validation checkpoints. |
+| `refactor` | Refactoring Lead | Safe, behavior-preserving code refactoring with smell detection and safety checklists. |
 
 **Location:** `src/prompt/templates/`
 
-**Usage:** Loaded internally by VibeAnvil commands.
+**Usage:** Loaded internally by VibeAnvil commands like `plan` and `build`.
+You can also print them manually using `vibeanvil prompt <KIND>`.
 
-**Custom Templates:** Add `.md` files to `.vibeanvil/prompts/`
+Prompt CLI usage notes:
+- Use `vibeanvil prompt --list` to discover built-in and custom templates.
+- Use `vibeanvil prompt <kind> --render --var key=value` to replace placeholders.
+- Use `--strict-vars` to fail when required placeholders are missing.
+- Template `install-vibeanvil` is exposed via CLI kind `install`.
+
+**Template quality baseline:**
+- Explicit role and mission
+- CRISP context variables (`{{...}}`)
+- Stepwise protocol
+- Uncertainty and evidence guidance
+- Self-check before final output
+- Strict output format requirements
+
+Examples:
+- `vibeanvil prompt architect`
+- `vibeanvil prompt debug`
+- `vibeanvil prompt security`
+- `vibeanvil prompt migrate`
+- `vibeanvil prompt refactor`
+
+**Custom Templates:** Add `.md` files to `.vibeanvil/prompts/` to override or extend the built-in templates.
+
+### Variable Filters
+
+Placeholders support **case conversion filters** using the `{{variable|filter}}` syntax:
+
+| Filter | Input | Output |
+|--------|-------|--------|
+| `camel` | `hello world` | `helloWorld` |
+| `pascal` | `hello world` | `HelloWorld` |
+| `kebab` | `hello world` | `hello-world` |
+| `snake` | `hello world` | `hello_world` |
+| `upper` | `hello world` | `HELLO WORLD` |
+| `lower` | `Hello World` | `hello world` |
+| `title` | `hello world` | `Hello World` |
+
+Word splitting handles spaces, underscores, hyphens, and camelCase boundaries.
+
+**Examples:**
+```bash
+# Generate a component name in PascalCase
+vibeanvil prompt developer --render --var name="user profile" 
+# {{name|pascal}} → "UserProfile"
+
+# Generate a kebab-case file name
+vibeanvil prompt developer --render --var name="user profile"
+# {{name|kebab}} → "user-profile"
+```
+
+Unknown filters leave the value unchanged and print a warning to stderr.
+
+### Enhanced Template Listing
+
+`vibeanvil prompt --list` shows descriptions and required variables:
+
+```
+architect  - System design analysis, blueprinting, and architectural decision records. [context, tech_stack]
+developer  - Implementation guidance, code generation, and adherence to best practices. [context, tech_stack]
+qa         - Testing strategies, edge case detection, and bug finding.              [context]
+...
+```
+
+Descriptions are extracted from the template's `# Mission` header (fallback: `# Role`), truncated to 80 characters.
 
 ---
 

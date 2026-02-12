@@ -21,6 +21,7 @@ BrainPack is VibeAnvil's **privacy-first knowledge harvesting** system. It:
 ### Option 1: Install Core BrainPack (Recommended)
 
 VibeAnvil ships with a **Core BrainPack** containing owner-authored templates for contracts, plans, evidence patterns, and more.
+It also includes Vibecode workflow prompts and agent/command template schemas to bootstrap prompt packs.
 
 ```bash
 # Install Core BrainPack (one-time, idempotent)
@@ -326,20 +327,77 @@ vibeanvil brain search "pattern" -n 50
 
 ---
 
-## 🎭 AI Prompt Templates
+## 🎭 AI Prompt Templates (Vibecode)
 
-Role-based prompts that **guide AI behavior** during tasks:
+VibeAnvil includes the **Vibecode** prompt system—a set of high-performance, role-based templates that guide AI behavior during development. These prompts are designed for a **partnership model** between the human developer and the AI agent.
+
+Recent core additions include security and reliability knowledge packs:
+- OWASP Top 10 prevention
+- Input validation and auth patterns
+- Secret management and error handling
+- Circuit breaker and graceful degradation patterns
+
+### 🛠️ Vibecode Prompts Provide:
+
+- **Partnership Model**: Clear human-AI collaboration expectations.
+- **CRISP Context**: Structured runtime variables for predictable behavior.
+- **Protocol-Driven Reasoning**: Stepwise workflows for design, implementation, QA, and debugging.
+- **Uncertainty and Evidence**: Explicit assumptions, confidence labeling, and evidence-backed claims.
+- **Self-Check Gates**: Built-in final verification before output.
+- **Security and Reliability**: OWASP, migration safety, and resilience-first guidance.
+- **Strict Output Formats**: Consistent structure for easier downstream use.
+
+### 📋 Available Templates
 
 | Template | Role | Purpose |
 |----------|------|---------|
-| `plan` | Planner | Generate implementation plans |
-| `review` | Reviewer | Code review feedback |
-| `commit` | Writer | Commit message generation |
-| `architect` | Architect | System design analysis |
-| `developer` | Developer | Implementation guidance |
-| `qa` | QA Engineer | Testing and bug finding |
+| `architect` | Architect | System design, architecture analysis, and blueprinting |
+| `developer` | Developer | Implementation guidance and code generation |
+| `qa` | QA Engineer | Testing, bug finding, and validation |
+| `plan` | Planner | Generating implementation plans and task lists |
+| `review` | Reviewer | Code review feedback and quality assessment |
+| `commit` | Writer | Atomic commit message generation |
+| `install-vibeanvil` | Installer | Guided installation and setup for new users |
+| `debug` | Debugger | Systematic bug investigation and root cause analysis |
+| `xray` | Analyst | Codebase health assessment and architecture review |
+| `vision` | Architect | Project initialization with type detection and wireframes |
+| `security` | Security Engineer | Security audit with OWASP mapping and vulnerability taxonomy |
+| `migrate` | Migration Architect | Zero-downtime migration planning with rollback strategies |
+| `refactor` | Refactoring Lead | Safe refactoring with smell detection and behavior preservation |
 
-Location: `src/prompt/templates/`
+CLI note: Template `install-vibeanvil` is printed via `vibeanvil prompt install`.
+
+### ⌨️ Accessing Templates
+
+You can quickly access and print these templates using the `vibeanvil prompt` command:
+
+```bash
+# Print the architect prompt
+vibeanvil prompt architect
+
+# Print the security prompt
+vibeanvil prompt security
+
+# Print the refactor prompt
+vibeanvil prompt refactor
+```
+
+These templates are also automatically used by the `plan` and `build` commands when appropriate.
+
+### 🔎 Search Tips for Normal Usage
+
+Use focused queries plus filters to get reliable results fast:
+
+```bash
+# Search only prompt-style records
+vibeanvil brain search "rollback" -t prompt
+
+# Narrow by tags (repeatable)
+vibeanvil brain search "auth" --tag security --tag validation
+
+# Narrow by source (core or harvested source IDs)
+vibeanvil brain search "pagination" --source core
+```
 
 ---
 

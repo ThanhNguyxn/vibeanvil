@@ -19,6 +19,7 @@ pub mod mcp;
 pub mod mode;
 pub mod plan;
 pub mod progress;
+pub mod prompt;
 pub mod providers;
 pub mod repomap;
 pub mod review;
@@ -148,6 +149,25 @@ pub enum Commands {
 
     /// Interactive wizard menu
     Wizard,
+
+    /// Print, list, or render prompt templates
+    Prompt {
+        /// Which prompt to print
+        #[arg(value_enum)]
+        kind: Option<PromptKind>,
+
+        #[arg(long)]
+        list: bool,
+
+        #[arg(long)]
+        render: bool,
+
+        #[arg(long)]
+        strict_vars: bool,
+
+        #[arg(long = "var", action = clap::ArgAction::Append)]
+        vars: Vec<String>,
+    },
 
     /// List available AI providers and capability matrix
     Providers {
@@ -316,6 +336,49 @@ pub enum ReviewAction {
     Fail,
     /// Show review status
     Status,
+}
+
+#[derive(Clone, ValueEnum)]
+pub enum PromptKind {
+    /// Installer prompt for LLM paste-in setup
+    #[value(name = "install")]
+    Install,
+    /// Architecture planning template
+    #[value(name = "architect")]
+    Architect,
+    /// Implementation template
+    #[value(name = "developer")]
+    Developer,
+    /// QA and validation template
+    #[value(name = "qa")]
+    Qa,
+    /// Execution planning template
+    #[value(name = "plan")]
+    Plan,
+    /// Code review template
+    #[value(name = "review")]
+    Review,
+    /// Commit message template
+    #[value(name = "commit")]
+    Commit,
+    /// Debugging investigation template
+    #[value(name = "debug")]
+    Debug,
+    /// Codebase analysis template
+    #[value(name = "xray")]
+    Xray,
+    /// Product vision template
+    #[value(name = "vision")]
+    Vision,
+    /// Security audit template
+    #[value(name = "security")]
+    Security,
+    /// Migration planning template
+    #[value(name = "migrate")]
+    Migrate,
+    /// Safe refactoring template
+    #[value(name = "refactor")]
+    Refactor,
 }
 
 #[derive(clap::Args)]
@@ -487,13 +550,19 @@ pub enum BrainCommands {
         #[arg(short = 'n', long, default_value = "10")]
         limit: usize,
 
-        /// Filter by record type (e.g., function, class, doc)
+        /// Filter by content type (readme, doc, config, code, workflow, template, prompt, other)
         #[arg(short = 't', long)]
         record_type: Option<String>,
 
         /// Filter by language (e.g., rust, python, typescript)
         #[arg(short = 'l', long)]
         language: Option<String>,
+
+        #[arg(long = "tag", action = clap::ArgAction::Append)]
+        tags: Vec<String>,
+
+        #[arg(long)]
+        source: Option<String>,
     },
 
     /// Export the brain pack

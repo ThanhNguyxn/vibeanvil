@@ -256,7 +256,7 @@ vibeanvil snapshot --message "v1.0.0 ready"
 vibeanvil ship --tag v1.0.0
 ```
 
-> 📚 **See [docs/PROVIDERS.md](docs/PROVIDERS.md) for detailed provider setup**
+> 📚 **See [docs/providers.md](docs/providers.md) for detailed provider setup**
 
 ---
 
@@ -567,7 +567,7 @@ vibeanvil update
 | BrainPack (macOS) | `~/Library/Caches/vibeanvil/brainpack/` | User-level |
 | BrainPack (Windows) | `%LOCALAPPDATA%\vibeanvil\brainpack\` | User-level |
 
-See [docs/DATA_LAYOUT.md](docs/DATA_LAYOUT.md) for complete details.
+See [docs/data-layout.md](docs/data-layout.md) for complete details.
 
 ---
 

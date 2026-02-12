@@ -62,6 +62,13 @@ async fn main() -> Result<()> {
         Commands::Upgrade => cli::update::upgrade().await,
         Commands::Doctor => cli::doctor::run().await,
         Commands::Wizard => cli::wizard::run().await,
+        Commands::Prompt {
+            kind,
+            list,
+            render,
+            strict_vars,
+            vars,
+        } => cli::prompt::run(kind, list, render, strict_vars, vars).await,
         Commands::Providers { subcommand, args } => {
             let cmd = match subcommand.as_deref() {
                 Some("matrix") => cli::providers::ProviderSubcommand::Matrix,

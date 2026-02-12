@@ -341,19 +341,35 @@ impl BrainStorage {
         limit: usize,
         record_type: Option<&str>,
         language: Option<&str>,
+        tags: &[String],
+        source_id: Option<&str>,
     ) -> Result<Vec<SearchResult>> {
         let conn = Connection::open(&self.sqlite_path)?;
 
-        // Build dynamic WHERE clause for filters
         let mut conditions = vec!["chunks_fts MATCH ?1".to_string()];
-        let mut param_idx = 2;
+        let mut params: Vec<rusqlite::types::Value> = Vec::new();
+        params.push(rusqlite::types::Value::Text(query.to_string()));
+        let mut next_idx = 2;
 
-        if record_type.is_some() {
-            conditions.push(format!("c.content_type = ?{}", param_idx));
-            param_idx += 1;
+        if let Some(t) = record_type {
+            conditions.push(format!("c.content_type = ?{}", next_idx));
+            params.push(rusqlite::types::Value::Text(t.to_string()));
+            next_idx += 1;
         }
-        if language.is_some() {
-            conditions.push(format!("c.language = ?{}", param_idx));
+        if let Some(l) = language {
+            conditions.push(format!("c.language = ?{}", next_idx));
+            params.push(rusqlite::types::Value::Text(l.to_string()));
+            next_idx += 1;
+        }
+        if let Some(source) = source_id {
+            conditions.push(format!("c.source_id = ?{}", next_idx));
+            params.push(rusqlite::types::Value::Text(source.to_string()));
+            next_idx += 1;
+        }
+        for tag in tags {
+            conditions.push(format!("c.tags LIKE ?{}", next_idx));
+            params.push(rusqlite::types::Value::Text(format!("%{}%", tag)));
+            next_idx += 1;
         }
 
         let where_clause = conditions.join(" AND ");
@@ -372,35 +388,32 @@ impl BrainStorage {
         );
 
         let mut stmt = conn.prepare(&sql)?;
+        params.push(rusqlite::types::Value::Integer(limit as i64));
 
-        // Build params dynamically and collect results
-        let search_results: Vec<SearchResult> = match (record_type, language) {
-            (Some(t), Some(l)) => stmt
-                .query_map(params![query, t, l, limit as i64], |row| {
-                    Self::map_search_row(row)
-                })?
-                .filter_map(|r| r.ok())
-                .collect(),
-            (Some(t), None) => stmt
-                .query_map(params![query, t, limit as i64], |row| {
-                    Self::map_search_row(row)
-                })?
-                .filter_map(|r| r.ok())
-                .collect(),
-            (None, Some(l)) => stmt
-                .query_map(params![query, l, limit as i64], |row| {
-                    Self::map_search_row(row)
-                })?
-                .filter_map(|r| r.ok())
-                .collect(),
-            (None, None) => stmt
-                .query_map(params![query, limit as i64], |row| {
-                    Self::map_search_row(row)
-                })?
-                .filter_map(|r| r.ok())
-                .collect(),
-        };
+        let mut search_results: Vec<SearchResult> = stmt
+            .query_map(rusqlite::params_from_iter(params), |row| {
+                Self::map_search_row(row)
+            })?
+            .filter_map(|r| r.ok())
+            .collect();
 
+        let query_lc = query.to_lowercase();
+        for result in &mut search_results {
+            let mut boosted = result.score;
+            if result
+                .tags
+                .iter()
+                .any(|t| t.eq_ignore_ascii_case(query) || query_lc.contains(&t.to_lowercase()))
+            {
+                boosted *= 0.85;
+            }
+            if result.path.to_lowercase().contains(&query_lc) {
+                boosted *= 0.9;
+            }
+            result.score = boosted;
+        }
+
+        search_results.sort_by(|a, b| a.score.total_cmp(&b.score));
         Ok(search_results)
     }
 
