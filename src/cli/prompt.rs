@@ -17,8 +17,15 @@ pub async fn run(
     if list {
         let cwd = std::env::current_dir()?;
         let templates = prompt::list_templates(&cwd);
-        for name in templates {
-            println!("{}", name);
+        let name_width = templates
+            .iter()
+            .map(|(name, _, _)| name.len())
+            .max()
+            .unwrap_or(0);
+
+        for (name, description, required_vars) in templates {
+            let vars = format!("[{}]", required_vars.join(", "));
+            println!("{name:<width$} - {description} {vars}", width = name_width);
         }
         return Ok(());
     }

@@ -47,11 +47,10 @@ pub fn load_template(name: &str) -> Result<String> {
 
 /// Render a template with variables
 pub fn render(template: &str, vars: &HashMap<&str, &str>) -> String {
-    let mut result = template.to_string();
-    for (key, value) in vars {
-        result = result.replace(&format!("{{{{{}}}}}", key), value);
-    }
-    result
+    render_template_with_lookup(template, |key, filter| {
+        vars.get(key)
+            .map(|value| filter.map_or_else(|| (*value).to_string(), |f| apply_filter(value, f)))
+    })
 }
 
 pub fn extract_placeholders(template: &str) -> Vec<String> {
@@ -66,9 +65,12 @@ pub fn extract_placeholders(template: &str) -> Vec<String> {
             while j + 1 < bytes.len() {
                 if bytes[j] == b'}' && bytes[j + 1] == b'}' {
                     let key = template[start..j].trim();
-                    if !key.is_empty() && key.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
-                    {
-                        let key_string = key.to_string();
+                    if key.chars().all(is_placeholder_char) {
+                        let Some((base_key, _)) = parse_placeholder_parts(key) else {
+                            i = j + 2;
+                            break;
+                        };
+                        let key_string = base_key.to_string();
                         if !keys.contains(&key_string) {
                             keys.push(key_string);
                         }
@@ -97,25 +99,238 @@ pub fn render_checked(template: &str, vars: &HashMap<String, String>) -> (String
         .cloned()
         .collect();
 
-    let mut result = template.to_string();
-    for (key, value) in vars {
-        result = result.replace(&format!("{{{{{}}}}}", key), value);
-    }
+    let result = render_template_with_lookup(template, |key, filter| {
+        vars.get(key)
+            .map(|value| filter.map_or_else(|| value.to_string(), |f| apply_filter(value, f)))
+    });
 
     (result, missing)
 }
 
+fn render_template_with_lookup<F>(template: &str, mut value_for: F) -> String
+where
+    F: FnMut(&str, Option<&str>) -> Option<String>,
+{
+    let mut result = String::with_capacity(template.len());
+    let mut i = 0;
+    let mut last = 0;
+    let bytes = template.as_bytes();
+
+    while i + 1 < bytes.len() {
+        if bytes[i] == b'{' && bytes[i + 1] == b'{' {
+            let start = i + 2;
+            let mut j = start;
+            while j + 1 < bytes.len() {
+                if bytes[j] == b'}' && bytes[j + 1] == b'}' {
+                    let raw = template[start..j].trim();
+                    if raw.chars().all(is_placeholder_char) {
+                        if let Some((key, filter)) = parse_placeholder_parts(raw) {
+                            if let Some(value) = value_for(key, filter) {
+                                result.push_str(&template[last..i]);
+                                result.push_str(&value);
+                                i = j + 2;
+                                last = i;
+                                break;
+                            }
+                        }
+                    }
+
+                    i = j + 2;
+                    break;
+                }
+                j += 1;
+            }
+            if j + 1 >= bytes.len() {
+                break;
+            }
+            continue;
+        }
+        i += 1;
+    }
+
+    result.push_str(&template[last..]);
+    result
+}
+
+fn parse_placeholder_parts(raw: &str) -> Option<(&str, Option<&str>)> {
+    let mut split = raw.splitn(2, '|');
+    let key = split.next()?.trim();
+    if key.is_empty() || !key.chars().all(is_identifier_char) {
+        return None;
+    }
+
+    let filter = split.next().map(str::trim).filter(|f| !f.is_empty());
+    if let Some(f) = filter {
+        if !f.chars().all(is_identifier_char) {
+            return None;
+        }
+    }
+
+    Some((key, filter))
+}
+
+fn is_identifier_char(c: char) -> bool {
+    c.is_ascii_alphanumeric() || c == '_'
+}
+
+fn is_placeholder_char(c: char) -> bool {
+    is_identifier_char(c) || c == '|'
+}
+
+fn split_words(value: &str) -> Vec<String> {
+    let mut words = Vec::new();
+    let mut current = String::new();
+    let mut prev_was_lowercase = false;
+
+    for ch in value.chars() {
+        if ch.is_ascii_alphanumeric() {
+            if ch.is_ascii_uppercase() && prev_was_lowercase && !current.is_empty() {
+                words.push(current.to_ascii_lowercase());
+                current.clear();
+            }
+            current.push(ch);
+            prev_was_lowercase = ch.is_ascii_lowercase();
+        } else {
+            if !current.is_empty() {
+                words.push(current.to_ascii_lowercase());
+                current.clear();
+            }
+            prev_was_lowercase = false;
+        }
+    }
+
+    if !current.is_empty() {
+        words.push(current.to_ascii_lowercase());
+    }
+
+    words
+}
+
+fn capitalize(word: &str) -> String {
+    let mut output = String::with_capacity(word.len());
+    for (idx, ch) in word.chars().enumerate() {
+        if idx == 0 {
+            output.push(ch.to_ascii_uppercase());
+        } else {
+            output.push(ch.to_ascii_lowercase());
+        }
+    }
+    output
+}
+
+fn apply_filter(value: &str, filter: &str) -> String {
+    let words = split_words(value);
+
+    match filter {
+        "camel" => {
+            let mut out = String::new();
+            for (idx, word) in words.iter().enumerate() {
+                if idx == 0 {
+                    out.push_str(word);
+                } else {
+                    out.push_str(&capitalize(word));
+                }
+            }
+            out
+        }
+        "pascal" => words
+            .iter()
+            .map(|word| capitalize(word))
+            .collect::<Vec<_>>()
+            .join(""),
+        "kebab" => words.join("-"),
+        "snake" => words.join("_"),
+        "upper" => value.to_ascii_uppercase(),
+        "lower" => value.to_ascii_lowercase(),
+        "title" => words
+            .iter()
+            .map(|word| capitalize(word))
+            .collect::<Vec<_>>()
+            .join(" "),
+        unknown => {
+            eprintln!(
+                "warning: unknown template filter '{}', leaving value unchanged",
+                unknown
+            );
+            value.to_string()
+        }
+    }
+}
+
+fn truncate_line(value: &str, max_chars: usize) -> String {
+    let trimmed = value.trim();
+    if trimmed.chars().count() <= max_chars {
+        return trimmed.to_string();
+    }
+
+    let truncated: String = trimmed.chars().take(max_chars.saturating_sub(3)).collect();
+    format!("{}...", truncated)
+}
+
+fn template_description(content: &str) -> String {
+    let lines: Vec<&str> = content.lines().collect();
+
+    fn next_non_empty_line(lines: &[&str], start: usize) -> Option<&str> {
+        lines[start..]
+            .iter()
+            .copied()
+            .find(|line| !line.trim().is_empty())
+    }
+
+    if let Some((idx, _)) = lines
+        .iter()
+        .enumerate()
+        .find(|(_, line)| line.trim_start().starts_with("# Mission"))
+    {
+        if let Some(line) = next_non_empty_line(&lines, idx + 1) {
+            return truncate_line(line, 80);
+        }
+    }
+
+    if let Some((idx, _)) = lines
+        .iter()
+        .enumerate()
+        .find(|(_, line)| line.trim_start().starts_with("# Role"))
+    {
+        if let Some(line) = next_non_empty_line(&lines, idx + 1) {
+            return truncate_line(line, 80);
+        }
+    }
+
+    lines
+        .iter()
+        .find(|line| !line.trim().is_empty())
+        .map(|line| truncate_line(line, 80))
+        .unwrap_or_else(|| "No description available".to_string())
+}
+
 /// List available templates
-pub fn list_templates(workspace_root: &Path) -> Vec<String> {
-    let mut templates: Vec<String> = TEMPLATES.iter().map(|(n, _)| n.to_string()).collect();
+pub fn list_templates(workspace_root: &Path) -> Vec<(String, String, Vec<String>)> {
+    let mut templates: Vec<(String, String, Vec<String>)> = TEMPLATES
+        .iter()
+        .map(|(name, content)| {
+            (
+                (*name).to_string(),
+                template_description(content),
+                extract_placeholders(content),
+            )
+        })
+        .collect();
 
     // Add custom templates
     let custom_dir = workspace_root.join(".vibeanvil/prompts");
     if custom_dir.exists() {
         if let Ok(entries) = std::fs::read_dir(custom_dir) {
             for entry in entries.flatten() {
-                if let Some(name) = entry.path().file_stem() {
-                    templates.push(format!("{} (custom)", name.to_string_lossy()));
+                let path = entry.path();
+                if let Some(name) = path.file_stem() {
+                    if let Ok(content) = std::fs::read_to_string(path) {
+                        templates.push((
+                            format!("{} (custom)", name.to_string_lossy()),
+                            template_description(&content),
+                            extract_placeholders(&content),
+                        ));
+                    }
                 }
             }
         }
@@ -136,6 +351,13 @@ mod tests {
     }
 
     #[test]
+    fn extracts_placeholders_with_filter_syntax() {
+        let t = "{{name|camel}} and {{other}}";
+        let keys = extract_placeholders(t);
+        assert_eq!(keys, vec!["name".to_string(), "other".to_string()]);
+    }
+
+    #[test]
     fn render_checked_reports_missing() {
         let t = "{{a}} {{b}}";
         let mut vars = HashMap::new();
@@ -143,5 +365,34 @@ mod tests {
         let (rendered, missing) = render_checked(t, &vars);
         assert_eq!(rendered, "x {{b}}");
         assert_eq!(missing, vec!["b".to_string()]);
+    }
+
+    #[test]
+    fn render_checked_applies_filter() {
+        let t = "{{name|pascal}}";
+        let mut vars = HashMap::new();
+        vars.insert("name".to_string(), "hello world".to_string());
+        let (rendered, missing) = render_checked(t, &vars);
+        assert_eq!(rendered, "HelloWorld");
+        assert!(missing.is_empty());
+    }
+
+    #[test]
+    fn apply_filter_supports_all_cases() {
+        let input = "hello_world-caseValue";
+        assert_eq!(apply_filter(input, "camel"), "helloWorldCaseValue");
+        assert_eq!(apply_filter(input, "pascal"), "HelloWorldCaseValue");
+        assert_eq!(apply_filter(input, "kebab"), "hello-world-case-value");
+        assert_eq!(apply_filter(input, "snake"), "hello_world_case_value");
+        assert_eq!(apply_filter(input, "upper"), "HELLO_WORLD-CASEVALUE");
+        assert_eq!(apply_filter(input, "lower"), "hello_world-casevalue");
+        assert_eq!(apply_filter(input, "title"), "Hello World Case Value");
+    }
+
+    #[test]
+    fn template_description_prefers_mission() {
+        let template =
+            "# Role\nRole text\n\n# Mission\nMission statement here\n\n# Context\n{{context}}";
+        assert_eq!(template_description(template), "Mission statement here");
     }
 }
