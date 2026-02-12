@@ -115,6 +115,8 @@ async fn handle_action(action: WizardAction) -> Result<()> {
                             limit: 10,
                             record_type: None,
                             language: None,
+                            tags: vec![],
+                            source: None,
                         },
                     })
                     .await?;
