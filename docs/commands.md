@@ -7,8 +7,10 @@ Complete reference for all VibeAnvil CLI commands.
 ## 📋 Table of Contents
 
 - [Core Workflow Commands](#-core-workflow-commands)
+- [Spec-Driven Commands](#-spec-driven-commands)
 - [Brain Commands](#-brain-commands)
 - [Utility Commands](#-utility-commands)
+- [Development Commands](#-development-commands)
 - [Prompt Commands](#-prompt-commands)
 - [Provider Commands](#-provider-commands)
 - [Global Options](#-global-options)
@@ -230,13 +232,143 @@ vibeanvil ship --tag v1.0.0 -m "Initial release"
 
 ---
 
+## 🎯 Spec-Driven Commands
+
+### `constitution` - Set Project Principles
+
+Set project principles and governance guidelines.
+
+```bash
+vibeanvil constitution [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `-g, --guidelines <TEXT>` | Guidelines to incorporate (interactive if omitted) |
+| `--view` | View current constitution only |
+| `-p, --provider <NAME>` | Provider to use (default: claude-code) |
+
+**Examples:**
+```bash
+# Set guidelines interactively
+vibeanvil constitution
+
+# Provide guidelines via flag
+vibeanvil constitution --guidelines "Use functional programming patterns"
+
+# View current constitution
+vibeanvil constitution --view
+```
+
+---
+
+### `clarify` - Clarify Requirements
+
+Clarify requirements with interactive Q&A.
+
+```bash
+vibeanvil clarify [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `-p, --provider <NAME>` | Provider to use (default: claude-code) |
+
+**Examples:**
+```bash
+vibeanvil clarify
+```
+
+---
+
+### `tasks` - Generate Actionable Tasks
+
+Generate actionable tasks from implementation plan.
+
+```bash
+vibeanvil tasks [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `-p, --provider <NAME>` | Provider to use (default: claude-code) |
+| `--regenerate` | Regenerate tasks even if they exist |
+| `--done <TASK_ID>` | Mark a task as done |
+
+**Examples:**
+```bash
+# Generate tasks
+vibeanvil tasks
+
+# Mark task as done
+vibeanvil tasks --done TASK-001
+
+# Force regeneration
+vibeanvil tasks --regenerate
+```
+
+---
+
+### `analyze` - Analyze Artifacts
+
+Analyze artifacts for consistency and coverage.
+
+```bash
+vibeanvil analyze [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `-p, --provider <NAME>` | Provider to use (default: claude-code) |
+
+**Examples:**
+```bash
+vibeanvil analyze
+```
+
+---
+
+### `implement` - Execute Tasks
+
+Execute tasks to implement the plan.
+
+```bash
+vibeanvil implement [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `-p, --provider <NAME>` | Provider to use (default: claude-code) |
+| `--task <ID>` | Specific task ID to implement |
+| `--all` | Implement all remaining tasks |
+| `--dry-run` | Show what would be done |
+
+**Examples:**
+```bash
+# Implement a specific task
+vibeanvil implement --task TASK-001
+
+# Implement all tasks
+vibeanvil implement --all
+
+# Preview implementation
+vibeanvil implement --all --dry-run
+```
+
+---
+
 ## 🧠 Brain Commands
 
 ### `harvest` - Harvest GitHub Repos
 
 ```bash
 vibeanvil harvest [OPTIONS]
+vibeanvil harvest <COMMAND>
 ```
+
+| Command | Description |
+|---------|-------------|
+| `presets` | List available harvest presets |
 
 | Option | Description |
 |--------|-------------|
@@ -252,14 +384,11 @@ vibeanvil harvest [OPTIONS]
 
 **Examples:**
 ```bash
+# List presets
+vibeanvil harvest presets
+
 # Search by topic
 vibeanvil harvest -t rust -t cli --max-repos 10
-
-# Search by query
-vibeanvil harvest -q "machine learning" -l python --min-stars 100
-
-# Multiple queries
-vibeanvil harvest -q "react hooks" -q "state management" --max-repos 30
 ```
 
 ---
@@ -274,8 +403,13 @@ vibeanvil brain <COMMAND>
 Install Core BrainPack (curated templates). Safe to run repeatedly.
 
 ```bash
-vibeanvil brain ensure
+vibeanvil brain ensure [OPTIONS]
 ```
+
+| Option | Description |
+|--------|-------------|
+| `--refresh-core` | Force refresh core even if fingerprint matches |
+| `-v, --verbose` | Show detailed parsing errors (line numbers) |
 
 Output:
 ```
@@ -368,6 +502,13 @@ vibeanvil brain export md --limit 200
 
 # Export all entries (no limit)
 vibeanvil brain export md --limit 0
+```
+
+#### `brain compact`
+Compact the brain pack (dedup JSONL, optimize SQLite).
+
+```bash
+vibeanvil brain compact
 ```
 
 #### `brain pack`
@@ -482,6 +623,165 @@ vibeanvil undo
 ```
 
 > **Note:** Changes are kept staged after undo. Run `git diff --cached` to review them.
+
+---
+
+### `mcp` - MCP Server Integration
+
+MCP (Model Context Protocol) server for AI tool integration.
+
+```bash
+vibeanvil mcp <ACTION>
+```
+
+| Action | Description |
+|--------|-------------|
+| `serve` | Start MCP server (STDIO transport) |
+| `test` | Test MCP server with a simple request |
+| `info` | Show MCP server info |
+| `config` | Generate Claude Desktop configuration |
+
+**Examples:**
+```bash
+# Start the server
+vibeanvil mcp serve
+
+# Test the server
+vibeanvil mcp test
+
+# Get configuration for Claude Desktop
+vibeanvil mcp config
+```
+
+---
+
+## 💻 Development Commands
+
+### `run` - Run Command with AI Sharing
+
+Run a command and optionally share output with AI.
+
+```bash
+vibeanvil run <COMMAND> [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--capture` | Capture output as evidence |
+| `--share` | Share output with AI for analysis |
+
+**Examples:**
+```bash
+# Run a command and capture output
+vibeanvil run "npm test" --capture
+
+# Run and share with AI
+vibeanvil run "ls -R" --share
+```
+
+---
+
+### `test` - Run Tests with Auto-Fix
+
+Run tests with optional auto-fix.
+
+```bash
+vibeanvil test [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--cmd <COMMAND>` | Custom test command |
+| `--fix` | Auto-fix failing tests |
+
+**Examples:**
+```bash
+# Run default tests
+vibeanvil test
+
+# Run custom test command with auto-fix
+vibeanvil test --cmd "cargo test" --fix
+```
+
+---
+
+### `lint` - Run Linter with Auto-Fix
+
+Run linter with optional auto-fix.
+
+```bash
+vibeanvil lint [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--cmd <COMMAND>` | Custom lint command |
+| `--fix` | Auto-fix lint errors |
+
+**Examples:**
+```bash
+# Run default linter
+vibeanvil lint
+
+# Run custom lint command with auto-fix
+vibeanvil lint --cmd "cargo clippy" --fix
+```
+
+---
+
+### `map` - Generate Repository Map
+
+Generate a repository map for AI context.
+
+```bash
+vibeanvil map [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--max-tokens <N>` | Maximum tokens for context output |
+
+**Examples:**
+```bash
+# Generate default map
+vibeanvil map
+
+# Generate map with token limit
+vibeanvil map --max-tokens 1024
+```
+
+---
+
+### `chat` - Chat with AI
+
+Chat with AI in different modes.
+
+```bash
+vibeanvil chat [MODE] [MESSAGE] [OPTIONS]
+```
+
+| Mode | Description |
+|------|-------------|
+| `ask` | Ask questions without making changes |
+| `code` | Make code changes (default) |
+| `architect` | High-level architecture proposals |
+| `help` | Get help with VibeAnvil |
+
+| Option | Description |
+|--------|-------------|
+| `-p, --provider <NAME>` | Provider to use (default: claude-code) |
+
+**Examples:**
+```bash
+# Ask a question
+vibeanvil chat ask "How does the state machine work?"
+
+# Request code changes
+vibeanvil chat code "Add a new field to the user model"
+
+# Architectural discussion
+vibeanvil chat architect "Should we use Redis for caching?"
+```
 
 ---
 
