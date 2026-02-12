@@ -331,8 +331,8 @@ vibeanvil brain search "authentication middleware"
 # Filter by language
 vibeanvil brain search "error" -l rust
 
-# Filter by type
-vibeanvil brain search "parse" -t function
+# Filter by content type
+vibeanvil brain search "parse" -t code
 
 # Combined filters
 vibeanvil brain search "async" -l rust -t code -n 5
