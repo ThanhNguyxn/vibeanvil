@@ -4,26 +4,26 @@ VibeAnvil has **two types** of templates with different purposes:
 
 ---
 
-## 🎭 AI Prompt Templates
+## 🎭 AI Prompt Templates (Vibecode)
 
-**Purpose:** Guide AI behavior during tasks.
+**Purpose:** Guide AI behavior during tasks using the Vibecode partnership model.
 
-| Template | Role | What It Does |
+| Template | Role | Key Features |
 |----------|------|--------------|
-| `plan` | Planner | Break down work into tasks |
-| `review` | Reviewer | Provide code feedback |
-| `commit` | Writer | Generate commit messages |
-| `architect` | Architect | System design analysis |
-| `developer` | Developer | Implementation guidance |
-| `qa` | QA | Testing and bug finding |
-| `install-vibeanvil` | Installer | LLM paste-in prompt for VibeAnvil |
+| `architect` | Architect | System design analysis, blueprinting, and architectural decision records. |
+| `developer` | Developer | Implementation guidance, code generation, and adherence to best practices. |
+| `qa` | QA Engineer | Testing strategies, edge case detection, and bug finding. |
+| `plan` | Planner | Breaking down requirements into actionable implementation plans and task lists. |
+| `review` | Reviewer | Code review feedback, quality assessment, and security checks. |
+| `commit` | Writer | Generating atomic, descriptive commit messages based on changes. |
+| `install-vibeanvil` | Installer | Guided installation and setup prompt for new users to paste into an LLM. |
 
 **Location:** `src/prompt/templates/`
 
-**Usage:** Loaded internally by VibeAnvil commands.
-Use `vibeanvil prompt install` to print the installer prompt.
+**Usage:** Loaded internally by VibeAnvil commands like `plan` and `build`.
+You can also print them manually using `vibeanvil prompt <KIND>`.
 
-**Custom Templates:** Add `.md` files to `.vibeanvil/prompts/`
+**Custom Templates:** Add `.md` files to `.vibeanvil/prompts/` to override or extend the built-in templates.
 
 ---
 

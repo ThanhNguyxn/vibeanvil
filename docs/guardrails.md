@@ -48,7 +48,7 @@ When running `vibeanvil build iterate`, the guardrails are automatically active 
 ### CI / Automated Environments
 
 For CI/CD pipelines, you can use **File-Based Approval**.
-Place a file named `approve.json` in the capsule directory (inside `.vibeanvil/session/<id>/capsules/<id>/`) with the following content:
+Place a file named `approve.json` in the capsule directory (inside `.vibeanvil/sessions/<id>/capsules/<id>/`) with the following content:
 
 ```json
 {

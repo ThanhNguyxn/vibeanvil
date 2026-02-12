@@ -390,6 +390,26 @@ vibeanvil brain pack -o my_project.xml
 
 ## 🛠️ Utility Commands
 
+### `doctor` - Check System Health
+
+Check system and workspace health. Runs diagnostics on git, rust, and workspace state.
+
+```bash
+vibeanvil doctor
+```
+
+---
+
+### `wizard` - Interactive Wizard
+
+Interactive wizard menu for common workflows.
+
+```bash
+vibeanvil wizard
+```
+
+---
+
 ### `status` - Show Status
 
 ```bash
@@ -461,6 +481,8 @@ vibeanvil undo
 
 ### `prompt` - Print Install/Usage Prompts
 
+Print install or usage prompts for different scenarios.
+
 ```bash
 vibeanvil prompt <KIND>
 ```
@@ -468,11 +490,21 @@ vibeanvil prompt <KIND>
 | Kind | Description |
 |------|-------------|
 | `install` | Print the LLM paste-in installer prompt |
+| `architect` | Print the Architect vibecode prompt |
+| `developer` | Print the Developer vibecode prompt |
+| `qa` | Print the QA vibecode prompt |
+| `plan` | Print the Plan vibecode prompt |
+| `review` | Print the Review vibecode prompt |
+| `commit` | Print the Commit vibecode prompt |
+| `install-vibeanvil` | Print the VibeAnvil installation prompt |
 
 **Examples:**
 ```bash
 # Print installer prompt for VibeAnvil
 vibeanvil prompt install
+
+# Print architect prompt
+vibeanvil prompt architect
 ```
 
 ---

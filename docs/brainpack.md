@@ -327,20 +327,46 @@ vibeanvil brain search "pattern" -n 50
 
 ---
 
-## 🎭 AI Prompt Templates
+## 🎭 AI Prompt Templates (Vibecode)
 
-Role-based prompts that **guide AI behavior** during tasks:
+VibeAnvil includes the **Vibecode** prompt system—a set of high-performance, role-based templates that guide AI behavior during development. These prompts are designed for a **partnership model** between the human developer and the AI agent.
+
+### 🛠️ Vibecode Prompts Provide:
+
+- **Partnership Model**: Establishes a clear division of labor and collaboration style.
+- **6-Step Workflow**: A structured approach from intake to shipping.
+- **Debug Protocol**: Systematic troubleshooting and root cause analysis.
+- **QA Framework**: Comprehensive testing strategies and edge case detection.
+- **Security Audit**: Automated checks for common vulnerabilities and secret leaks.
+- **Performance Review**: Optimization guidance for speed and resource usage.
+- **Integration Protocol**: Ensuring new code fits perfectly into the existing architecture.
+- **Handover Checklist**: Clear documentation and context for the next session.
+
+### 📋 Available Templates
 
 | Template | Role | Purpose |
 |----------|------|---------|
-| `plan` | Planner | Generate implementation plans |
-| `review` | Reviewer | Code review feedback |
-| `commit` | Writer | Commit message generation |
-| `architect` | Architect | System design analysis |
-| `developer` | Developer | Implementation guidance |
-| `qa` | QA Engineer | Testing and bug finding |
+| `architect` | Architect | System design, architecture analysis, and blueprinting |
+| `developer` | Developer | Implementation guidance and code generation |
+| `qa` | QA Engineer | Testing, bug finding, and validation |
+| `plan` | Planner | Generating implementation plans and task lists |
+| `review` | Reviewer | Code review feedback and quality assessment |
+| `commit` | Writer | Atomic commit message generation |
+| `install-vibeanvil` | Installer | Guided installation and setup for new users |
 
-Location: `src/prompt/templates/`
+### ⌨️ Accessing Templates
+
+You can quickly access and print these templates using the `vibeanvil prompt` command:
+
+```bash
+# Print the architect prompt
+vibeanvil prompt architect
+
+# Print the developer prompt
+vibeanvil prompt developer
+```
+
+These templates are also automatically used by the `plan` and `build` commands when appropriate.
 
 ---
 

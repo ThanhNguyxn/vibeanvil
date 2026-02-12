@@ -38,13 +38,13 @@ Created in your project directory when you run `vibeanvil init`.
 │   └── <session-id>/       # Session directory
 │       ├── session.json    # Session metadata
 │       ├── evidence/       # Captured evidence
-│       │   ├── diff.patch  # Git diffs
+│       │   ├── patch.diff  # Git diffs
 │       │   ├── test.log    # Test output
 │       │   └── lint.log    # Lint output
 │       └── capsules/       # Guardrails change capsules
 │           └── <capsule-id>/
 │               ├── meta.json   # Risk level, reasons, approval status
-│               ├── diff.patch  # Change diff
+│               ├── patch.diff  # Change diff
 │               └── approve.json # Approval token (optional)
 │
 └── cache/                  # Local cache
