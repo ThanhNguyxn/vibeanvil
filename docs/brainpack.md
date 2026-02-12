@@ -331,16 +331,21 @@ vibeanvil brain search "pattern" -n 50
 
 VibeAnvil includes the **Vibecode** prompt system—a set of high-performance, role-based templates that guide AI behavior during development. These prompts are designed for a **partnership model** between the human developer and the AI agent.
 
+Recent core additions include security and reliability knowledge packs:
+- OWASP Top 10 prevention
+- Input validation and auth patterns
+- Secret management and error handling
+- Circuit breaker and graceful degradation patterns
+
 ### 🛠️ Vibecode Prompts Provide:
 
-- **Partnership Model**: Establishes a clear division of labor and collaboration style.
-- **6-Step Workflow**: A structured approach from intake to shipping.
-- **Debug Protocol**: Systematic troubleshooting and root cause analysis.
-- **QA Framework**: Comprehensive testing strategies and edge case detection.
-- **Security Audit**: Automated checks for common vulnerabilities and secret leaks.
-- **Performance Review**: Optimization guidance for speed and resource usage.
-- **Integration Protocol**: Ensuring new code fits perfectly into the existing architecture.
-- **Handover Checklist**: Clear documentation and context for the next session.
+- **Partnership Model**: Clear human-AI collaboration expectations.
+- **CRISP Context**: Structured runtime variables for predictable behavior.
+- **Protocol-Driven Reasoning**: Stepwise workflows for design, implementation, QA, and debugging.
+- **Uncertainty and Evidence**: Explicit assumptions, confidence labeling, and evidence-backed claims.
+- **Self-Check Gates**: Built-in final verification before output.
+- **Security and Reliability**: OWASP, migration safety, and resilience-first guidance.
+- **Strict Output Formats**: Consistent structure for easier downstream use.
 
 ### 📋 Available Templates
 
@@ -353,6 +358,12 @@ VibeAnvil includes the **Vibecode** prompt system—a set of high-performance, r
 | `review` | Reviewer | Code review feedback and quality assessment |
 | `commit` | Writer | Atomic commit message generation |
 | `install-vibeanvil` | Installer | Guided installation and setup for new users |
+| `debug` | Debugger | Systematic bug investigation and root cause analysis |
+| `xray` | Analyst | Codebase health assessment and architecture review |
+| `vision` | Architect | Project initialization with type detection and wireframes |
+| `security` | Security Engineer | Security audit with OWASP mapping and vulnerability taxonomy |
+| `migrate` | Migration Architect | Zero-downtime migration planning with rollback strategies |
+| `refactor` | Refactoring Lead | Safe refactoring with smell detection and behavior preservation |
 
 ### ⌨️ Accessing Templates
 
@@ -362,8 +373,11 @@ You can quickly access and print these templates using the `vibeanvil prompt` co
 # Print the architect prompt
 vibeanvil prompt architect
 
-# Print the developer prompt
-vibeanvil prompt developer
+# Print the security prompt
+vibeanvil prompt security
+
+# Print the refactor prompt
+vibeanvil prompt refactor
 ```
 
 These templates are also automatically used by the `plan` and `build` commands when appropriate.

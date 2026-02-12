@@ -331,6 +331,42 @@ pub enum PromptKind {
     /// Installer prompt for LLM paste-in setup
     #[value(name = "install")]
     Install,
+    /// Architecture planning template
+    #[value(name = "architect")]
+    Architect,
+    /// Implementation template
+    #[value(name = "developer")]
+    Developer,
+    /// QA and validation template
+    #[value(name = "qa")]
+    Qa,
+    /// Execution planning template
+    #[value(name = "plan")]
+    Plan,
+    /// Code review template
+    #[value(name = "review")]
+    Review,
+    /// Commit message template
+    #[value(name = "commit")]
+    Commit,
+    /// Debugging investigation template
+    #[value(name = "debug")]
+    Debug,
+    /// Codebase analysis template
+    #[value(name = "xray")]
+    Xray,
+    /// Product vision template
+    #[value(name = "vision")]
+    Vision,
+    /// Security audit template
+    #[value(name = "security")]
+    Security,
+    /// Migration planning template
+    #[value(name = "migrate")]
+    Migrate,
+    /// Safe refactoring template
+    #[value(name = "refactor")]
+    Refactor,
 }
 
 #[derive(clap::Args)]

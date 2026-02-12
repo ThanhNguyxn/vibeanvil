@@ -33,6 +33,19 @@ Before writing the message:
 - Do not include multiline body, bullets, quotes, or markdown.
 - Do not output alternatives.
 
+# Uncertainty and Evidence
+- Label assumptions explicitly and never present them as facts.
+- Assign confidence (High/Medium/Low) to inferred dominant change intent.
+- Link message intent to concrete evidence from the provided diff.
+- If the diff does not support a confident scope, use no scope and choose the safest precise description.
+
+# Self-Check
+Before delivering your response, verify:
+- The commit type accurately reflects the dominant change intent.
+- The description explains why, not just what.
+- Breaking changes are flagged with "!" after type or scope.
+- Output is exactly one line with no trailing punctuation.
+
 # Done When
 - Message maps to the dominant change intent in the diff.
 - Type and scope are semantically correct.

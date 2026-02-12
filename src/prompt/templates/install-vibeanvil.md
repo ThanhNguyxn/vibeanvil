@@ -51,6 +51,12 @@ Provide these sections:
 - Fixes Applied (if any)
 - Ready-to-Use Next Commands
 
+Self-Check before final response:
+- Verify every command listed was actually run or explicitly marked as pending user execution.
+- Verify no output was invented or inferred without evidence.
+- Verify PATH edits include exact file path and added line.
+- Verify next commands are ordered for lowest-friction onboarding.
+
 Ready-to-Use Next Commands should include:
 - `vibeanvil intake -m "Describe your project goal"`
 - `vibeanvil blueprint --auto`

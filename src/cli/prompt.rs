@@ -8,11 +8,21 @@ use crate::prompt;
 pub async fn run(kind: PromptKind) -> Result<()> {
     let template_name = match kind {
         PromptKind::Install => "install-vibeanvil",
+        PromptKind::Architect => "architect",
+        PromptKind::Developer => "developer",
+        PromptKind::Qa => "qa",
+        PromptKind::Plan => "plan",
+        PromptKind::Review => "review",
+        PromptKind::Commit => "commit",
+        PromptKind::Debug => "debug",
+        PromptKind::Xray => "xray",
+        PromptKind::Vision => "vision",
+        PromptKind::Security => "security",
+        PromptKind::Migrate => "migrate",
+        PromptKind::Refactor => "refactor",
     };
 
-    let content = prompt::load_template(template_name).unwrap_or_else(|_| {
-        "Install and configure VibeAnvil by following the instructions here:\nhttps://raw.githubusercontent.com/ThanhNguyxn/vibeanvil/main/docs/guide/installation.md".to_string()
-    });
+    let content = prompt::load_template(template_name)?;
 
     println!("{}", content);
 

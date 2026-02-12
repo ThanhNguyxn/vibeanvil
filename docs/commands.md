@@ -479,9 +479,9 @@ vibeanvil undo
 
 ## 🧩 Prompt Commands
 
-### `prompt` - Print Install/Usage Prompts
+### `prompt` - Print Prompt Templates
 
-Print install or usage prompts for different scenarios.
+Print built-in prompt templates for different roles and workflows.
 
 ```bash
 vibeanvil prompt <KIND>
@@ -496,15 +496,20 @@ vibeanvil prompt <KIND>
 | `plan` | Print the Plan vibecode prompt |
 | `review` | Print the Review vibecode prompt |
 | `commit` | Print the Commit vibecode prompt |
-| `install-vibeanvil` | Print the VibeAnvil installation prompt |
+| `debug` | Print the debugging investigation prompt |
+| `xray` | Print the codebase analysis prompt |
+| `vision` | Print the project vision prompt |
+| `security` | Print the security audit prompt |
+| `migrate` | Print the migration planning prompt |
+| `refactor` | Print the safe refactoring prompt |
 
 **Examples:**
 ```bash
 # Print installer prompt for VibeAnvil
 vibeanvil prompt install
 
-# Print architect prompt
-vibeanvil prompt architect
+# Print security audit prompt
+vibeanvil prompt security
 ```
 
 ---

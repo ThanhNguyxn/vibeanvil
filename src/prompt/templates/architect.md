@@ -11,6 +11,9 @@ Design or evaluate architecture for the task below so implementation can proceed
 ## Requirements
 {{task}}
 
+## Tech Stack
+{{tech_stack}}
+
 ## Integration Expectations
 - Work with existing codebase patterns before introducing new abstractions.
 - Preserve contract-first workflow assumptions used by VibeAnvil.
@@ -42,6 +45,21 @@ Design or evaluate architecture for the task below so implementation can proceed
 - Do not hide major risks behind generic statements like "monitor this later".
 - Do not introduce new infrastructure without migration and rollback strategy.
 - Do not merge unrelated concerns into one component.
+- Do not invent APIs, services, or libraries that do not exist in the project or its dependencies.
+
+# Uncertainty and Evidence
+- Label assumptions explicitly and never present them as facts.
+- Assign confidence (High/Medium/Low) to major conclusions.
+- Link decisions to concrete evidence (file paths, diff context, logs, or command output).
+- If critical context is missing, state the blocker and provide the safest default path.
+
+# Self-Check
+Before delivering your response, verify:
+- All referenced modules, interfaces, and services exist in the provided context.
+- Assumptions are explicitly labeled and not presented as facts.
+- At least two options were genuinely compared, not just the preferred one justified.
+- No infrastructure is introduced without a migration and rollback path.
+- Output strictly follows the format specified below.
 
 # Done When
 - Architecture aligns with task and known constraints.

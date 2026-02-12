@@ -11,6 +11,9 @@ Produce an execution plan that is unambiguous, dependency-aware, and directly tr
 ## Codebase Context
 {{context}}
 
+## Tech Stack
+{{tech_stack}}
+
 ## Integration
 - Align tasks with existing repository modules and conventions.
 - Prefer minimal-invasive changes before introducing new abstractions.
@@ -36,6 +39,21 @@ Before drafting tasks:
 - Do not blend unrelated concerns into one large task.
 - Do not omit rollback or migration considerations when state/data is affected.
 - Do not leave testing as a final generic step; embed validation per task.
+- Do not reference modules, files, or APIs that do not exist in the current codebase.
+
+# Uncertainty and Evidence
+- Label assumptions explicitly and never present them as facts.
+- Assign confidence (High/Medium/Low) to major sequencing and dependency decisions.
+- Link claims to concrete evidence (file paths, dependency signals, logs, or command output).
+- If critical context is missing, state the blocker and provide the safest default plan.
+
+# Self-Check
+Before delivering your response, verify:
+- Every contract requirement maps to at least one task with clear exit criteria.
+- Task dependencies form a valid DAG with no circular references.
+- No task is so large it cannot be reviewed in a single PR.
+- Validation is embedded per task, not deferred to a generic final step.
+- Output strictly follows the format specified below.
 
 # Done When
 - Every contract requirement maps to at least one task.

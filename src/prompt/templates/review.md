@@ -7,6 +7,9 @@ Review the diff for correctness, security, reliability, and maintainability. Pro
 # Input Diff
 {{diff}}
 
+# Tech Stack
+{{tech_stack}}
+
 # Review Workflow
 Before writing feedback, reason through this order:
 1. Determine intent and blast radius from changed files.
@@ -34,6 +37,20 @@ Before writing feedback, reason through this order:
 - Do not request style-only changes unless they affect readability or defects.
 - Do not duplicate findings; merge related issues under one root cause.
 - Do not speculate on hidden code outside the presented diff.
+
+# Uncertainty and Evidence
+- Label assumptions explicitly and never present them as facts.
+- Assign confidence (High/Medium/Low) to major findings.
+- Link findings to concrete evidence (file paths, line references, or diff snippets).
+- If critical context is missing, state the blocker and provide the safest default recommendation.
+
+# Self-Check
+Before delivering your response, verify:
+- Every finding references a specific file, line, or diff snippet as evidence.
+- No generic advice is given without linking to concrete diff evidence.
+- Critical and Major findings include a clear failure scenario or security impact.
+- Merge recommendation is justified by the findings, not stated without basis.
+- Output strictly follows the format specified below.
 
 # Done When
 - Findings are prioritized by impact and confidence.

@@ -18,6 +18,13 @@ pub const TEMPLATES: &[(&str, &str)] = &[
         "install-vibeanvil",
         include_str!("templates/install-vibeanvil.md"),
     ),
+    // VibeCode Kit v4 templates
+    ("debug", include_str!("templates/debug.md")),
+    ("xray", include_str!("templates/xray.md")),
+    ("vision", include_str!("templates/vision.md")),
+    ("migrate", include_str!("templates/migrate.md")),
+    ("security", include_str!("templates/security.md")),
+    ("refactor", include_str!("templates/refactor.md")),
 ];
 
 /// Load a prompt template by name
