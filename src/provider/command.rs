@@ -325,6 +325,9 @@ impl Provider for CommandProvider {
 mod tests {
     use super::*;
     use std::path::PathBuf;
+    use std::sync::Mutex;
+
+    static ENV_LOCK: Mutex<()> = Mutex::new(());
 
     #[test]
     fn test_provider_name() {
@@ -334,6 +337,7 @@ mod tests {
 
     #[test]
     fn test_not_available_without_env() {
+        let _guard = ENV_LOCK.lock().unwrap();
         std::env::remove_var("VIBEANVIL_PROVIDER_COMMAND");
         let provider = CommandProvider::new();
         assert!(!provider.is_available());
@@ -341,6 +345,7 @@ mod tests {
 
     #[test]
     fn test_prompt_mode_from_env() {
+        let _guard = ENV_LOCK.lock().unwrap();
         std::env::set_var("VIBEANVIL_PROVIDER_MODE", "arg");
         assert_eq!(PromptMode::from_env(), PromptMode::Arg);
 
@@ -356,6 +361,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_execute_without_command_set() {
+        let _guard = ENV_LOCK.lock().unwrap();
         std::env::remove_var("VIBEANVIL_PROVIDER_COMMAND");
         let provider = CommandProvider::new();
 
@@ -374,12 +380,12 @@ mod tests {
     #[tokio::test]
     #[cfg(unix)]
     async fn test_timeout_unix() {
-        std::env::set_var("VIBEANVIL_PROVIDER_COMMAND", "sh");
-        std::env::set_var("VIBEANVIL_PROVIDER_ARGS", "-c");
-        std::env::set_var("VIBEANVIL_PROVIDER_MODE", "arg");
-        std::env::set_var("VIBEANVIL_PROVIDER_TIMEOUT_SECS", "1");
-
-        let provider = CommandProvider::new();
+        let provider = CommandProvider {
+            command: Some("sh".to_string()),
+            args: vec!["-c".to_string()],
+            mode: PromptMode::Arg,
+            timeout: Duration::from_secs(1),
+        };
         let context = Context {
             working_dir: PathBuf::from("."),
             session_id: "test".to_string(),
@@ -389,12 +395,6 @@ mod tests {
         // Sleep for 3 seconds should timeout after 1 second
         let result = provider.execute("sleep 3; echo done", &context).await;
 
-        // Clean up
-        std::env::remove_var("VIBEANVIL_PROVIDER_COMMAND");
-        std::env::remove_var("VIBEANVIL_PROVIDER_ARGS");
-        std::env::remove_var("VIBEANVIL_PROVIDER_MODE");
-        std::env::remove_var("VIBEANVIL_PROVIDER_TIMEOUT_SECS");
-
         assert!(result.is_err());
         let err_msg = result.unwrap_err().to_string();
         assert!(err_msg.contains("timed out"));
@@ -403,12 +403,12 @@ mod tests {
     #[tokio::test]
     #[cfg(windows)]
     async fn test_timeout_windows() {
-        std::env::set_var("VIBEANVIL_PROVIDER_COMMAND", "powershell");
-        std::env::set_var("VIBEANVIL_PROVIDER_ARGS", "-Command");
-        std::env::set_var("VIBEANVIL_PROVIDER_MODE", "arg");
-        std::env::set_var("VIBEANVIL_PROVIDER_TIMEOUT_SECS", "1");
-
-        let provider = CommandProvider::new();
+        let provider = CommandProvider {
+            command: Some("powershell".to_string()),
+            args: vec!["-Command".to_string()],
+            mode: PromptMode::Arg,
+            timeout: Duration::from_secs(1),
+        };
         let context = Context {
             working_dir: PathBuf::from("."),
             session_id: "test".to_string(),
@@ -420,12 +420,6 @@ mod tests {
             .execute("Start-Sleep -Seconds 3; Write-Output done", &context)
             .await;
 
-        // Clean up
-        std::env::remove_var("VIBEANVIL_PROVIDER_COMMAND");
-        std::env::remove_var("VIBEANVIL_PROVIDER_ARGS");
-        std::env::remove_var("VIBEANVIL_PROVIDER_MODE");
-        std::env::remove_var("VIBEANVIL_PROVIDER_TIMEOUT_SECS");
-
         assert!(result.is_err());
         let err_msg = result.unwrap_err().to_string();
         assert!(err_msg.contains("timed out"));
@@ -434,11 +428,12 @@ mod tests {
     #[tokio::test]
     #[cfg(unix)]
     async fn test_successful_command_unix() {
-        std::env::set_var("VIBEANVIL_PROVIDER_COMMAND", "echo");
-        std::env::set_var("VIBEANVIL_PROVIDER_MODE", "arg");
-        std::env::remove_var("VIBEANVIL_PROVIDER_ARGS");
-
-        let provider = CommandProvider::new();
+        let provider = CommandProvider {
+            command: Some("echo".to_string()),
+            args: vec![],
+            mode: PromptMode::Arg,
+            timeout: Duration::from_secs(5),
+        };
         let context = Context {
             working_dir: PathBuf::from("."),
             session_id: "test".to_string(),
@@ -446,9 +441,6 @@ mod tests {
         };
 
         let result = provider.execute("hello world", &context).await;
-
-        std::env::remove_var("VIBEANVIL_PROVIDER_COMMAND");
-        std::env::remove_var("VIBEANVIL_PROVIDER_MODE");
 
         assert!(result.is_ok());
         let response = result.unwrap();
