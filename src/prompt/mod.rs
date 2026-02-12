@@ -270,7 +270,7 @@ fn truncate_line(value: &str, max_chars: usize) -> String {
 fn template_description(content: &str) -> String {
     let lines: Vec<&str> = content.lines().collect();
 
-    fn next_non_empty_line(lines: &[&str], start: usize) -> Option<&str> {
+    fn next_non_empty_line<'a>(lines: &[&'a str], start: usize) -> Option<&'a str> {
         lines[start..]
             .iter()
             .copied()
@@ -324,7 +324,7 @@ pub fn list_templates(workspace_root: &Path) -> Vec<(String, String, Vec<String>
             for entry in entries.flatten() {
                 let path = entry.path();
                 if let Some(name) = path.file_stem() {
-                    if let Ok(content) = std::fs::read_to_string(path) {
+                    if let Ok(content) = std::fs::read_to_string(&path) {
                         templates.push((
                             format!("{} (custom)", name.to_string_lossy()),
                             template_description(&content),
