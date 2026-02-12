@@ -29,6 +29,12 @@ VibeAnvil has **two types** of templates with different purposes:
 **Usage:** Loaded internally by VibeAnvil commands like `plan` and `build`.
 You can also print them manually using `vibeanvil prompt <KIND>`.
 
+Prompt CLI usage notes:
+- Use `vibeanvil prompt --list` to discover built-in and custom templates.
+- Use `vibeanvil prompt <kind> --render --var key=value` to replace placeholders.
+- Use `--strict-vars` to fail when required placeholders are missing.
+- Template `install-vibeanvil` is exposed via CLI kind `install`.
+
 **Template quality baseline:**
 - Explicit role and mission
 - CRISP context variables (`{{...}}`)

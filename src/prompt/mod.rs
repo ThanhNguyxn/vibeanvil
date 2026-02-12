@@ -54,6 +54,57 @@ pub fn render(template: &str, vars: &HashMap<&str, &str>) -> String {
     result
 }
 
+pub fn extract_placeholders(template: &str) -> Vec<String> {
+    let mut keys = Vec::new();
+    let mut i = 0;
+    let bytes = template.as_bytes();
+
+    while i + 3 < bytes.len() {
+        if bytes[i] == b'{' && bytes[i + 1] == b'{' {
+            let start = i + 2;
+            let mut j = start;
+            while j + 1 < bytes.len() {
+                if bytes[j] == b'}' && bytes[j + 1] == b'}' {
+                    let key = template[start..j].trim();
+                    if !key.is_empty() && key.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+                    {
+                        let key_string = key.to_string();
+                        if !keys.contains(&key_string) {
+                            keys.push(key_string);
+                        }
+                    }
+                    i = j + 2;
+                    break;
+                }
+                j += 1;
+            }
+            if j + 1 >= bytes.len() {
+                break;
+            }
+            continue;
+        }
+        i += 1;
+    }
+
+    keys
+}
+
+pub fn render_checked(template: &str, vars: &HashMap<String, String>) -> (String, Vec<String>) {
+    let keys = extract_placeholders(template);
+    let missing: Vec<String> = keys
+        .iter()
+        .filter(|k| !vars.contains_key((*k).as_str()))
+        .cloned()
+        .collect();
+
+    let mut result = template.to_string();
+    for (key, value) in vars {
+        result = result.replace(&format!("{{{{{}}}}}", key), value);
+    }
+
+    (result, missing)
+}
+
 /// List available templates
 pub fn list_templates(workspace_root: &Path) -> Vec<String> {
     let mut templates: Vec<String> = TEMPLATES.iter().map(|(n, _)| n.to_string()).collect();
@@ -71,4 +122,26 @@ pub fn list_templates(workspace_root: &Path) -> Vec<String> {
     }
 
     templates
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn extracts_unique_placeholders() {
+        let t = "Hello {{name}}, stack {{tech_stack}}, repeat {{name}}";
+        let keys = extract_placeholders(t);
+        assert_eq!(keys, vec!["name".to_string(), "tech_stack".to_string()]);
+    }
+
+    #[test]
+    fn render_checked_reports_missing() {
+        let t = "{{a}} {{b}}";
+        let mut vars = HashMap::new();
+        vars.insert("a".to_string(), "x".to_string());
+        let (rendered, missing) = render_checked(t, &vars);
+        assert_eq!(rendered, "x {{b}}");
+        assert_eq!(missing, vec!["b".to_string()]);
+    }
 }

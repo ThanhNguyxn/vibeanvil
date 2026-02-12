@@ -150,11 +150,23 @@ pub enum Commands {
     /// Interactive wizard menu
     Wizard,
 
-    /// Print install or usage prompts
+    /// Print, list, or render prompt templates
     Prompt {
         /// Which prompt to print
         #[arg(value_enum)]
-        kind: PromptKind,
+        kind: Option<PromptKind>,
+
+        #[arg(long)]
+        list: bool,
+
+        #[arg(long)]
+        render: bool,
+
+        #[arg(long)]
+        strict_vars: bool,
+
+        #[arg(long = "var", action = clap::ArgAction::Append)]
+        vars: Vec<String>,
     },
 
     /// List available AI providers and capability matrix
@@ -538,13 +550,19 @@ pub enum BrainCommands {
         #[arg(short = 'n', long, default_value = "10")]
         limit: usize,
 
-        /// Filter by record type (e.g., function, class, doc)
+        /// Filter by content type (readme, doc, config, code, workflow, template, prompt, other)
         #[arg(short = 't', long)]
         record_type: Option<String>,
 
         /// Filter by language (e.g., rust, python, typescript)
         #[arg(short = 'l', long)]
         language: Option<String>,
+
+        #[arg(long = "tag", action = clap::ArgAction::Append)]
+        tags: Vec<String>,
+
+        #[arg(long)]
+        source: Option<String>,
     },
 
     /// Export the brain pack

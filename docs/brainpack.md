@@ -365,6 +365,8 @@ Recent core additions include security and reliability knowledge packs:
 | `migrate` | Migration Architect | Zero-downtime migration planning with rollback strategies |
 | `refactor` | Refactoring Lead | Safe refactoring with smell detection and behavior preservation |
 
+CLI note: Template `install-vibeanvil` is printed via `vibeanvil prompt install`.
+
 ### ⌨️ Accessing Templates
 
 You can quickly access and print these templates using the `vibeanvil prompt` command:
@@ -381,6 +383,21 @@ vibeanvil prompt refactor
 ```
 
 These templates are also automatically used by the `plan` and `build` commands when appropriate.
+
+### 🔎 Search Tips for Normal Usage
+
+Use focused queries plus filters to get reliable results fast:
+
+```bash
+# Search only prompt-style records
+vibeanvil brain search "rollback" -t prompt
+
+# Narrow by tags (repeatable)
+vibeanvil brain search "auth" --tag security --tag validation
+
+# Narrow by source (core or harvested source IDs)
+vibeanvil brain search "pagination" --source core
+```
 
 ---
 

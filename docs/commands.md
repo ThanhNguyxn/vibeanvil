@@ -318,8 +318,10 @@ vibeanvil brain search <QUERY> [OPTIONS]
 | Option | Description |
 |--------|-------------|
 | `-n, --limit <N>` | Max results (default: 10) |
-| `-t, --record-type <TYPE>` | Filter by type (function, class, doc) |
+| `-t, --record-type <TYPE>` | Filter by content type (`readme`, `doc`, `config`, `code`, `workflow`, `template`, `prompt`, `other`) |
 | `-l, --language <LANG>` | Filter by language (rust, python, js) |
+| `--tag <TAG>` | Filter by tag (repeatable) |
+| `--source <SOURCE_ID>` | Filter by source ID |
 
 **Examples:**
 ```bash
@@ -333,7 +335,13 @@ vibeanvil brain search "error" -l rust
 vibeanvil brain search "parse" -t function
 
 # Combined filters
-vibeanvil brain search "async" -l rust -t function -n 5
+vibeanvil brain search "async" -l rust -t code -n 5
+
+# Filter by tag
+vibeanvil brain search "auth" --tag security --tag validation
+
+# Filter by source
+vibeanvil brain search "retry" --source core
 ```
 
 #### `brain export`
@@ -484,8 +492,15 @@ vibeanvil undo
 Print built-in prompt templates for different roles and workflows.
 
 ```bash
-vibeanvil prompt <KIND>
+vibeanvil prompt <KIND> [OPTIONS]
+vibeanvil prompt --list
 ```
+
+Options:
+- `--list` list available templates (built-in + custom)
+- `--render` render placeholders using `--var key=value` and workspace defaults
+- `--strict-vars` fail if required placeholders are missing during `--render`
+- `--var key=value` pass template variables (repeatable)
 
 | Kind | Description |
 |------|-------------|
@@ -510,6 +525,12 @@ vibeanvil prompt install
 
 # Print security audit prompt
 vibeanvil prompt security
+
+# List all templates
+vibeanvil prompt --list
+
+# Render a template with variables
+vibeanvil prompt vision --render --var description="Build a SaaS dashboard" --var tech_stack="nextjs"
 ```
 
 ---
